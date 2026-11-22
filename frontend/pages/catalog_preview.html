@@ -1,0 +1,9 @@
+{% extends "layouts/base.html" %}
+{% block title %}Catalog demo · Bazario{% endblock %}
+{% block content %}
+<section style="max-width:38rem;margin:8rem auto;padding:1.5rem">
+    <h1>Browse the Bazario demo.</h1>
+    <p>You can explore products and try the basket. Accounts and checkout are closed in this demo.</p>
+    <a href="{% url 'shop-page' %}">Back to shop →</a>
+</section>
+{% endblock %}
