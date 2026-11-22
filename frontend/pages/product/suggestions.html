@@ -1,0 +1,36 @@
+{% comment %}
+Product page: "You may also like", a fanned stack of suggested products.
+The products come from the view ("related" in apps/pages/views.py).
+Styles: css/product/suggestions.css (cards fan out on hover / keyboard focus)
+{% endcomment %}
+{% if related %}
+<section class="suggestions container" aria-labelledby="suggestions-title">
+
+    <div class="suggestions__head">
+        <h2 class="suggestions__title" id="suggestions-title">You may<br>also like</h2>
+        <p class="suggestions__hint" aria-hidden="true">Hover to spread · click to view</p>
+    </div>
+
+    <ul class="fan" data-fan>
+        {% for item in related %}
+        <li class="fan__card">
+            <a class="fan__link" href="{% url 'product-page' item.slug %}">
+                <div class="fan__media">
+                    {% if item.thumbnail %}
+                    <img src="{{ item.thumbnail.url }}" alt="" width="600" height="750" loading="lazy" decoding="async">
+                    {% endif %}
+                    {% if item.is_on_sale %}
+                    <span class="fan__badge">Sale</span>
+                    {% elif item.is_new %}
+                    <span class="fan__badge fan__badge--new">New</span>
+                    {% endif %}
+                </div>
+                <p class="fan__name">{{ item.name }}</p>
+                <p class="fan__price">${{ item.price }}</p>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+</section>
+{% endif %}

@@ -1,0 +1,138 @@
+{% comment %}
+Site footer, shared by every page through layouts/base.html.
+Styles: css/components/footer.css (curtain reveal, coins, giant name)
+Behavior: js/components/footer.js
+{% endcomment %}
+<footer class="site-footer" data-footer>
+    <div class="container site-footer__inner">
+
+        <!-- Closing line + round button -->
+        <div class="site-footer__cta">
+            <p class="site-footer__headline">Found something<br><em>worth having?</em></p>
+            <a class="site-footer__go" href="/#shop" data-magnetic aria-label="Start shopping">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M7 17 17 7M8 7h9v9" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Trust promises (hover: underline sweeps in, icon spins) -->
+        <ul class="site-footer__trust" aria-label="Why shop with Bazario">
+            <li>
+                <span class="trust-item">
+                    <span class="trust-item__icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <circle cx="11" cy="7" r="4" />
+                            <path d="M5 21v-2a4 4 0 0 1 4-4h3" />
+                            <path d="m15 19 2 2 4-4" />
+                        </svg>
+                    </span>
+                    <span class="trust-item__text">Guest checkout</span>
+                </span>
+            </li>
+            <li>
+                <span class="trust-item">
+                    <span class="trust-item__icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                            <rect x="5" y="11" width="14" height="10" rx="2" />
+                        </svg>
+                    </span>
+                    <span class="trust-item__text">Safe &amp; encrypted</span>
+                </span>
+            </li>
+            <li>
+                <a class="trust-item" href="/track/">
+                    <span class="trust-item__icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="M3 7h11v9H3z" />
+                            <path d="M14 10h4l3 3v3h-7" />
+                            <circle cx="7" cy="17" r="2" />
+                            <circle cx="17" cy="17" r="2" />
+                        </svg>
+                    </span>
+                    <span class="trust-item__text">Track your order</span>
+                    <span class="trust-item__arrow" aria-hidden="true">→</span>
+                </a>
+            </li>
+            <li>
+                <span class="trust-item">
+                    <span class="trust-item__icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z" />
+                            <path d="m12 12 8-4.5M12 12v9m0-9L4 7.5" />
+                        </svg>
+                    </span>
+                    <span class="trust-item__text">Live stock</span>
+                </span>
+            </li>
+        </ul>
+
+        <!-- Link columns + back to top -->
+        <div class="site-footer__links">
+            <nav aria-label="Shop by category">
+                <p class="site-footer__heading">Shop</p>
+                <ul class="site-footer__list" data-footer-categories>
+                    <li><a class="site-footer__link" href="/#shop">All products</a></li>
+                    <!-- categories are added here by footer.js -->
+                </ul>
+            </nav>
+
+            <nav aria-label="Help">
+                <p class="site-footer__heading">Help</p>
+                <ul class="site-footer__list">
+                    <li><a class="site-footer__link" href="/track/">Track order</a></li>
+                    <li><a class="site-footer__link" href="/cart/">Cart</a></li>
+                    <li><a class="site-footer__link" href="/account/">My account</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-label="Explore">
+                <p class="site-footer__heading">Explore</p>
+                <ul class="site-footer__list">
+                    <li><a class="site-footer__link" href="/?new=1#shop">New in</a></li>
+                    <li><a class="site-footer__link" href="/#shop">All products</a></li>
+                </ul>
+            </nav>
+
+            <!-- Round "Back to top" button with spinning text -->
+            <button class="site-footer__top" type="button" data-back-to-top aria-label="Back to top">
+                <svg class="site-footer__top-ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    <defs>
+                        <path id="footer-top-path" d="M50 50m-36 0a36 36 0 1 1 72 0a36 36 0 1 1-72 0" />
+                    </defs>
+                    <text>
+                        <textPath href="#footer-top-path" textLength="222">BACK TO TOP ✦ BACK TO TOP ✦</textPath>
+                    </text>
+                </svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M12 19V5M6 11l6-6 6 6" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="site-footer__brand" data-footer-brand aria-hidden="true">
+            <p class="site-footer__mark" data-footer-mark>Bazario<span class="site-footer__mark-dot">.</span></p>
+
+            <div class="site-footer__orbit-art">
+                <div class="site-footer__orbit site-footer__orbit--outer"></div>
+                <div class="site-footer__orbit-core"></div>
+                <div class="site-footer__orbit">
+                    <div class="site-footer__orbit-track"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom line -->
+        <div class="site-footer__bottom">
+            <p>© {% now "Y" %} Bazario. All rights reserved.</p>
+            <p>Everything worth having, in one place.</p>
+        </div>
+
+    </div>
+</footer>

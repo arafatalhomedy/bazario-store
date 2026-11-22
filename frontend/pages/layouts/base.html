@@ -1,0 +1,65 @@
+{% load static %}
+{% comment %}
+Shared frame for EVERY page.
+Pages use it with: {% extends "layouts/base.html" %}
+and fill the blocks: title, description, page_css, page_js, content.
+A page can also replace (or empty) the header and footer blocks.
+{% endcomment %}
+<!doctype html>
+<html lang="en" class="no-js">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Bazario — Everything worth having, in one place{% endblock %}</title>
+    <meta name="description"
+        content="{% block description %}Bazario is a modern online store for well-designed everyday products.{% endblock %}">
+    <meta name="theme-color" content="#f4f1ea">
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- Pick light/dark theme BEFORE the page appears, so there is no flash -->
+    <script>
+        (function () {
+            var root = document.documentElement;
+            root.classList.replace("no-js", "js");
+            var theme = null;
+            try { theme = localStorage.getItem("theme"); } catch (e) { }
+            if (theme !== "light" && theme !== "dark") {
+                theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+            root.dataset.theme = theme;
+        })();
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/core/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'css/core/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/core/animations.css' %}">
+
+    <!-- Shared components (every page) -->
+    <link rel="stylesheet" href="{% static 'css/components/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/footer.css' %}">
+
+    <!-- Styles and script for this page only -->
+    {% block page_css %}{% endblock %}
+    {% block page_js %}{% endblock %}
+</head>
+
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {% block header %}{% include "partials/header.html" %}{% endblock %}
+
+    <main id="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}{% include "partials/footer.html" %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+{% load static i18n bazario_admin admin_portraits %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Bazario Admin{% endblock %}
+
+{% block responsive %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/bazario.css' %}">
+{% if has_permission and not is_popup %}
+<link rel="stylesheet" href="{% static 'css/admin/bazario-header.css' %}">
+<script defer src="{% static 'js/admin/bazario-header.js' %}"></script>
+{% endif %}
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a class="bazario-admin-brand" href="{% url 'admin:index' %}">
+        <span>Bazario<span class="bazario-admin-brand__dot">.</span></span>
+        <span class="bazario-admin-brand__label">Admin</span>
+    </a>
+</div>
+
+{% if user.is_anonymous %}
+{% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}
+<div class="bazario-admin-tools" role="group" aria-label="{% translate 'Admin actions' %}">
+    {% if site_url %}
+    <a class="bazario-admin-action bazario-admin-action--primary" href="{{ site_url }}">
+        {% translate "View site" %} <span class="bz-site-arrow" aria-hidden="true">↗</span>
+    </a>
+    {% endif %}
+
+    {% include "admin/color_theme_toggle.html" %}
+    {% firstof user.get_username as display_name %}
+    {% admin_photo_url as portrait %}
+    <details class="bz-account">
+      <summary aria-label="{% translate 'Account menu' %} · {{ display_name }}">
+        <span class="bz-avatar" aria-hidden="true">{% if portrait %}<img src="{{ portrait }}" alt="" style="width:100%;height:100%;border-radius:inherit;object-fit:cover">{% else %}{{ display_name|first|upper }}{% endif %}</span>
+        <span class="bz-account-name">{{ display_name }}</span>
+        <span class="bz-account-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="bz-account-panel">
+    {% url 'django-admindocs-docroot' as docsroot %}
+    {% if docsroot %}
+    <a class="bazario-admin-action" href="{{ docsroot }}">{% translate "Documentation" %}</a>
+    {% endif %}
+
+    <a class="bazario-admin-action" href="{% url 'bazario_admin_profile' %}">
+        {% translate "Profile" %}
+    </a>
+
+    <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button class="bazario-admin-action" type="submit">{% translate "Log out" %}</button>
+    </form>
+
+      </div>
+    </details>
+</div>
+{% endblock %}
+
+{% block nav-sidebar %}
+{% if has_permission %}
+{% bazario_admin_navigation as menu %}
+<aside class="bazario-admin-sidebar">
+    {% include "admin/bazario_navigation.html" with menu=menu request=request only %}
+</aside>
+<details class="bazario-admin-mobile-menu">
+    <summary>Admin menu</summary>
+    {% include "admin/bazario_navigation.html" with menu=menu request=request only %}
+</details>
+{% endif %}
+{% endblock %}

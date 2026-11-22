@@ -1,0 +1,29 @@
+<section class="ledger-review" aria-labelledby="cr-title">
+  <header class="heading">
+    <h3 id="cr-title">Cancellation request</h3>
+    <span class="ledger-result">Awaiting review</span>
+  </header>
+  <div class="cr-body">
+    <p class="cr-explanation">Dispatch is paused. Approving cancels the order and returns its items to stock. Declining lets dispatch continue.</p>
+    {% if has_change_permission %}
+      {% url 'admin:orders_order_review_action' original.pk as review_url %}
+      <div class="cr-actions">
+        <form method="post" action="{{ review_url }}">
+          {% csrf_token %}
+          <button class="cr-approve" type="submit" name="action" value="approve_cancellation">Approve cancellation</button>
+        </form>
+        <details class="cr-reason">
+          <summary>Decline request</summary>
+          <form method="post" action="{{ review_url }}">
+            {% csrf_token %}
+            <label for="cr-reason-text">Reason for the customer</label>
+            <p id="cr-reason-hint">Appears on the customer’s order page. Up to 500 characters.</p>
+            <textarea id="cr-reason-text" name="decline_reason" rows="3" maxlength="500" required aria-describedby="cr-reason-hint"></textarea>
+            <button type="submit" class="cr-approve" name="action" value="decline_cancellation">Decline with reason</button>
+          </form>
+        </details>
+      </div>
+    {% endif %}
+    <time datetime="{{ cancellation.requested_at|date:'c' }}">Requested {{ cancellation.requested_at|date:"j M Y · H:i" }} MYT</time>
+  </div>
+</section>

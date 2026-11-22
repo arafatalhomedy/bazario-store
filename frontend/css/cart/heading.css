@@ -1,0 +1,229 @@
+/* ==========================================================================
+   Basket page: page wrapper + top (meta line, title, count, steps)
+   HTML: pages/cart.html + pages/cart/heading.html
+   ========================================================================== */
+
+/* ---------- Page wrapper ---------- */
+.basket {
+    position: relative;
+    isolation: isolate;
+    /* keeps the glow behind this page only */
+    width: min(100% - 2rem, 1180px);
+    margin-inline: auto;
+    padding-block: clamp(7rem, 14vw, 9.5rem) clamp(3rem, 8vw, 6rem);
+}
+
+/* Soft accent glow that drifts slowly behind the basket */
+.basket::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 3rem 0 auto;
+    height: 30rem;
+    background:
+        radial-gradient(40% 50% at 18% 30%, color-mix(in srgb, var(--color-accent) 20%, transparent), transparent 70%),
+        radial-gradient(35% 45% at 82% 60%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+    animation: basket-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes basket-drift {
+    to {
+        transform: translate3d(3%, 3rem, 0) scale(1.08);
+    }
+}
+
+/* ---------- Heading ---------- */
+.basket-head {
+    display: grid;
+    gap: 0.9rem;
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.basket-head__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    animation: basket-rise 0.6s ease both;
+}
+
+.basket-head__index {
+    color: var(--color-accent);
+    font-weight: 700;
+}
+
+.basket-head__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 9vw, 6.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+}
+
+.basket-head__count {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.75;
+    animation: basket-rise 0.6s 0.35s ease both;
+}
+
+/* ---------- Steps: Basket → Details → Done ---------- */
+.steps {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 34rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    animation: basket-rise 0.6s 0.5s ease both;
+}
+
+.steps__item {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+}
+
+.steps__item.is-current,
+.steps__item.is-done {
+    opacity: 1;
+}
+
+.steps__dot {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    aspect-ratio: 1;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* The current step: filled + gentle pulse */
+.steps__item.is-current .steps__dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+    animation: step-pulse 2.4s ease-out infinite;
+}
+
+.steps__line {
+    position: relative;
+    flex: 1;
+    min-width: 1.5rem;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-border);
+}
+
+.steps__line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+/* The line after the current step hints "next →" */
+.steps__item.is-current+.steps__line::after {
+    animation: step-hint 2.4s ease-in-out infinite;
+}
+
+/* A finished step (used on Day 3) fills its line */
+.steps__item.is-done+.steps__line::after {
+    transform: scaleX(1);
+    transition: transform 0.6s ease;
+}
+
+@keyframes step-pulse {
+    0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0.6rem transparent;
+    }
+}
+
+@keyframes step-hint {
+    0% {
+        transform: scaleX(0);
+        opacity: 1;
+    }
+
+    60% {
+        transform: scaleX(0.45);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(0.45);
+        opacity: 0;
+    }
+}
+
+@keyframes basket-rise {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 480px) {
+    .steps {
+        gap: 0.5rem;
+    }
+
+    .steps__item {
+        gap: 0.35rem;
+        font-size: 0.8rem;
+    }
+
+    .steps__dot {
+        width: 1.6rem;
+        font-size: 0.72rem;
+    }
+
+    .steps__line {
+        min-width: 1rem;
+    }
+}
+
+/* Very small: only the current step keeps its label */
+@media (max-width: 360px) {
+    .steps__item:not(.is-current) .steps__label {
+        display: none;
+    }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    .basket::before,
+    .basket-head__meta,
+    .basket-head__count,
+    .steps,
+    .steps__item.is-current .steps__dot,
+    .steps__item.is-current+.steps__line::after {
+        animation: none;
+    }
+}

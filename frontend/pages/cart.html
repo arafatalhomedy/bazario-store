@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Your basket · Bazario{% endblock %}
+{% block description %}Review your Bazario basket and continue to checkout.{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/cart/heading.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart/ticket.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart/items.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart/suggestions.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/cart.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{# The whole basket. JavaScript fills it from /api/cart/ #}
+<div class="basket" data-basket data-state="loading">
+    {% include "cart/heading.html" %}
+    {% include "cart/ticket.html" %}
+    {% include "cart/items.html" %}
+    {% include "cart/suggestions.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+{# Footer words for this page (short lines so the editor never splits a tag) #}
+{% with footer_title="Still browsing?" footer_accent="Keep exploring." %}
+{% with footer_link="/#shop" footer_link_label="Back to the shop" %}
+{% include "partials/footer.html" %}
+{% endwith %}
+{% endwith %}
+{% endblock %}

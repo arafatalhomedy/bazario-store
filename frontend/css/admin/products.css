@@ -1,0 +1,985 @@
+.bazario-products #content {
+    box-sizing: border-box;
+    max-width: 88rem;
+    margin-inline: auto;
+    padding: clamp(1rem, 2.6vw, 2.25rem);
+}
+
+#bazario-workspace {
+    --panel: var(--bazario-surface);
+    --ink: var(--body-fg);
+    --muted: var(--body-quiet-color);
+    --line: var(--hairline-color);
+    --accent: var(--bazario-accent);
+    --accent-text: var(--link-fg);
+    --tint: var(--bazario-tint);
+    --danger: light-dark(#9d332e, #ffaea4);
+    --warning: light-dark(#8a480f, #ffd29a);
+    --green: light-dark(#21634e, #a5e8c9);
+    --green-bg: light-dark(#e5f3eb, #213c31);
+    --shadow: 0 5px 16px light-dark(#392b1410, #0003);
+    color: var(--ink);
+}
+
+#bazario-workspace * {
+    box-sizing: border-box;
+}
+
+#bazario-workspace [hidden] {
+    display: none !important;
+}
+
+#bazario-workspace :is(h1, h2, p) {
+    margin: 0;
+}
+
+.workspace-heading,
+.workspace-controls,
+.workspace-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .65rem;
+}
+
+.workspace-heading {
+    justify-content: space-between;
+    margin-bottom: 1.15rem;
+}
+
+.workspace-heading h1 {
+    color: var(--ink);
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 820;
+    letter-spacing: -.065em;
+    line-height: 1.05;
+}
+
+.workspace-heading h1 span {
+    color: var(--accent-text);
+}
+
+#bazario-workspace .workspace-heading p {
+    margin-top: .3rem;
+    color: var(--muted);
+}
+
+.workspace-controls,
+.workspace-tools {
+    margin-bottom: .75rem;
+}
+
+#bazario-workspace .workspace-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    min-height: 2.15rem;
+    padding: .35rem .65rem;
+    border: 1px solid var(--line);
+    border-radius: .6rem;
+    background: var(--panel);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 650;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#bazario-workspace .workspace-button:hover {
+    border-color: var(--accent);
+}
+
+#bazario-workspace .workspace-button.workspace-primary {
+    min-height: 2.6rem;
+    padding-inline: .85rem;
+    border-color: transparent;
+    background: var(--accent);
+    color: var(--bazario-ink);
+}
+
+#bazario-workspace .workspace-remove {
+    color: var(--danger);
+}
+
+#bazario-workspace .workspace-remove:hover {
+    border-color: var(--danger);
+}
+
+#bazario-workspace #toolbar {
+    flex: 1 1 16rem;
+    min-width: 0;
+    margin: 0;
+    padding: .35rem .5rem;
+    border: 1px solid var(--line);
+    border-radius: .7rem;
+    background: var(--panel);
+}
+
+#bazario-workspace #changelist-search>div:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+}
+
+#bazario-workspace #searchbar {
+    flex: 1 1 7rem;
+    min-width: 0;
+    min-height: 2rem;
+    border: 0;
+    background: transparent;
+}
+
+.workspace-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    padding: .25rem;
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+    background: var(--panel);
+}
+
+#bazario-workspace .workspace-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .6rem;
+    border-radius: .5rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+#bazario-workspace .workspace-tabs a:is(:hover, [aria-current]) {
+    background: var(--tint);
+    color: var(--accent-text);
+}
+
+.workspace-tabs span {
+    padding: 0 .3rem;
+    border-radius: 999px;
+    background: var(--body-bg);
+    font-size: .75rem;
+}
+
+.workspace-options {
+    position: relative;
+}
+
+#bazario-workspace .workspace-menu {
+    position: absolute;
+    z-index: 5;
+    inset: calc(100% + .35rem) auto auto 0;
+    width: min(15rem, 75vw);
+    max-height: 22rem;
+    margin: 0;
+    padding: .55rem;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: .7rem;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+#bazario-workspace .workspace-menu a {
+    display: block;
+    padding: .35rem .45rem;
+    color: var(--ink);
+}
+
+#bazario-workspace .workspace-menu a:is(:hover, [aria-current]) {
+    background: var(--tint);
+    color: var(--accent-text);
+}
+
+#bazario-workspace #result_list,
+#bazario-workspace #result_list tr,
+#bazario-workspace #result_list td {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+#bazario-workspace #result_list {
+    width: 100%;
+}
+
+#bazario-workspace #result_list td {
+    height: 100%;
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .85rem;
+}
+
+.workspace-tile {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    min-width: 0;
+    height: 100%;
+    padding: .8rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+.workspace-tile:hover,
+[data-selected] .workspace-tile,
+.selected .workspace-tile {
+    border-color: var(--accent);
+}
+
+.workspace-tile-top,
+.workspace-tile-meta,
+.workspace-tile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .45rem;
+}
+
+.workspace-tile-top,
+.workspace-tile-meta {
+    justify-content: space-between;
+}
+
+.workspace-select {
+    display: none;
+    accent-color: var(--accent);
+}
+
+#bazario-workspace:has(.workspace-bulk[open]) .workspace-select {
+    display: inline-block;
+}
+
+.workspace-badge,
+.workspace-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .77rem;
+}
+
+.workspace-badge {
+    padding: .18rem .45rem;
+    border-radius: 999px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-weight: 700;
+}
+
+.workspace-badge[data-visibility="hidden"] {
+    background: var(--body-bg);
+    color: var(--muted);
+}
+
+.workspace-badge::before,
+.workspace-stock::before {
+    width: .35rem;
+    height: .35rem;
+    flex: none;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+#bazario-workspace .workspace-tile-link {
+    display: grid;
+    gap: .6rem;
+    color: var(--ink);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+#bazario-workspace .workspace-tile-link:hover strong {
+    color: var(--accent-text);
+}
+
+.workspace-photo {
+    display: grid;
+    place-items: center;
+    height: 8.5rem;
+    overflow: hidden;
+    border-radius: .75rem;
+    background: linear-gradient(135deg, var(--tint), var(--body-bg));
+    color: var(--accent-text);
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.workspace-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+}
+
+.workspace-category {
+    color: var(--muted);
+    font-size: .8rem;
+    overflow-wrap: anywhere;
+}
+
+.workspace-price {
+    font-size: 1.02rem;
+    font-weight: 780;
+    font-variant-numeric: tabular-nums;
+}
+
+.workspace-price s {
+    margin-inline-start: .2rem;
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 450;
+}
+
+.workspace-stock {
+    color: var(--green);
+}
+
+.workspace-stock[data-stock="low"] {
+    color: var(--warning);
+}
+
+.workspace-stock[data-stock="out"] {
+    color: var(--danger);
+}
+
+.workspace-tile-actions {
+    margin-top: auto;
+    padding-top: .55rem;
+    border-top: 1px solid var(--line);
+}
+
+#bazario-workspace .workspace-add-tile {
+    display: grid;
+    place-content: center;
+    gap: .35rem;
+    min-height: 13rem;
+    height: 100%;
+    border: 1px dashed var(--line);
+    border-radius: 1rem;
+    color: var(--accent-text);
+    font-weight: 700;
+    text-align: center;
+}
+
+#bazario-workspace .workspace-add-tile:hover {
+    border-color: var(--accent);
+    background: var(--tint);
+}
+
+.workspace-add-tile span {
+    font-size: 1.5rem;
+}
+
+#bazario-workspace .workspace-editor {
+    width: min(48rem, calc(100% - 2rem));
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
+}
+
+.workspace-editor::backdrop {
+    background: rgb(12 12 16 / 55%);
+    backdrop-filter: blur(5px);
+}
+
+.workspace-dialog-header,
+.workspace-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .55rem;
+}
+
+.workspace-dialog-header {
+    justify-content: space-between;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--tint);
+}
+
+.workspace-dialog-header h2 {
+    color: var(--ink);
+    font-size: 1.35rem;
+}
+
+.workspace-dialog-header p {
+    color: var(--muted);
+}
+
+.workspace-form {
+    display: grid;
+    gap: .7rem;
+    padding: 1rem 1.15rem;
+}
+
+.workspace-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+}
+
+.workspace-field {
+    display: grid;
+    align-content: start;
+    min-width: 0;
+    gap: .25rem;
+}
+
+.workspace-field label {
+    color: var(--muted);
+    font-weight: 650;
+}
+
+#bazario-workspace .workspace-form :is(input:not([type="checkbox"], [type="hidden"]), select, textarea) {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.25rem;
+    padding: .45rem .55rem;
+    border: 1px solid var(--line);
+    border-radius: .5rem;
+    background: var(--body-bg);
+    color: var(--ink);
+    font: inherit;
+}
+
+.workspace-form .related-widget-wrapper {
+    display: block;
+    float: none;
+}
+
+.workspace-form .related-widget-wrapper-link {
+    display: none;
+}
+
+.workspace-visibility {
+    align-self: end;
+    padding-bottom: .4rem;
+}
+
+.workspace-visibility input {
+    accent-color: var(--accent);
+}
+
+.workspace-extra {
+    padding: .55rem .65rem;
+    border: 1px solid var(--line);
+    border-radius: .6rem;
+}
+
+.workspace-extra summary {
+    cursor: pointer;
+}
+
+.workspace-extra .workspace-field {
+    margin-top: .55rem;
+    overflow-wrap: anywhere;
+}
+
+.workspace-extra textarea {
+    max-height: 10rem;
+    resize: vertical;
+}
+
+.workspace-sale {
+    display: grid;
+    gap: .35rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: .65rem;
+    background: var(--tint);
+}
+
+.workspace-sale-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .45rem;
+    color: var(--muted);
+    font-size: .8rem;
+}
+
+.workspace-sale-values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .45rem;
+}
+
+.workspace-sale strong {
+    font-size: 1.65rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.workspace-sale s {
+    color: var(--muted);
+}
+
+.workspace-sale [data-savings] {
+    color: var(--accent-text);
+    font-weight: 700;
+}
+
+.workspace-dialog-actions {
+    justify-content: flex-end;
+    padding-top: .8rem;
+    border-top: 1px solid var(--line);
+}
+
+.workspace-errors,
+.workspace-form .errorlist {
+    color: var(--danger);
+}
+
+.workspace-message,
+.workspace-empty {
+    color: var(--muted);
+}
+
+.workspace-message:empty {
+    display: none;
+}
+
+#bazario-workspace .paginator {
+    padding-inline: 0;
+    border: 0;
+    background: none;
+}
+
+.workspace-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .45rem;
+    padding: .6rem;
+    border: 1px solid var(--line);
+    border-radius: .65rem;
+    background: var(--body-bg);
+    overflow-wrap: anywhere;
+}
+
+.workspace-confirm>strong {
+    flex: 1 1 100%;
+}
+
+.workspace-confirm form {
+    display: contents;
+}
+
+@media (max-width: 82rem) {
+    .workspace-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 63rem) {
+    .workspace-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 36rem) {
+
+    .workspace-grid,
+    .workspace-pair {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #bazario-workspace .workspace-menu {
+        position: static;
+        margin-top: .3rem;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .workspace-grid tr:nth-child(-n + 8) .workspace-tile {
+        animation: workspace-enter 380ms ease-out backwards;
+    }
+
+    .workspace-grid tr:nth-child(even) .workspace-tile {
+        animation-delay: 55ms;
+    }
+
+    .workspace-tile {
+        transition: translate 170ms ease, border-color 170ms ease;
+    }
+
+    .workspace-tile:hover {
+        translate: 0 -2px;
+    }
+
+    .workspace-editor[open],
+    .workspace-confirm {
+        animation: workspace-enter 220ms ease-out backwards;
+    }
+}
+
+@keyframes workspace-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.workspace-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-start: 1.25rem;
+    padding: .9rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+.workspace-page-summary {
+    display: grid;
+    gap: .2rem;
+    font-size: .875rem;
+}
+
+.workspace-page-summary span {
+    color: var(--muted);
+    font-size: .78rem;
+}
+
+.workspace-page-nav,
+.workspace-page-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+}
+
+.workspace-page-numbers {
+    padding: .25rem;
+    border-radius: .8rem;
+    background: var(--body-bg);
+}
+
+#bazario-workspace :is(.workspace-page-step, .workspace-page-numbers a, .workspace-page-current) {
+    display: inline-flex;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    padding-inline: .6rem;
+    border-radius: .6rem;
+    color: var(--ink);
+    font-size: .82rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+}
+
+#bazario-workspace .workspace-page-step {
+    border: 1px solid var(--line);
+}
+
+#bazario-workspace .workspace-page-step[aria-disabled="true"] {
+    color: var(--muted);
+    opacity: .65;
+}
+
+#bazario-workspace .workspace-page-current {
+    background: var(--accent);
+    color: #171715;
+}
+
+#bazario-workspace .workspace-page-nav a:hover {
+    background: var(--tint);
+}
+
+#bazario-workspace .workspace-page-nav a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.workspace-page-gap {
+    padding-inline: .35rem;
+    color: var(--muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .workspace-page-nav a {
+        transition: background-color 160ms ease, transform 160ms ease;
+    }
+
+    .workspace-page-nav a:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Products add and edit dialog */
+#bazario-workspace .workspace-editor {
+    width: min(65rem, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    border-radius: 1.4rem;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scroll-padding-bottom: 5.5rem;
+}
+
+.workspace-editor .product-editor-header {
+    flex-wrap: nowrap;
+    padding: 1.35rem clamp(1rem, 3vw, 1.85rem);
+    background: radial-gradient(ellipse at top right, var(--tint), transparent 72%), var(--panel);
+}
+
+#bazario-workspace .product-editor-header h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+#bazario-workspace .product-editor-header p {
+    margin-top: .4rem;
+    overflow-wrap: anywhere;
+}
+
+#bazario-workspace .product-editor-close {
+    width: 2.4rem;
+    height: 2.4rem;
+    flex: none;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.25rem;
+}
+
+.workspace-editor .product-editor-form {
+    display: block;
+    padding: 0;
+}
+
+.product-editor-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+    padding: clamp(.8rem, 2.5vw, 1.5rem);
+    background: var(--body-bg);
+}
+
+.product-editor-column,
+.product-editor-section {
+    display: grid;
+    min-width: 0;
+    gap: .85rem;
+}
+
+.product-editor-section {
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--panel);
+    overflow-wrap: anywhere;
+}
+
+.product-editor-section h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: .95rem;
+    font-weight: 750;
+}
+
+.product-editor-extra {
+    background: var(--body-bg);
+}
+
+.product-editor-extra summary {
+    font-size: .85rem;
+    font-weight: 650;
+}
+
+.product-editor-visibility {
+    align-self: end;
+}
+
+.product-editor-visibility label {
+    display: flex;
+    min-height: 2.25rem;
+    align-items: center;
+    gap: .5rem;
+    cursor: pointer;
+}
+
+.product-editor-visibility input {
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.product-editor-price {
+    gap: .7rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--tint), var(--panel) 88%);
+}
+
+.product-editor-price .workspace-sale-heading {
+    color: var(--ink);
+    font-weight: 650;
+}
+
+.product-editor-price strong {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    letter-spacing: -.035em;
+}
+
+.product-editor-photo {
+    display: grid;
+    aspect-ratio: 2 / 1;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+    background: linear-gradient(140deg, var(--tint), var(--body-bg));
+    color: var(--muted);
+    font-size: .83rem;
+}
+
+.product-editor-photo img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+}
+
+.product-editor-errors {
+    grid-column: 1 / -1;
+    padding: .7rem .85rem;
+    border: 1px solid color-mix(in srgb, var(--danger) 42%, var(--line));
+    border-radius: .75rem;
+    color: var(--danger);
+    background: var(--panel);
+}
+
+#bazario-workspace .product-editor-form [aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.workspace-editor .product-editor-footer {
+    position: sticky;
+    z-index: 2;
+    bottom: 0;
+    padding: .8rem clamp(1rem, 3vw, 1.85rem);
+    background: var(--panel);
+    box-shadow: 0 -10px 25px rgb(0 0 0 / 5%);
+}
+
+.product-editor-footer .workspace-message {
+    flex: 1 1 12rem;
+    margin-inline-end: auto;
+}
+
+@media (max-width: 48rem) {
+    .product-editor-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    #bazario-workspace .workspace-editor[open] {
+        animation: product-editor-in 260ms cubic-bezier(.22, .8, .25, 1) both;
+    }
+
+    @keyframes product-editor-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}
+
+#bazario-workspace .product-editor-page {
+    display: flow-root;
+    width: 100%;
+    max-width: 65rem;
+    padding: 0;
+}
+
+.product-editor-page .product-editor-layout {
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+}
+
+.product-editor-page .related-widget-wrapper {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.product-editor-page .related-widget-wrapper select {
+    flex: 1;
+}
+
+.product-editor-page .related-widget-wrapper-link {
+    display: inline-flex;
+    flex: none;
+}
+
+#bazario-workspace .product-editor-page .submit-row {
+    position: sticky;
+    z-index: 2;
+    bottom: .5rem;
+    justify-content: flex-end;
+    margin-top: .75rem;
+    padding: .8rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+#bazario-workspace .product-editor-page .submit-row input[type="submit"] {
+    width: auto;
+    min-height: 2.65rem;
+    padding-inline: .9rem;
+    border-radius: .75rem;
+    font-weight: 650;
+    text-transform: none;
+    cursor: pointer;
+}
+
+#bazario-workspace .product-editor-page .submit-row input.default {
+    border-color: transparent;
+    background: var(--accent);
+    color: var(--button-fg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .product-editor-page .product-editor-layout {
+        animation: product-editor-in 260ms cubic-bezier(.22, .8, .25, 1) both;
+    }
+}

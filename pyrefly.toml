@@ -1,0 +1,4 @@
+# Editor type-checker settings (Pyrefly). Does not affect how the app runs.
+search-path = ["backend"]
+site-package-path = ["backend/.venv/Lib/site-packages"]
+project-excludes = ["**/.venv/**", "**/migrations/**", "**/__pycache__/**"]

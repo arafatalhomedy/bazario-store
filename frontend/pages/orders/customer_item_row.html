@@ -1,0 +1,40 @@
+{% load l10n %}
+<li class="order-item" data-unit-price="{{ item.unit_price|unlocalize }}">
+    {% if item.product and item.product.thumbnail %}
+    <img class="order-item__photo" src="{{ item.product.thumbnail.url }}" alt="" width="96" height="96"
+        loading="lazy" decoding="async">
+    {% else %}
+    <span class="order-item__photo order-item__photo--blank" aria-hidden="true"></span>
+    {% endif %}
+
+    <div class="order-item__info">
+        {% if item.product %}
+        <a class="order-item__name" href="/products/{{ item.product.slug }}/">{{ item.product_name }}</a>
+        {% else %}
+        <span class="order-item__name">{{ item.product_name }}</span>
+        {% endif %}
+        <small>${{ item.unit_price|floatformat:"2g" }} × {{ item.quantity }}</small>
+        {% if delivery_version %}
+        <div class="item-edit-controls" hidden>
+            <div class="keep-stepper" role="group" aria-label="Quantity for {{ item.product_name }}">
+                <button type="button" data-step="-1" aria-label="Keep one fewer {{ item.product_name }}">−</button>
+                <input type="number" name="keep_{{ item.pk }}" min="0" max="{{ item.quantity }}"
+                       value="{{ item.quantity }}" step="1" required aria-label="Quantity to keep for {{ item.product_name }}">
+                <button type="button" data-step="1" aria-label="Keep one more {{ item.product_name }}">+</button>
+            </div>
+            <span class="removed-label">Marked for removal</span>
+            <button type="button" data-remove>Remove</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="order-item__end">
+        <strong>${{ item.line_total|floatformat:"2g" }}</strong>
+        {% if item.product %}
+        <button class="buy-again" type="button" data-buy-again="{{ item.product_id }}"
+            aria-label="Buy {{ item.product_name }} again">
+            <span>Buy again</span>
+        </button>
+        {% endif %}
+    </div>
+</li>

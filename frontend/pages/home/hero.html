@@ -1,0 +1,102 @@
+{% comment %}
+Homepage hero: "editorial poster" style.
+Styles: css/home/hero.css
+Behavior: js/components/hero.js (photos, rotating word, depth, counters, belt)
+js/animations/splitText.js (letters rising)
+{% endcomment %}
+<section class="hero" aria-labelledby="hero-title" data-hero>
+    <div class="hero__grid" aria-hidden="true"></div>
+
+    <div class="container hero__inner">
+
+        <!-- Top line: label + edition -->
+        <div class="hero__meta enter-up">
+            <p class="hero__eyebrow">
+                <span class="hero__pulse" aria-hidden="true"></span>
+                New season · Curated for you
+            </p>
+            <p class="hero__edition"><strong>(01)</strong> Collection 2026</p>
+        </div>
+
+        <!-- Big title + round "Shop now" button -->
+        <div class="hero__headline">
+            <h1 class="hero__title" id="hero-title" aria-label="Everything worth having, in one place.">
+
+                <!-- Line 1 (left) -->
+                <span class="hero__line hero__line--1" data-depth="6">
+                    <span data-split>Everything</span>
+                    <span class="hero__capsule-wrap" aria-hidden="true">
+                        <span class="hero__capsule hero__capsule--wide" data-hero-capsule></span>
+                        <span class="hero__sticker">New</span>
+                    </span>
+                </span>
+
+                <!-- Line 2 (right) -->
+                <span class="hero__line hero__line--2" data-depth="-10">
+                    <span class="hero__capsule hero__capsule--small" data-hero-capsule aria-hidden="true"></span>
+                    <span class="hero__outline" data-split>worth</span>
+                    <span class="hero__rotator" data-rotator aria-hidden="true">
+                        <span class="hero__word is-active">having,</span>
+                        <span class="hero__word">keeping,</span>
+                        <span class="hero__word">gifting,</span>
+                        <span class="hero__word">loving,</span>
+                    </span>
+                </span>
+
+                <!-- Line 3 (left) -->
+                <span class="hero__line hero__line--3" data-depth="14">
+                    <span data-split>in one place.</span>
+                </span>
+            </h1>
+
+            <!-- Round spinning "Shop now" button -->
+            <a class="hero__badge" href="#shop" data-magnetic aria-label="Shop now">
+                <svg class="hero__badge-ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    <defs>
+                        <path id="hero-badge-path" d="M50 50m-36 0a36 36 0 1 1 72 0a36 36 0 1 1-72 0" />
+                    </defs>
+                    <text>
+                        <textPath href="#hero-badge-path" textLength="222">SHOP NOW ✦ SHOP NOW ✦</textPath>
+                    </text>
+                </svg>
+                <svg class="hero__badge-arrow" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true" focusable="false">
+                    <path d="M7 17 17 7M8 7h9v9" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Info row: text · numbers · link -->
+        <div class="hero__info enter-up">
+            <p class="hero__lead">
+                Well-made everyday products for your home, desk and daily carry.
+                Picked carefully, priced fairly.
+            </p>
+
+            <dl class="hero__stats">
+                <div class="hero__stat">
+                    <dt>Products</dt>
+                    <dd data-count="products">0</dd>
+                </div>
+                <div class="hero__stat">
+                    <dt>Categories</dt>
+                    <dd data-count="categories">0</dd>
+                </div>
+            </dl>
+
+            <a class="hero__link" href="/?new=1#shop">
+                New in
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Moving belt of real product cards (filled by hero.js) -->
+    <div class="hero__belt enter-up" role="region" aria-label="Featured products">
+        <ul class="hero__track" data-hero-belt></ul>
+    </div>
+</section>

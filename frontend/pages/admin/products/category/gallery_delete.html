@@ -1,0 +1,22 @@
+<div class="bg-confirm" data-category-delete-fragment>
+    {% if object.inventory_count %}
+        <strong>{{ object }} contains {{ object.inventory_count }} product{{ object.inventory_count|pluralize }}</strong>
+        <p>Move its products to another category before deleting.</p>
+        <div>
+            <button type="button" class="bg-button" data-cancel-category-delete>Cancel</button>
+            {% if category_products_url %}<a class="bg-button" href="{{ category_products_url }}">View products ↗</a>{% endif %}
+        </div>
+    {% elif protected or perms_lacking %}
+        <strong>{{ object }} cannot be deleted.</strong>
+        <ul>{{ protected|unordered_list }}{{ perms_lacking|unordered_list }}</ul>
+        <div><button type="button" class="bg-button" data-cancel-category-delete>Cancel</button></div>
+    {% else %}
+        <strong>Delete {{ object }}?</strong>
+        <p>This removes the empty category from the store.</p>
+        <form method="post" action="{{ request.get_full_path }}" data-category-mutation>
+            {% csrf_token %}<input type="hidden" name="post" value="yes">
+            <button type="button" class="bg-button" data-cancel-category-delete>Cancel</button>
+            <button type="submit" class="bg-button bg-danger">Delete category</button>
+        </form>
+    {% endif %}
+</div>

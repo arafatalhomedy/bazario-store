@@ -1,0 +1,468 @@
+/* ==========================================================================
+   SITE FOOTER (every page)
+   HTML: pages/partials/footer.html · JS: js/components/footer.js
+   "Curtain reveal": <main> sits ON TOP of the footer with rounded bottom
+   corners; when the footer fits on the screen it sticks to the bottom
+   behind the page (class .is-revealing, set by footer.js).
+   Colors follow the light / dark theme (from tokens.css).
+   ========================================================================== */
+
+:root {
+    --main-radius: clamp(24px, 4vw, 48px);
+}
+
+/* ---------- The page above the footer ---------- */
+#main {
+    position: relative;
+    z-index: 1;
+    /* above the footer */
+    background: var(--color-bg);
+    border-radius: 0 0 var(--main-radius) var(--main-radius);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- The footer ---------- */
+.site-footer {
+    /* Almost the page background, with a soft touch of the accent color */
+    --footer-bg: color-mix(in srgb, var(--color-bg) 94%, var(--color-accent));
+    --footer-text: var(--color-text);
+    --footer-muted: var(--color-text-muted);
+    --footer-line: var(--color-border);
+
+    position: relative;
+    z-index: 0;
+    /* behind the page */
+    overflow: hidden;
+    margin-top: calc(-1 * var(--main-radius));
+    /* fills the space behind the rounded corners */
+    padding-top: var(--main-radius);
+    background: var(--footer-bg);
+    color: var(--footer-text);
+}
+
+/* Curtain effect: only when the whole footer fits on the screen */
+.site-footer.is-revealing {
+    position: sticky;
+    bottom: 0;
+}
+
+.site-footer__inner {
+    position: relative;
+    padding-block: clamp(2.5rem, 6vw, 4.5rem) var(--space-5);
+}
+
+/* ---------- Closing line + round button ---------- */
+.site-footer__cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--footer-line);
+}
+
+.site-footer__headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.site-footer__headline em {
+    font-style: normal;
+    color: var(--color-accent);
+}
+
+.site-footer__go {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: clamp(72px, 8vw, 104px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    transition: transform 0.5s var(--ease-out);
+}
+
+.site-footer__go svg {
+    transition: transform 0.4s var(--ease-out);
+}
+
+.site-footer__go:hover {
+    transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.08) rotate(-8deg);
+}
+
+.site-footer__go:hover svg {
+    transform: rotate(45deg);
+}
+
+/* ---------- Trust promises ---------- */
+.site-footer__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    border-bottom: 1px solid var(--footer-line);
+    font-size: var(--fs-sm);
+    color: var(--footer-muted);
+}
+
+/* One promise: round accent icon + text */
+.trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--footer-muted);
+    transition: color var(--dur);
+}
+
+.trust-item:hover,
+.trust-item:focus-visible {
+    color: var(--footer-text);
+}
+
+/* Icon: spins once on hover */
+.trust-item__icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trust-item:hover .trust-item__icon,
+.trust-item:focus-visible .trust-item__icon {
+    transform: rotate(360deg) scale(1.1);
+}
+
+/* Text: an accent underline sweeps in from the left */
+.trust-item__text {
+    position: relative;
+}
+
+.trust-item__text::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out);
+}
+
+.trust-item:hover .trust-item__text::after,
+.trust-item:focus-visible .trust-item__text::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Link only (Track your order): the arrow slides */
+.trust-item__arrow {
+    transition: transform var(--dur) var(--ease-out);
+}
+
+.trust-item:hover .trust-item__arrow {
+    transform: translateX(4px);
+}
+
+/* ---------- Link columns + back to top ---------- */
+.site-footer__links {
+    position: relative;
+    z-index: 2;
+    /* above the coins */
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    align-items: start;
+    gap: var(--space-5);
+    padding-top: var(--space-6);
+}
+
+.site-footer__heading {
+    margin-bottom: var(--space-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--footer-muted);
+}
+
+.site-footer__list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-footer__link {
+    display: inline-block;
+    font-weight: 500;
+}
+
+/* Rolling text (the copy is added by footer.js, same style as the navbar) */
+.site-footer__link .roll__inner>span:last-child {
+    color: var(--color-accent);
+}
+
+.site-footer__link:hover .roll__inner,
+.site-footer__link:focus-visible .roll__inner {
+    transform: translateY(-50%);
+}
+
+/* Round "Back to top" button */
+.site-footer__top {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 92px;
+    aspect-ratio: 1;
+    border: 1px solid var(--footer-line);
+    border-radius: 50%;
+    color: var(--footer-text);
+    transition: background-color var(--dur), color var(--dur);
+}
+
+.site-footer__top:hover {
+    background: var(--footer-text);
+    color: var(--footer-bg);
+}
+
+.site-footer__top-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: footer-spin 12s linear infinite;
+}
+
+.site-footer__top-ring text {
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    fill: currentColor;
+}
+
+@keyframes footer-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Footer wordmark ---------- */
+.site-footer__brand {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(68px, 25%);
+    align-items: center;
+    min-height: 106px;
+    margin-top: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.site-footer__mark {
+    display: flex;
+    align-items: baseline;
+    margin: 0;
+    padding: 0.1em 0.07em 0.16em 0;
+    overflow: hidden;
+    color: var(--footer-text);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 19.2cqi, 13rem);
+    font-weight: 800;
+    line-height: 0.99;
+    letter-spacing: -0.076em;
+    white-space: nowrap;
+}
+
+.site-footer__mark-dot {
+    color: var(--color-accent);
+}
+
+.site-footer__orbit-art {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    justify-self: end;
+    width: min(100%, 15rem);
+    aspect-ratio: 1;
+    background: radial-gradient(circle,
+            color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 68%);
+}
+
+.site-footer__orbit-art::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(var(--footer-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--footer-line) 1px, transparent 1px);
+    background-size: 14% 14%;
+    mask-image: radial-gradient(circle, transparent 8%, black 38%, transparent 72%);
+}
+
+.site-footer__orbit-core {
+    width: 23%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 26%,
+            color-mix(in srgb, white 76%, var(--color-accent)),
+            var(--color-accent) 30%,
+            color-mix(in srgb, var(--color-accent) 40%, #111) 80%);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+
+.site-footer__orbit {
+    position: absolute;
+    inset: 12%;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 53%, var(--footer-line));
+    border-radius: 50%;
+    transform: rotate(-32deg) scaleY(0.46);
+}
+
+.site-footer__orbit--outer {
+    inset: 4%;
+    border-color: color-mix(in srgb, var(--footer-text) 28%, transparent);
+    transform: rotate(27deg) scaleY(0.51);
+}
+
+.site-footer__orbit-track {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-30deg);
+}
+
+.site-footer__orbit-track::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: clamp(4px, 0.85cqi, 9px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-accent);
+    transform: translate(-50%, -50%) scaleY(1.85);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .site-footer__brand.is-animated .site-footer__glyph {
+        animation: footer-letter-in 590ms var(--ease-out) calc(var(--char-index) * 43ms) backwards;
+    }
+
+    .site-footer__brand.is-animated .site-footer__orbit-track {
+        animation: footer-orbit-pass 5s linear infinite;
+    }
+
+    .site-footer__brand.is-animated+.site-footer__bottom::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        inset-inline: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--color-accent), transparent) center / 30% 100% no-repeat;
+        opacity: 0;
+        pointer-events: none;
+        animation: footer-light-pass 1.1s ease-in-out 180ms;
+    }
+}
+
+@keyframes footer-letter-in {
+    from {
+        opacity: 0;
+        transform: translateY(78%) rotate(5deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+    }
+}
+
+@keyframes footer-orbit-pass {
+    from {
+        transform: rotate(-30deg);
+    }
+
+    to {
+        transform: rotate(330deg);
+    }
+}
+
+@keyframes footer-light-pass {
+    0% {
+        background-position: -45% center;
+        opacity: 0;
+    }
+
+    30%,
+    72% {
+        opacity: 1;
+    }
+
+    100% {
+        background-position: 145% center;
+        opacity: 0;
+    }
+}
+
+/* ---------- Bottom line ---------- */
+.site-footer__bottom {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--footer-line);
+    font-size: var(--fs-xs);
+    color: var(--footer-muted);
+}
+
+/* ==========================================================================
+   Phones (under 760px): no curtain effect, links in 2 columns
+   ========================================================================== */
+@media (max-width: 760px) {
+    .site-footer.is-revealing {
+        position: relative;
+    }
+
+    .site-footer__links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .site-footer__top {
+        width: 80px;
+    }
+
+    .site-footer__trust {
+        gap: var(--space-2) var(--space-4);
+    }
+}
+
+/* ---------- Visitors who turned off animations ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .site-footer__top-ring {
+        animation: none;
+    }
+
+    .site-footer__char {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

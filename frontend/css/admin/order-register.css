@@ -1,0 +1,109 @@
+.bazario-order-list .register-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    border: 0;
+    border-radius: 1.4rem;
+    background: radial-gradient(ellipse at 96% 120%, #6a5037, transparent 52%),
+                linear-gradient(110deg, #22231f, #39352d);
+    box-shadow: none;
+    color: #fff7eb;
+}
+.register-hero::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 45%;
+    background: repeating-radial-gradient(circle at 78% 55%, transparent 0 25px, #ffdda624 26px 27px, transparent 28px 52px);
+}
+.register-hero time { color: #f4bd76; font-size: .84rem; font-weight: 650; }
+.orders-masthead.register-hero h1 { margin: .32rem 0 0; color: inherit; font: 900 clamp(2.6rem,5vw,4.2rem)/1 var(--font-family-primary); letter-spacing: -.065em; }
+.register-hero h1 span { color: #ffaf73; }
+.register-ticket {
+    display: grid;
+    grid-template-columns: min-content auto;
+    align-items: center;
+    gap: .3rem .75rem;
+    padding: .6rem 1rem;
+    margin-inline-end: .5rem;
+    border-radius: .5rem;
+    background: #fff0d8;
+    color: #302b24;
+    box-shadow: 4px 5px 0 #e99463;
+    transform: rotate(4deg);
+}
+.register-ticket span { font-size: .74rem; font-weight: 700; line-height: 1.15; }
+.register-ticket strong { font-size: clamp(1.7rem, 3vw, 2.35rem); line-height: 1; letter-spacing: -.06em; }
+.register-ticket::after {
+    content: "";
+    grid-column: 1/-1;
+    height: .8rem;
+    border-top: 1px dashed #baaa92;
+    padding-top: 3px;
+    background: repeating-linear-gradient(90deg,#37312a 0 2px,transparent 2px 4px,#37312a 4px 5px,transparent 5px 8px,#37312a 8px 11px,transparent 11px 14px) content-box;
+}
+.orders-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; }
+.orders-search { flex: 1 1 15rem; }
+.orders-statuses { flex: 1 0 100%; }
+.orders-statuses .selected a { box-shadow: inset 0 -2px var(--bazario-accent); }
+.orders-toolbar .register-add { position: static; float: none; margin: 0; padding: 0; }
+.orders-toolbar .register-add li { margin: 0; }
+.orders-toolbar .register-add a.addlink { display: inline-flex; align-items: center; box-sizing: border-box; min-height: 2.75rem; border-radius: 2rem; padding: .5rem 1.1rem; background: var(--bazario-accent); color: var(--bazario-ink); font: inherit; font-weight: 700; text-transform: none; }
+.bazario-order-list .register-results #result_list { width: 100%; min-width: 0; }
+.register-results thead a { color: var(--orders-muted); }
+.bazario-order-list .register-results #result_list thead th { padding: .75rem; }
+.bazario-order-list .register-results #result_list .register-day td {
+    padding: .5rem .8rem; background: var(--orders-control); color: var(--orders-muted);
+    font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.register-day span { display: flex; align-items: center; gap: .8rem; }
+.register-day span::after { content: ""; height: 1px; flex: 1; background: var(--orders-border); }
+.register-row small { display: block; color: var(--orders-muted); margin-top: .18rem; font-size: .77rem; font-weight: 400; }
+.register-row .identity a { color: var(--body-fg); font-weight: 750; white-space: nowrap; }
+.register-row .identity a:hover { text-decoration: underline; }
+.register-results .sum, .register-results .view-cell { text-align: end; font-variant-numeric: tabular-nums; }
+.register-results .order-review-badge {
+    --badge-ink: var(--orders-muted);
+    display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .65rem;
+    border-radius: 1rem; font-size: .77rem; font-weight: 700; line-height: 1.25;
+    color: var(--badge-ink); background: color-mix(in srgb, var(--badge-ink) 12%, var(--orders-panel));
+}
+.register-results .order-review-badge::before { content: ""; flex: 0 0 .4rem; height: .4rem; border-radius: 100%; background: currentColor; }
+.register-results [data-status="pending"] { --badge-ink: var(--orders-pending); }
+.register-results [data-status="confirmed"] { --badge-ink: var(--orders-shipped); }
+.register-results [data-status="shipped"] { --badge-ink: var(--orders-confirmed); }
+.register-results [data-status="delivered"] { --badge-ink: var(--orders-delivered); }
+.register-results a.register-view {
+    display: inline-flex; align-items: center; justify-content: space-between; gap: .55rem;
+    border: 1px solid var(--orders-border); border-radius: 2rem; padding: .27rem .27rem .27rem .8rem;
+    background: var(--orders-panel); color: var(--body-fg); text-decoration: none; font-weight: 700; white-space: nowrap;
+}
+.register-view span { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: #ffb394; color: #452b20; }
+.register-results a.register-view:is(:hover,:focus-visible) { background: var(--bazario-tint); }
+.register-sorts { padding: .45rem .85rem; color: var(--orders-muted); }
+.register-sorts summary { width: fit-content; cursor: pointer; }
+.register-sorts div { display: flex; flex-wrap: wrap; gap: .8rem; padding: .6rem 0; }
+@media (max-width: 760px) {
+    .bazario-order-list .register-results thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .bazario-order-list .register-results thead:focus-within { position: static; width: auto; height: auto; clip-path: none; }
+    .register-results :is(table, tbody, .register-day, .register-day td) { display: block; }
+    .register-results .register-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: .35rem .6rem; padding: .75rem; border-bottom: 1px solid var(--orders-border); }
+    .bazario-order-list #result_list .register-row > :is(th,td) { padding: 0; border: 0; text-align: start; overflow-wrap: anywhere; }
+    .register-row .action-checkbox { grid-column: 1; grid-row: 1; }
+    .register-row .identity { grid-column: 2; grid-row: 1; }
+    .register-row .state { grid-column: 3; grid-row: 1; justify-self: end; max-width: 9rem; }
+    .register-row .buyer { grid-column: 2; grid-row: 2; }
+    .register-row .sum, .register-row .view-cell { grid-column: 3; justify-self: end; }
+    .register-row .sum { grid-row: 2; }
+}
+@media (pointer: coarse) { .register-results a.register-view { min-height: 44px; box-sizing: border-box; } }
+@media (prefers-reduced-motion: no-preference) {
+    .register-ticket, .register-view span { transition: transform .2s ease-out; }
+    .register-hero:hover .register-ticket { transform: translateY(-2px) rotate(1deg); }
+    .register-view:hover span { transform: translateX(2px); }
+    .register-results .filter-arrival { animation: bz-register-row .26s ease-out backwards; animation-delay: var(--row-delay, 0ms); }
+    .register-results .return-highlight { animation: bz-register-return .9s ease-out; }
+    @keyframes bz-register-row { from { opacity: .4; transform: translateY(6px); } }
+    @keyframes bz-register-return { from { background: var(--bazario-tint); box-shadow: inset 3px 0 var(--bazario-accent); } }
+}

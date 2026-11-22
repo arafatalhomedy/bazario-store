@@ -1,0 +1,67 @@
+{# Your orders: top. Styles: css/orders/orders.css · JS: js/components/ordersList.js #}
+<header class="orders-head">
+    <div class="orders-head__text">
+        <p class="basket-head__meta">
+            <span class="basket-head__index">(04)</span>
+            <span>Your orders</span>
+        </p>
+        <h1 class="orders-head__title" data-split>Every order, in one place.</h1>
+    </div>
+
+    <dl class="orders-stats" aria-label="Order summary">
+        <div class="orders-stats__item">
+            <dt>Orders</dt>
+            <dd data-stat="all">0</dd>
+        </div>
+        <div class="orders-stats__item">
+            <dt>On the way</dt>
+            <dd data-stat="shipped">0</dd>
+        </div>
+        <div class="orders-stats__item">
+            <dt>Delivered</dt>
+            <dd data-stat="delivered">0</dd>
+        </div>
+    </dl>
+</header>
+
+<div class="orders-bar">
+    <div class="filters" role="group" aria-label="Filter orders by status" data-filters>
+        <span class="filters__pill" data-filter-pill aria-hidden="true"></span>
+        <button class="filters__btn" type="button" data-filter="all" aria-pressed="true">
+            All <span class="filters__count" data-count="all">0</span>
+        </button>
+        <button class="filters__btn" type="button" data-filter="pending" aria-pressed="false"
+            style="--c: var(--status-pending)">
+            <span class="filters__dot" aria-hidden="true"></span>Pending <span class="filters__count"
+                data-count="pending">0</span>
+        </button>
+        <button class="filters__btn" type="button" data-filter="confirmed" aria-pressed="false"
+            style="--c: var(--status-confirmed)">
+            <span class="filters__dot" aria-hidden="true"></span>Confirmed <span class="filters__count"
+                data-count="confirmed">0</span>
+        </button>
+        <button class="filters__btn" type="button" data-filter="shipped" aria-pressed="false"
+            style="--c: var(--status-shipped)">
+            <span class="filters__dot" aria-hidden="true"></span>On the way <span class="filters__count"
+                data-count="shipped">0</span>
+        </button>
+        <button class="filters__btn" type="button" data-filter="delivered" aria-pressed="false"
+            style="--c: var(--status-delivered)">
+            <span class="filters__dot" aria-hidden="true"></span>Delivered <span class="filters__count"
+                data-count="delivered">0</span>
+        </button>
+        <button class="filters__btn" type="button" data-filter="cancelled" aria-pressed="false"
+            style="--c: var(--status-cancelled)">
+            <span class="filters__dot" aria-hidden="true"></span>Cancelled <span class="filters__count"
+                data-count="cancelled">0</span>
+        </button>
+    </div>
+
+    <button class="track-open" type="button" data-track-open aria-controls="track-panel" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-4-4" />
+        </svg>
+        Track by number
+    </button>
+</div>

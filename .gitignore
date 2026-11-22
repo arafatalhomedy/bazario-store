@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Django
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+
+# Secrets
+backend/.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

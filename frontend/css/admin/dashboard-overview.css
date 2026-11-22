@@ -1,0 +1,193 @@
+.bazario-dashboard__hero {
+    background: linear-gradient(108deg, #22221f 15%, #332c23 68%, #503d2d);
+    flex-wrap: nowrap;
+}
+
+.bazario-dashboard__hero h1 {
+    font-size: clamp(2rem, 4.3vw, 4rem);
+    line-height: .99;
+    letter-spacing: -.055em;
+    overflow-wrap: anywhere;
+}
+
+.bazario-dashboard__hero .bazario-dashboard__refresh {
+    margin-top: 1rem;
+    border-radius: 2rem;
+}
+
+.dashboard-ticket {
+    flex: none;
+    display: grid;
+    align-content: space-between;
+    width: clamp(5rem, 9vw, 8.4rem);
+    aspect-ratio: .8;
+    box-sizing: border-box;
+    margin-inline-end: 6%;
+    padding: .7rem;
+    color: #252019;
+    background: var(--bazario-accent);
+    border-radius: .65rem;
+    transform: rotate(10deg);
+    box-shadow: -5px 5px #ffe1b4, -8px 8px #9a7058;
+}
+
+.dashboard-ticket small {
+    font-weight: 750;
+}
+
+.dashboard-ticket b {
+    font-size: clamp(2.7rem, 5vw, 4.6rem);
+    line-height: 1;
+    letter-spacing: -.09em;
+}
+
+.dashboard-ticket span {
+    height: .85rem;
+    background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 4px, currentColor 4px 5px, transparent 5px 8px);
+}
+
+.bazario-dashboard__totals .bazario-dashboard__metric {
+    min-height: 8.8rem;
+    row-gap: .25rem;
+}
+
+.dashboard-overview-row {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-overview-row>section {
+    min-width: 0;
+}
+
+.bazario-dashboard__series p b {
+    color: var(--body-fg);
+    font-size: 1.5rem;
+}
+
+.bazario-dashboard__bar {
+    background: var(--bazario-accent);
+    max-width: 2.3rem;
+}
+
+.bazario-dashboard__track {
+    height: 6rem;
+}
+
+.bazario-dashboard__periods label {
+    border-radius: 2rem;
+}
+
+.bazario-dashboard__periods input:checked+label {
+    background: var(--body-fg);
+    color: var(--body-bg);
+    border-color: var(--body-fg);
+}
+
+@media (min-width: 60rem) {
+    .dashboard-overview-row:has(> section + section) {
+        grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 40rem) {
+    .dashboard-ticket {
+        margin-inline-end: .4rem;
+        width: 4rem;
+        padding: .4rem;
+    }
+
+    .dashboard-ticket b {
+        font-size: 2rem;
+    }
+
+    .dashboard-ticket small {
+        font-size: .65rem;
+    }
+
+    .bazario-dashboard__hero {
+        gap: .6rem;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .dashboard-ticket {
+        transition: transform .3s ease-out;
+    }
+
+    .bazario-dashboard__hero:hover .dashboard-ticket {
+        transform: translateY(-3px) rotate(6deg);
+    }
+
+    .dashboard-overview-row .bazario-dashboard__bar {
+        animation: dashboard-bar-rise .36s ease-out both;
+    }
+
+    @keyframes dashboard-bar-rise {
+        from {
+            transform: scaleY(0);
+        }
+
+        to {
+            transform: scaleY(1);
+        }
+    }
+}
+
+#dashboard-activity .activity-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hairline-color);
+}
+
+#dashboard-activity .activity-orders-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 5px 6px 5px 18px;
+    border: 1px solid var(--hairline-color);
+    border-radius: 999px;
+    background: var(--bazario-surface);
+    color: var(--body-fg);
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+}
+
+#dashboard-activity .activity-orders-arrow {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bazario-accent);
+    color: #211b16;
+    font-size: 19px;
+}
+
+#dashboard-activity .activity-orders-link:is(:hover, :focus-visible) {
+    border-color: var(--bazario-accent);
+    background: var(--bazario-tint);
+}
+
+#dashboard-activity .activity-orders-link:focus-visible {
+    outline: 2px solid var(--body-fg);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    #dashboard-activity .activity-orders-link {
+        transition: background-color 180ms ease, border-color 180ms ease;
+    }
+
+    #dashboard-activity .activity-orders-arrow {
+        transition: transform 180ms ease;
+    }
+
+    #dashboard-activity .activity-orders-link:is(:hover, :focus-visible) .activity-orders-arrow {
+        transform: translateX(2px);
+    }
+}

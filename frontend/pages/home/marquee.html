@@ -1,0 +1,19 @@
+{% comment %}
+Homepage: two crossing category ribbons.
+The categories come from the database (admin) and are added by
+js/components/marquee.js. Clicking one shows that category's products.
+Styles: css/home/marquee.css
+{% endcomment %}
+<section class="ribbons" aria-labelledby="ribbons-title" data-ribbons>
+    <h2 class="visually-hidden" id="ribbons-title">Shop by category</h2>
+
+    <!-- Ribbon 1: accent color, tilted up, moves left -->
+    <div class="ribbon ribbon--accent" data-ribbon>
+        <div class="ribbon__track" data-ribbon-track></div>
+    </div>
+
+    <!-- Ribbon 2: dark, tilted down, moves right -->
+    <div class="ribbon ribbon--dark" data-ribbon>
+        <div class="ribbon__track" data-ribbon-track></div>
+    </div>
+</section>

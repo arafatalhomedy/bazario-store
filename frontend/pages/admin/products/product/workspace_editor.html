@@ -1,0 +1,24 @@
+<div data-product-editor-fragment>
+    <header class="workspace-dialog-header product-editor-header">
+        <div>
+            <h2 id="workspace-editor-title">{% if add %}Add product{% else %}Edit product{% endif %}</h2>
+            {% if original %}<p>{{ original.name }}</p>{% endif %}
+        </div>
+        <button type="button" class="workspace-button product-editor-close" data-close-product-editor
+            aria-label="Close product editor">×</button>
+    </header>
+
+    <form class="workspace-form product-editor-form" method="post" action="{{ request.get_full_path }}"
+        enctype="multipart/form-data" data-product-mutation>
+        {% csrf_token %}
+        {% include "admin/products/product/workspace_fields.html" with form=adminform.form %}
+
+        <footer class="workspace-dialog-actions product-editor-footer">
+            <p class="workspace-message" role="status" data-editor-message></p>
+            <button type="button" class="workspace-button" data-close-product-editor>Cancel</button>
+            <button type="submit" name="_save" value="1" class="workspace-button workspace-primary">
+                {% if add %}Add product{% else %}Save changes{% endif %}
+            </button>
+        </footer>
+    </form>
+</div>

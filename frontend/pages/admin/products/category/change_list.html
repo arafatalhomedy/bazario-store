@@ -1,0 +1,178 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list bazario_admin static %}
+
+{% block bodyclass %}{{ block.super }}{% if not is_popup %} bazario-categories{% endif %}{% endblock %}
+
+{% block responsive %}
+{{ block.super }}
+{% if not is_popup %}
+<link rel="stylesheet" href="{% static 'css/admin/categories.css' %}">
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{% if not is_popup %}
+<script type="module" src="{% static 'js/pages/admin-categories.js' %}"></script>
+{% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+{% if not is_popup %}
+<div class="breadcrumbs bazario-admin-breadcrumbs">
+    <a href="{% url 'admin:index' %}">Dashboard</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">Categories</span>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content_title %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block content %}
+{% if is_popup %}
+{{ block.super }}
+{% else %}
+{% bazario_category_storefront as storefront %}
+{% url 'shop-page' as shop_url %}
+<section id="bazario-category-gallery" aria-label="Category management">
+    <header class="bg-title">
+        <h1>Categories<span>.</span></h1>
+        {% if category_add_url %}
+        <a class="bg-button bg-primary" href="{{ category_add_url }}" data-category-editor>＋ Add category</a>
+        {% endif %}
+    </header>
+
+    <dl class="bg-stats" aria-label="Storefront totals">
+        <div>
+            <dt>Categories</dt>
+            <dd>{{ storefront.total }}</dd>
+        </div>
+        <div>
+            <dt>With visible products</dt>
+            <dd>{{ storefront.populated }}</dd>
+        </div>
+        <div>
+            <dt>Without visible products</dt>
+            <dd>{{ storefront.waiting }}</dd>
+        </div>
+        <div>
+            <dt>Visible products</dt>
+            <dd>{{ storefront.products }}</dd>
+        </div>
+    </dl>
+
+    <section class="bg-storefront" aria-labelledby="bg-storefront-title">
+        <h2 id="bg-storefront-title">In your shop</h2>
+        <p>Categories appear in this alphabetical order.</p>
+        <nav aria-label="Storefront categories">
+            <a class="bg-chip bg-chip-all" href="{{ shop_url }}">All <span>{{ storefront.products }}</span></a>
+            {% for category in storefront.categories %}
+            <a class="bg-chip" href="{{ shop_url }}?category={{ category.slug|urlencode }}">
+                {{ category.name }} <span>{{ category.product_count }}</span>
+            </a>
+            {% endfor %}
+        </nav>
+    </section>
+
+    <div class="bg-toolbar">
+        {% search_form cl %}
+        {% if category_empty_only %}
+        <a class="bg-button" href="{{ category_empty_url }}" aria-current="true">Empty · {{ category_empty }}</a>
+        {% else %}
+        <a class="bg-button" href="{{ category_empty_url }}">Empty · {{ category_empty }}</a>
+        {% endif %}
+        <details class="bg-sort">
+            <summary class="bg-button">Sort</summary>
+            <div class="bg-sort-menu">
+                {% for option in category_order %}
+                <a href="{{ option.url }}" {% if option.active %} aria-current="true" {% endif %}>{{ option.label }}</a>
+                {% endfor %}
+            </div>
+        </details>
+    </div>
+
+    {% if action_form and cl.show_admin_actions and category_rows %}
+    <details class="bg-bulk">
+        <summary>Bulk actions</summary>
+        <form id="changelist-form" method="post" novalidate>
+            {% csrf_token %}
+            <label><input id="action-toggle" type="checkbox"> Select all on this page</label>
+            {% admin_actions %}
+        </form>
+    </details>
+    {% endif %}
+
+    <div class="bg-stage">
+        <dialog class="bg-panel" aria-labelledby="bg-category-editor-title" data-category-panel></dialog>
+        <div class="bg-catalog">
+            <table id="result_list" role="table" aria-label="Categories">
+                <tbody class="bg-list" role="rowgroup">
+                    {% for row in category_rows %}
+                    {% with category=row.category count=row.category.inventory_count %}
+                    <tr role="row">
+                        <td role="cell">
+                            <article class="bg-tile bg-enter" data-art="{{ row.art }}" data-category>
+                                <div class="bg-tile-top">
+                                    {% if action_form and cl.show_admin_actions %}
+                                    <input class="bg-select action-select" form="changelist-form" type="checkbox"
+                                        name="_selected_action" value="{{ category.pk }}"
+                                        aria-label="Select {{ category.name }}">
+                                    {% endif %}
+                                    <span class="bg-icon" aria-hidden="true">
+                                        <span class="bazario-dashboard__icon" data-icon="category"></span>
+                                    </span>
+                                    <h2>{{ category.name }}</h2>
+                                    <p class="bg-slug">{{ category.slug }}</p>
+                                </div>
+                                <div class="bg-tile-foot">
+                                    {% if row.products_url %}
+                                    <a class="bg-count" href="{{ row.products_url }}">
+                                        <span>{{ count }} product{{ count|pluralize }}</span>
+                                        <span aria-hidden="true">↗</span>
+                                    </a>
+                                    {% else %}
+                                    <span class="bg-count">{{ count }} product{{ count|pluralize }}</span>
+                                    {% endif %}
+                                    <div class="bg-actions">
+                                        {% if row.can_change %}
+                                        <a class="bg-button" href="{{ row.change_url }}" data-category-editor
+                                            aria-label="Edit {{ category.name }}">Edit</a>
+                                        {% else %}
+                                        <a class="bg-button" href="{{ row.change_url }}">View</a>
+                                        {% endif %}
+                                        {% if row.delete_url %}
+                                        <a class="bg-button bg-danger" href="{{ row.delete_url }}" data-category-delete
+                                            aria-expanded="false" aria-label="Delete {{ category.name }}">Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div data-confirmation-slot hidden></div>
+                            </article>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% empty %}
+                    <tr role="row">
+                        <td role="cell">
+                            <p class="bg-empty">No categories match these filters.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if category_add_url and category_rows %}
+                    <tr role="row">
+                        <td role="cell">
+                            <a class="bg-add-tile" href="{{ category_add_url }}" data-category-editor><span
+                                    aria-hidden="true">＋</span> Add category</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            {% pagination cl %}
+        </div>
+    </div>
+    <p class="bg-message" role="status" data-category-status></p>
+</section>
+{% endif %}
+{% endblock %}

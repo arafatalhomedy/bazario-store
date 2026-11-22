@@ -1,0 +1,73 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list admin_urls static tz %}
+{% block responsive %}
+  {{ block.super }}
+  {% if not is_popup %}
+    <link rel="stylesheet" href="{% static 'css/admin/customer-directory.css' %}">
+    <script defer src="{% static 'js/admin/customer-directory.js' %}"></script>
+  {% endif %}
+{% endblock %}
+{% block content_title %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
+{% block content %}
+{% if is_popup %}{{ block.super }}{% else %}
+{% timezone "Asia/Kuala_Lumpur" %}
+<div class="customer-desk">
+  <header class="customer-cover"><div><small>Accounts / Directory</small><h1>Customers<span>.</span></h1></div><div class="directory-count"><small>Registered</small><strong>{{ cl.full_result_count|stringformat:"02d" }}</strong></div></header>
+  <div class="directory-tools">
+    {% search_form cl %}
+    <details class="customer-dropdown">
+      <summary>Joined · {% for choice in joined_choices %}{% if choice.selected %}{{ choice.display }}{% endif %}{% endfor %}</summary>
+      <div>{% for choice in joined_choices %}<a href="{{ choice.query_string }}" {% if choice.selected %}aria-current="true"{% endif %}>{{ choice.display }}</a>{% endfor %}</div>
+    </details>
+  </div>
+  <div class="directory-rail">
+    <nav class="directory-tabs" aria-label="Account status">{% for choice in status_choices %}<a href="{{ choice.query_string }}" {% if choice.selected %}aria-current="true"{% endif %}>{{ choice.label }}</a>{% endfor %}</nav>
+    <details class="customer-dropdown"><summary>Sort by</summary><div>{% for header in sort_headers %}{% if header.sortable %}<a href="{{ header.url_primary }}">{{ header.text }}{% if header.sorted %} {% if header.ascending %}↑{% else %}↓{% endif %}{% endif %}</a>{% endif %}{% endfor %}</div></details>
+  </div>
+  {% for row in directory_rows %}
+    <article class="customer-card">
+      <div class="customer-person"><span class="customer-avatar" aria-hidden="true">{{ row.initials }}</span><div>
+        <span class="customer-status {% if row.customer.is_active %}active{% endif %}">{{ row.customer.is_active|yesno:"Active,Inactive" }}</span>
+        <h2>{{ row.name }}</h2><small>{{ row.customer.email }}</small>
+      </div></div>
+      <div class="customer-facts"><div><small>Orders</small><strong>{{ row.customer.number_of_orders }}</strong></div><div><small>Joined</small><b>{{ row.customer.date_joined|date:"j M Y" }}</b></div></div>
+      <div class="customer-actions">
+        {% url 'admin:accounts_customer_change' row.customer.pk as customer_url %}
+        <a class="customer-view" href="{% add_preserved_filters customer_url %}" aria-controls="account-{{ row.customer.pk }}">View customer <span aria-hidden="true">⌄</span></a>
+        {% if can_view_orders %}
+          {% url 'admin:accounts_customer_orders' row.customer.pk as orders_url %}
+          <a class="customer-orders-link" href="{% add_preserved_filters orders_url %}">View orders <span aria-hidden="true">→</span></a>
+        {% endif %}
+      </div>
+      <section id="account-{{ row.customer.pk }}" class="account-panel" aria-label="Account details" hidden>
+        <h3>Account details</h3><dl><div><dt>Store username</dt><dd>{{ row.username|default:"—" }}</dd></div><div><dt>Email address</dt><dd>{{ row.customer.email|default:"—" }}</dd></div><div><dt>Joined at</dt><dd>{{ row.customer.date_joined|date:"j M Y · H:i" }} MYT</dd></div></dl>
+      </section>
+    </article>
+  {% empty %}
+    <div class="customer-empty">{% if cl.has_active_filters or cl.query %}No matching customers. <a href="{{ request.path }}">Clear filters</a>{% else %}No registered customers yet.{% endif %}</div>
+  {% endfor %}
+  {% if cl.multi_page %}
+    {% widthratio cl.page_num|add:"-1" 1 cl.list_per_page as offset %}
+    <nav class="customer-paging" aria-label="Customer pages">
+      {% with visible=directory_rows|length %}<span>Showing {{ offset|add:"1" }}–{{ offset|add:visible }} of {{ cl.result_count }}</span>{% endwith %}
+      <div class="customer-page-switch">
+        {% if cl.page_num > 1 %}
+          <a class="customer-page-arrow previous" aria-label="Previous page" rel="prev" href="{% querystring p=cl.page_num|add:'-1' %}"><span aria-hidden="true">←</span></a>
+        {% else %}
+          <button class="customer-page-arrow" type="button" aria-label="Previous page" disabled><span aria-hidden="true">←</span></button>
+        {% endif %}
+        <strong>Page {{ cl.page_num }} of {{ cl.paginator.num_pages }}</strong>
+        {% if cl.page_num < cl.paginator.num_pages %}
+          <a class="customer-page-arrow next" aria-label="Next page" rel="next" href="{% querystring p=cl.page_num|add:'1' %}"><span aria-hidden="true">→</span></a>
+        {% else %}
+          <button class="customer-page-arrow" type="button" aria-label="Next page" disabled><span aria-hidden="true">→</span></button>
+        {% endif %}
+      </div>
+    </nav>
+  {% elif cl.result_count %}
+    <p class="customer-paging">{{ cl.result_count }} customer{{ cl.result_count|pluralize }}</p>
+  {% endif %}
+</div>
+{% endtimezone %}
+{% endif %}
+{% endblock %}

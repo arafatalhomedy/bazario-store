@@ -1,0 +1,108 @@
+{% firstof form.description.errors form.slug.errors as detail_errors %}
+<div class="product-editor-layout">
+    {{ form.price_snapshot }}
+    {% if form.errors and not full_page %}
+    <div class="product-editor-errors" role="alert">
+        <p>Check the highlighted fields below.</p>
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="product-editor-column">
+        <section class="product-editor-section">
+            <h3>Product details</h3>
+
+            <div class="workspace-pair">
+                <div class="workspace-field">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="workspace-field">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                    {{ form.category.errors }}
+                </div>
+            </div>
+
+            <details class="workspace-extra product-editor-extra" {% if detail_errors %}open{% endif %}>
+                <summary>Description and product URL</summary>
+                <div class="workspace-field">
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="workspace-field">
+                    {{ form.slug.label_tag }}
+                    {{ form.slug }}
+                    {{ form.slug.errors }}
+                </div>
+            </details>
+        </section>
+
+        <section class="product-editor-section">
+            <h3>Pricing and inventory</h3>
+
+            <div class="workspace-pair">
+                <div class="workspace-field">
+                    {{ form.price.label_tag }}
+                    {{ form.price }}
+                    {{ form.price.errors }}
+                </div>
+                {% if original.is_on_sale %}
+                <div class="workspace-field"><strong>On promotion</strong>
+                    <a href="{% url 'bazario_promotions' %}?edit={{ original.pk }}">Manage promotion →</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="workspace-pair">
+                <div class="workspace-field">
+                    {{ form.stock.label_tag }}
+                    {{ form.stock }}
+                    {{ form.stock.errors }}
+                </div>
+                <div class="workspace-field product-editor-visibility">
+                    <label for="{{ form.is_active.id_for_label }}">
+                        {{ form.is_active }} Visible in shop
+                    </label>
+                    {{ form.is_active.errors }}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="product-editor-column">
+        <output class="workspace-sale product-editor-price" for="id_price" data-product-price
+            hidden>
+            <span class="workspace-sale-heading">
+                <span>Storefront price</span>
+                <span data-savings hidden></span>
+            </span>
+            <span class="workspace-sale-values">
+                <strong data-current-price></strong>
+                <s data-regular-price hidden></s>
+            </span>
+        </output>
+
+        <section class="product-editor-section">
+            <h3>Product image</h3>
+
+            {% with photo=original.thumbnail|default:form.image.initial %}
+            <div class="product-editor-photo">
+                {% if photo %}
+                <img src="{{ photo.url }}" alt="Current product image" decoding="async">
+                {% else %}
+                <span>No image uploaded</span>
+                {% endif %}
+            </div>
+            {% endwith %}
+
+            <div class="workspace-field">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+                {{ form.image.errors }}
+            </div>
+        </section>
+    </div>
+</div>

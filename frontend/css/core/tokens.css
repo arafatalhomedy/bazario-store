@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Design tokens: the single source of truth for colors, type, spacing
+   and motion. Change a value here and the whole site follows.
+   ========================================================================== */
+:root {
+    /* Typography */
+    --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.875rem;
+    --fs-base: 1rem;
+    --fs-md: 1.125rem;
+    --fs-lg: 1.5rem;
+    --fs-xl: clamp(2.25rem, 5vw, 4rem);
+    --fs-hero: clamp(3.5rem, 13vw, 11rem);
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+
+    /* Layout */
+    --container: 1320px;
+    --gutter: clamp(1rem, 4vw, 3rem);
+    --header-h: 72px;
+
+    /* Shape */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.7, 0, 0.3, 1);
+    --dur-fast: 150ms;
+    --dur: 300ms;
+    --dur-slow: 800ms;
+}
+
+/* ---------- Light theme (default): warm paper + coral ---------- */
+:root,
+:root[data-theme="light"] {
+    color-scheme: light;
+    --color-bg: #f4f1ea;
+    --color-surface: #ffffff;
+    --color-surface-2: #e9e4d8;
+    --color-text: #141414;
+    --color-text-muted: #5f5b53;
+    --color-border: rgba(20, 20, 20, 0.12);
+    --color-accent: #ff5a36;
+    --color-accent-contrast: #141414;
+    --color-warning: #8a4b00;
+    --color-warning-bg: #ffecc7;
+    --color-header-bg: rgba(244, 241, 234, 0.75);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 18px 40px -16px rgba(0, 0, 0, 0.22);
+}
+
+/* ---------- Dark theme: near-black + electric lime ---------- */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg: #0e0e0f;
+    --color-surface: #18181a;
+    --color-surface-2: #242427;
+    --color-text: #f2efe8;
+    --color-text-muted: #a19d94;
+    --color-border: rgba(242, 239, 232, 0.12);
+    --color-accent: #d4ff3f;
+    --color-accent-contrast: #0e0e0f;
+    --color-warning: #ffd27a;
+    --color-warning-bg: #3a2c0b;
+    --color-header-bg: rgba(14, 14, 15, 0.72);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 18px 40px -16px rgba(0, 0, 0, 0.7);
+}

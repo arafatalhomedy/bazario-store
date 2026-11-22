@@ -1,0 +1,112 @@
+.order-filter-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    min-width: 0;
+    padding-block-start: .85rem;
+    border-block-start: 1px solid var(--orders-border);
+}
+.order-filter-strip .orders-statuses {
+    flex: 1 1 30rem;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+}
+.order-filter-strip .orders-statuses ul {
+    display: inline-flex;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0;
+    padding: .25rem;
+    gap: .18rem;
+    border: 1px solid var(--orders-border);
+    border-radius: 1.2rem;
+    background: var(--orders-control);
+}
+.order-filter-strip .orders-statuses a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 2.3rem;
+    padding-inline: .7rem;
+    border-radius: .95rem;
+    font-size: .83rem;
+    font-weight: 600;
+}
+.order-filter-strip .orders-statuses .selected a {
+    color: light-dark(#732d18, #ffd2be);
+    border-color: light-dark(#efb8a3, #925a43);
+    background: light-dark(#ffe4d7, #492e24);
+    box-shadow: inset 0 -2px light-dark(#f58b67, #ab674e);
+}
+.order-filter-strip .filter-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.2rem;
+    padding: .04rem .24rem;
+    border-radius: .5rem;
+    background: color-mix(in srgb, currentColor 9%, transparent);
+    font-size: .72rem;
+    font-variant-numeric: tabular-nums;
+}
+.order-date-picker { position: relative; margin-inline-start: auto; }
+.order-date-picker > summary {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    padding: .42rem .75rem;
+    min-height: 2.9rem;
+    box-sizing: border-box;
+    border: 1px solid var(--orders-border);
+    border-radius: .9rem;
+    background: var(--orders-panel);
+    cursor: pointer;
+    list-style: none;
+}
+.order-date-picker > summary::-webkit-details-marker { display: none; }
+.order-date-picker:is([open],.has-date) > summary { border-color: light-dark(#d98f70,#bb866b); }
+.order-date-caption { display: grid; gap: .1rem; line-height: 1.15; }
+.order-date-caption small { color: var(--orders-muted); font-size: .71rem; }
+.order-date-caption strong { font-weight: 700; color: var(--body-fg); }
+.order-calendar-icon {
+    position: relative;
+    width: 1rem; height: .9rem;
+    border: 1.5px solid currentColor;
+    border-radius: .23rem;
+    color: light-dark(#9d4c32,#ebaf93);
+    background: linear-gradient(to bottom, transparent 27%,currentColor 27% 38%,transparent 38%);
+}
+.order-calendar-icon::before,.order-calendar-icon::after { content: ""; position: absolute; top: -.22rem; height: .3rem; width: 2px; background: currentColor; border-radius: 2px; }
+.order-calendar-icon::before { left: 20%; }
+.order-calendar-icon::after { right: 20%; }
+.order-date-chevron { margin-inline-start: .35rem; width: .42rem; height: .42rem; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.order-date-picker[open] .order-date-chevron { transform: rotate(225deg); }
+.order-date-panel {
+    box-sizing: border-box;
+    position: absolute; z-index: 5; inset-inline-end: 0; top: calc(100% + .45rem);
+    width: min(19rem, 80vw); padding: .85rem;
+    border: 1px solid var(--orders-border); border-radius: 1rem;
+    background: var(--orders-panel); box-shadow: 0 12px 32px #35241824;
+}
+.order-day-form label { display: block; margin-bottom: .4rem; color: var(--body-fg); font-weight: 700; }
+.order-day-form > div { display: flex; gap: .5rem; margin-bottom: .7rem; }
+.order-day-form input { flex: 1; min-width: 0; }
+.order-day-form :is(input,button) { box-sizing: border-box; min-height: 2.6rem; padding: .4rem .6rem; border: 1px solid var(--orders-border); border-radius: .65rem; font: inherit; }
+.order-day-form button { border: 0; background: var(--bazario-accent); color: var(--bazario-ink); font-weight: 700; cursor: pointer; }
+.order-date-panel ul,.order-date-panel li { list-style: none; padding: 0; margin: 0; }
+.order-date-panel li a { display: flex; align-items: center; justify-content: space-between; padding: .45rem .6rem; border-radius: .55rem; text-decoration: none; color: var(--body-fg); }
+.order-date-panel li a:hover,.order-date-panel li.selected a { background: var(--bazario-tint); }
+@media (max-width: 42rem) {
+    .order-date-picker { width: 100%; }
+    .order-date-chevron { margin-inline-start: auto; }
+    .order-date-panel { position: static; margin-top: .5rem; width: 100%; box-shadow: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .order-date-picker[open] .order-date-panel { animation: bz-filter-open .16s ease-out; }
+    .order-date-chevron { transition: transform .16s ease; }
+    .order-filter-strip .orders-statuses a { transition: background-color .16s, box-shadow .16s; }
+    @keyframes bz-filter-open { from { opacity: .4; transform: translateY(-4px); } }
+}

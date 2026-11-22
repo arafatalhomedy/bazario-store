@@ -1,0 +1,24 @@
+<div class="bz-cancel">
+  <button type="button" class="bz-cancel-trigger" popovertarget="bz-cancel-panel" aria-haspopup="dialog">
+    <span class="bz-cancel-symbol" aria-hidden="true">×</span>
+    {% if request_only %}Request cancellation{% else %}Cancel order{% endif %}
+  </button>
+  <section id="bz-cancel-panel" popover role="dialog" aria-labelledby="bz-cancel-title" aria-describedby="bz-cancel-description">
+    <span class="bz-cancel-id">Order {{ order.number }}</span>
+    {% if request_only %}
+      <h2 id="bz-cancel-title">Request cancellation?</h2>
+      <p id="bz-cancel-description">We’ll pause dispatch while the store reviews your request to cancel the whole order.</p>
+      {% url 'order-page' order.number as cancel_url %}
+    {% else %}
+      <h2 id="bz-cancel-title">Cancel this order?</h2>
+      <p id="bz-cancel-description">All items in this order will be cancelled. This can’t be undone.</p>
+      {% url 'cancel-pending-order' order.number as cancel_url %}
+    {% endif %}
+    <form method="post" action="{{ cancel_url }}" class="bz-cancel-actions">
+      {% csrf_token %}
+      {% if request_only %}<input type="hidden" name="action" value="request_cancellation">{% endif %}
+      <button type="button" class="bz-keep" popovertarget="bz-cancel-panel" popovertargetaction="hide" autofocus>Keep order</button>
+      <button type="submit" class="bz-confirm-cancel">{% if request_only %}Send request{% else %}Yes, cancel order{% endif %}</button>
+    </form>
+  </section>
+</div>

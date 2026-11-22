@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load bazario_admin static %}
+
+{% block responsive %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/dashboard-overview.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} bazario-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<header class="bazario-dashboard__hero">
+    <div class="bazario-dashboard__orbit" aria-hidden="true"></div>
+    <div class="bazario-dashboard__welcome">
+        <time datetime="{% now 'Y-m-d' %}">{% now 'l, j F Y' %}</time>
+        <h1>Welcome back,<br>{% firstof user.get_short_name "Administrator" %}<span aria-hidden="true">.</span></h1>
+        <a class="bazario-dashboard__refresh" href="{% url 'admin:index' %}">
+        <span aria-hidden="true">↻</span> Refresh
+        </a>
+    </div>
+    <div class="dashboard-ticket" aria-hidden="true"><small>Bazario.</small><b>B.</b><span></span></div>
+</header>
+
+{% bazario_dashboard_totals app_list as totals %}
+{% if totals %}
+<ul class="bazario-dashboard__totals" aria-label="Store summary">
+    {% for card in totals %}
+    <li>
+        <a class="bazario-dashboard__metric" href="{{ card.url }}" data-metric="{{ card.icon }}">
+            <span class="bazario-dashboard__metric-mark" aria-hidden="true">
+                <span class="bazario-dashboard__icon" data-icon="{{ card.icon }}"></span>
+            </span>
+            <span class="bazario-dashboard__metric-arrow" aria-hidden="true">↗</span>
+            <span class="bazario-dashboard__metric-label">{{ card.label }}</span>
+            <strong class="bazario-dashboard__metric-value">{{ card.value }}</strong>
+            <span class="bazario-dashboard__metric-detail">{{ card.detail }}</span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% bazario_order_overview app_list as overview %}
+{% bazario_dashboard_activity overview %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% comment %}
+PRODUCT PAGE (/products/<slug>/)
+    Django gives this template the "product" (see apps/pages/views.py).
+    The page content is loaded by js/pages/product.js from /api/products/<slug>/.
+        {% endcomment %}
+
+        {% block title %}{{ product.name }} — Bazario{% endblock %}
+        {% block description %}{{ product.description|truncatechars:150 }}{% endblock %}
+
+        {% block page_css %}
+        <link rel="stylesheet" href="{% static 'css/product/details.css' %}">
+        <link rel="stylesheet" href="{% static 'css/product/suggestions.css' %}">
+        {% endblock %}
+
+        {% block page_js %}
+        <script type="module" src="{% static 'js/pages/product.js' %}"></script>
+        {% endblock %}
+
+        {% block content %}
+        {% include "product/details.html" %}
+        {% include "product/suggestions.html" %}
+        {% endblock %}

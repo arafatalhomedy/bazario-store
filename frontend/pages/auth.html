@@ -1,0 +1,156 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Your account · Bazario{% endblock %}
+{% block description %}Log in or create your Bazario account.{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/account/auth.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/auth.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="auth" data-auth data-side="{{ side }}" data-next="{{ next }}">
+    <div class="auth__top">
+        <a class="auth__brand" href="/" aria-label="Bazario home">Bazario<span>.</span></a>
+    </div>
+    <span class="auth__word" data-auth-word aria-hidden="true">Hello</span>
+
+    <div class="auth__orbits" data-orbits aria-hidden="true">
+        <div class="orbit orbit--outer" data-orbit="outer"></div>
+        <div class="orbit orbit--inner" data-orbit="inner"></div>
+    </div>
+
+    <div class="auth__scene">
+        <div class="auth__tilt" data-auth-tilt>
+            <div class="auth-card" data-auth-card>
+                <div class="auth-card__inner" data-auth-inner>
+
+                    <div class="auth-switch" role="group" aria-label="Log in or sign up">
+                        <span class="auth-switch__pill" aria-hidden="true"></span>
+                        <button class="auth-switch__btn" type="button" data-switch="login" aria-pressed="true">Log
+                            in</button>
+                        <button class="auth-switch__btn" type="button" data-switch="signup" aria-pressed="false">Sign
+                            up</button>
+                    </div>
+
+                    {# ---------- Log in ---------- #}
+                    <form class="auth-face" data-face="login" novalidate aria-labelledby="login-title">
+                        <p class="auth-face__kicker"><b>(05)</b> Welcome back</p>
+                        <h1 class="auth-face__title" id="login-title">Log in.</h1>
+                        <p class="auth-face__sub">Your orders, on any device.</p>
+
+                        <div class="auth-field">
+                            <input class="auth-field__input" id="login-identifier" name="identifier" type="text"
+                                placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false"
+                                maxlength="150" required>
+                            <label class="auth-field__label" for="login-identifier">Email or username</label>
+                            <svg class="auth-field__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 6h18v12H3zM3 7l9 6 9-6" />
+                            </svg>
+                            <span class="auth-field__line" aria-hidden="true"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <input class="auth-field__input" id="login-password" name="password" type="password"
+                                placeholder=" " autocomplete="current-password" required>
+                            <label class="auth-field__label" for="login-password">Password</label>
+                            <svg class="auth-field__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3" />
+                            </svg>
+                            <span class="auth-field__line" aria-hidden="true"></span>
+                            <button class="auth-field__eye" type="button" data-eye aria-label="Show password">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="auth-row">
+                            <label class="auth-check">
+                                <input type="checkbox" name="remember" checked>
+                                <span class="auth-check__box" aria-hidden="true"></span>
+                                Keep me logged in
+                            </label>
+                        </div>
+
+                        <button class="auth-submit" type="submit">
+                            <span class="auth-submit__fill" aria-hidden="true"></span>
+                            <span class="auth-submit__label" data-label>Log in</span>
+                            <span class="auth-submit__arrow" aria-hidden="true">→</span>
+                        </button>
+                        <p class="auth-error" data-error role="alert"></p>
+                    </form>
+
+                    {# ---------- Sign up ---------- #}
+                    <form class="auth-face" data-face="signup" novalidate hidden aria-labelledby="signup-title">
+                        <p class="auth-face__kicker"><b>(05)</b> Join the club</p>
+                        <h1 class="auth-face__title" id="signup-title">Sign up.</h1>
+                        <p class="auth-face__sub">30 seconds. Your guest orders come along.</p>
+
+                        <div class="auth-field">
+                            <input class="auth-field__input" id="signup-name" name="full_name" type="text"
+                                placeholder=" " autocomplete="name" maxlength="100" required>
+                            <label class="auth-field__label" for="signup-name">Full name</label>
+                            <svg class="auth-field__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+                            </svg>
+                            <span class="auth-field__line" aria-hidden="true"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <input class="auth-field__input" id="signup-email" name="email" type="email" placeholder=" "
+                                autocomplete="email" maxlength="150" required>
+                            <label class="auth-field__label" for="signup-email">Email</label>
+                            <svg class="auth-field__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 6h18v12H3zM3 7l9 6 9-6" />
+                            </svg>
+                            <span class="auth-field__line" aria-hidden="true"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <input class="auth-field__input" id="signup-password" name="password" type="password"
+                                placeholder=" " autocomplete="new-password" required aria-describedby="password-rules">
+                            <label class="auth-field__label" for="signup-password">Password</label>
+                            <svg class="auth-field__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3" />
+                            </svg>
+                            <span class="auth-field__line" aria-hidden="true"></span>
+                            <button class="auth-field__eye" type="button" data-eye aria-label="Show password">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="auth-meter" data-meter aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                        <div class="auth-rules" id="password-rules">
+                            <span class="auth-rule" data-rule="length">10+ characters</span>
+                            <span class="auth-rule" data-rule="number">A number</span>
+                            <span class="auth-rule" data-rule="case">Upper and lower</span>
+                        </div>
+
+                        <button class="auth-submit" type="submit">
+                            <span class="auth-submit__fill" aria-hidden="true"></span>
+                            <span class="auth-submit__label" data-label>Create account</span>
+                            <span class="auth-submit__arrow" aria-hidden="true">→</span>
+                        </button>
+                        <p class="auth-error" data-error role="alert"></p>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="auth__guest">Just browsing? <a href="/#shop">Continue as guest</a></p>
+</div>
+{% endblock %}

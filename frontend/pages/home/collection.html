@@ -1,0 +1,88 @@
+{% comment %}
+Homepage: "The Collection", a 3D showroom of products (+ grid view).
+Everything inside [data-...] boxes is filled by js/components/showroom.js.
+Styles: css/home/collection.css
+The address can preselect a tab: ?category=audio ?new=1 ?search=lamp
+{% endcomment %}
+<section class="showroom" id="shop" aria-labelledby="showroom-title" data-showroom>
+    <div class="container">
+
+        <!-- Title + view switch -->
+        <div class="showroom__head">
+            <div>
+                <p class="showroom__label"><strong>(02)</strong> Shop the collection</p>
+                <h2 class="showroom__title" id="showroom-title">
+                    The Collection<sup class="showroom__total" data-showroom-total></sup>
+                </h2>
+            </div>
+
+            <div class="view-switch" role="group" aria-label="Choose a view">
+                <button class="view-switch__btn is-active" type="button" data-view="carousel"
+                    aria-pressed="true">Carousel</button>
+                <button class="view-switch__btn" type="button" data-view="grid" aria-pressed="false">Grid</button>
+            </div>
+        </div>
+
+        <!-- Category tabs (added by showroom.js from the database) -->
+        <div class="showroom__tabs" role="group" aria-label="Filter by category" data-tabs>
+            <span class="showroom__pill" aria-hidden="true" data-tabs-pill></span>
+        </div>
+
+        <!-- Shown when the page was opened with ?search=... -->
+        <p class="showroom__search" data-search-note hidden>
+            Results for “<span data-search-term></span>”
+            <button class="showroom__clear" type="button" data-clear-search>Clear search</button>
+        </p>
+
+        <!-- ===== Carousel view ===== -->
+        <div class="showroom__carousel" data-carousel>
+
+            <div class="stage" data-stage tabindex="0" aria-roledescription="carousel"
+                aria-label="Products. Use the left and right arrow keys to browse.">
+                <div class="stage__number" aria-hidden="true"><span data-stage-number>01</span></div>
+                <div class="stage__glow" aria-hidden="true"></div>
+                <ul class="stage__cards" data-stage-cards></ul>
+
+                <button class="stage__nav stage__nav--prev" type="button" data-prev aria-label="Previous product">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M19 12H5M11 6l-6 6 6 6" />
+                    </svg>
+                </button>
+                <button class="stage__nav stage__nav--next" type="button" data-next aria-label="Next product">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Info about the product in the center -->
+            <div class="showroom__info">
+                <div class="showroom__meta" data-meta aria-live="polite">
+                    <p class="showroom__kicker" data-meta-kicker></p>
+                    <h3 class="showroom__name" data-meta-name></h3>
+                    <p class="showroom__price" data-meta-price></p>
+                </div>
+                <div class="showroom__actions">
+                    <a class="btn btn--outline" href="#shop" data-meta-link>View details</a>
+                    <button class="btn btn--primary" type="button" data-add-to-cart>Add to cart</button>
+                </div>
+            </div>
+
+            <!-- Small thumbnails of all products -->
+            <div class="showroom__thumbs" role="group" aria-label="Choose a product" data-thumbs></div>
+        </div>
+
+        <!-- ===== Grid view (hidden until "Grid" is clicked) ===== -->
+        <ul class="showroom__grid" data-grid hidden></ul>
+
+        <!-- ===== Empty / error message ===== -->
+        <div class="showroom__state" data-state hidden>
+            <p class="showroom__state-title" data-state-title>Nothing here yet</p>
+            <p class="showroom__state-text" data-state-text>Try another category.</p>
+            <button class="btn btn--ghost" type="button" data-state-action>Show all products</button>
+        </div>
+
+    </div>
+</section>

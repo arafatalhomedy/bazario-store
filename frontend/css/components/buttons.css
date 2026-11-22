@@ -1,0 +1,74 @@
+/* ==========================================================================
+   BUTTONS (used on every page)
+   <a class="btn btn--primary">   main action
+   <a class="btn btn--outline">   second choice
+   <a class="btn btn--ghost">     small action
+   Add btn--lg for a bigger button.
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    padding: 0.9em 1.6em;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color var(--dur), color var(--dur),
+        border-color var(--dur), transform 0.4s var(--ease-out);
+}
+
+/* Arrow icon slides right on hover */
+.btn svg {
+    width: 1.1em;
+    height: 1.1em;
+    transition: transform var(--dur) var(--ease-out);
+}
+
+.btn:hover svg {
+    transform: translateX(4px);
+}
+
+/* Bigger version */
+.btn--lg {
+    padding: 1.05em 2em;
+    font-size: var(--fs-base);
+}
+
+/* Main action: dark, turns accent color on hover */
+.btn--primary {
+    background: var(--color-text);
+    color: var(--color-bg);
+}
+
+.btn--primary:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+}
+
+/* Second choice: border only, fills on hover */
+.btn--outline {
+    border-color: var(--color-text);
+}
+
+.btn--outline:hover {
+    background: var(--color-text);
+    color: var(--color-bg);
+}
+
+/* Small action: light border */
+.btn--ghost {
+    border-color: var(--color-border);
+}
+
+.btn--ghost:hover {
+    background: var(--color-surface-2);
+}
+
+/* While loading: faded and not clickable */
+.btn[aria-busy="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}

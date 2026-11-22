@@ -1,0 +1,180 @@
+{% load l10n %}
+
+{% if overview or actions %}
+<div class="bazario-dashboard__workspace dashboard-overview-row">
+    {% if overview %}
+    <section class="bazario-dashboard__panel" aria-labelledby="bazario-order-activity">
+        <h2 id="bazario-order-activity">Order activity</h2>
+
+        <fieldset class="bazario-dashboard__periods">
+            <legend class="visually-hidden">Order activity date range</legend>
+
+            <input class="visually-hidden" type="radio" name="order-range" id="bazario-orders-week" checked>
+            <label for="bazario-orders-week">7 days</label>
+
+            <input class="visually-hidden" type="radio" name="order-range" id="bazario-orders-month">
+            <label for="bazario-orders-month">4 weeks</label>
+
+            {% for period in overview.periods %}
+            <div class="bazario-dashboard__series" data-period="{{ period.key }}">
+                <p><b>{{ period.total }}</b> order{{ period.total|pluralize }} placed</p>
+
+                <ul class="bazario-dashboard__bars" aria-label="Orders by period">
+                    {% for bar in period.bars %}
+                    <li style="--bar-height: {{ bar.percent|unlocalize }}%">
+                        <div class="bazario-dashboard__track">
+                            <span class="bazario-dashboard__bar" aria-hidden="true"></span>
+                            <strong>{{ bar.count }}</strong>
+                        </div>
+                        <span class="bazario-dashboard__bar-label">{{ bar.label }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </fieldset>
+    </section>
+    {% endif %}
+
+    {% if actions %}
+    <section class="bazario-dashboard__panel">
+        <h2>Quick actions</h2>
+        <ul class="bazario-dashboard__quick-actions">
+            {% for action in actions %}
+            <li data-kind="{{ action.icon }}">
+                <a href="{{ action.url }}">
+                    <span class="bazario-dashboard__metric-mark" aria-hidden="true">
+                        <span class="bazario-dashboard__icon" data-icon="{{ action.icon }}"></span>
+                    </span>
+                    <span>{{ action.label }}</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if overview %}
+<section class="bazario-dashboard__panel bazario-dashboard__recent" aria-labelledby="bazario-recent-orders">
+    <div class="bazario-dashboard__recent-header">
+        <h2 id="bazario-recent-orders">Recent orders</h2>
+        <a href="{% url 'admin:orders_order_changelist' %}">
+            View all orders <span aria-hidden="true">↗</span>
+        </a>
+    </div>
+
+    {% if overview.recent_orders %}
+    <table class="bazario-dashboard__recent-table" aria-labelledby="bazario-recent-orders">
+        <thead>
+            <tr>
+                <th scope="col">Order</th>
+                <th scope="col">Status</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in overview.recent_orders %}
+            <tr>
+                <th scope="row">
+                    <a href="{% url 'admin:orders_order_change' order.pk %}">{{ order.number }}</a>
+                    <time datetime="{{ order.created_at|date:'c' }}">{{ order.created_at|date:"j M Y" }}</time>
+                </th>
+                <td>
+                    <span class="bazario-dashboard__status" data-status="{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td>${{ order.total|floatformat:"2g" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="bazario-dashboard__recent-empty">No orders yet.</p>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if show_activity or overview %}
+<div class="bazario-dashboard__workspace dashboard-overview-row">
+    {% if show_activity %}
+    <section class="bazario-dashboard__panel" id="dashboard-activity">
+        <div class="bazario-dashboard__activity-header">
+            <h2>Recent activity</h2>
+
+            <form method="get" action="{% url 'admin:index' %}#dashboard-activity">
+                <input type="hidden" name="activity" value="{{ selected }}">
+                <label for="activity-days" class="visually-hidden">Activity date range</label>
+                <select name="days" id="activity-days">
+                    {% for period in periods %}
+                    {% if period == days %}
+                    <option value="{{ period }}" selected>Last {{ period }} days</option>
+                    {% else %}
+                    <option value="{{ period }}">Last {{ period }} days</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <button type="submit">Apply</button>
+            </form>
+        </div>
+
+        <nav class="bazario-dashboard__activity-tabs" aria-label="Activity filters">
+            {% for tab in tabs %}
+            {% querystring activity=tab.key as tab_query %}
+            {% if tab.key == selected %}
+            <a href="{{ tab_query }}#dashboard-activity" aria-current="true">{{ tab.label }}</a>
+            {% else %}
+            <a href="{{ tab_query }}#dashboard-activity">{{ tab.label }}</a>
+            {% endif %}
+            {% endfor %}
+        </nav>
+
+        {% regroup rows by day as activity_days %}
+        {% for group in activity_days %}
+        <h3 class="bazario-dashboard__activity-date">{{ group.grouper|date:"l, j F" }}</h3>
+        <ul class="bazario-dashboard__activity-list">
+            {% for item in group.list %}
+            <li data-kind="{{ item.icon }}">
+                <span class="bazario-dashboard__metric-mark" aria-hidden="true">
+                    <span class="bazario-dashboard__icon" data-icon="{{ item.icon }}"></span>
+                </span>
+                <div>
+                    <strong>{{ item.name }}</strong>
+                    <small>{{ item.state }}</small>
+                </div>
+                <time datetime="{{ item.time|date:'c' }}">{{ item.time|date:"H:i" }}</time>
+            </li>
+            {% endfor %}
+        </ul>
+        {% empty %}
+        <p class="bazario-dashboard__activity-date">No updates in this date range.</p>
+        {% endfor %}
+        {% if overview %}
+        <footer class="activity-footer">
+            <a class="activity-orders-link" href="{% url 'admin:orders_order_changelist' %}">
+                View all orders
+                <span class="activity-orders-arrow" aria-hidden="true">→</span>
+            </a>
+        </footer>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if overview %}
+    <section class="bazario-dashboard__panel" aria-labelledby="bazario-order-queue">
+        <h2 id="bazario-order-queue">Order queue</h2>
+        <dl class="bazario-dashboard__queue">
+            {% for row in overview.queue %}
+            <div data-status="{{ row.status }}" style="--queue-share: {{ row.percent|unlocalize }}%">
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.count }}</dd>
+            </div>
+            {% endfor %}
+        </dl>
+    </section>
+    {% endif %}
+</div>
+{% endif %}

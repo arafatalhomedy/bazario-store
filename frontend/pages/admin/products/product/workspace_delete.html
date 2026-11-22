@@ -1,0 +1,17 @@
+<div class="workspace-confirm" data-product-delete-fragment>
+    <strong>Delete {{ object }}?</strong>
+    {% if perms_lacking %}
+        <p>Your account cannot delete these related items.</p>
+        <ul>{{ perms_lacking|unordered_list }}</ul>
+    {% elif protected %}
+        <p>Protected records prevent deletion.</p>
+        <ul>{{ protected|unordered_list }}</ul>
+    {% else %}
+        {% include "admin/includes/object_delete_summary.html" %}
+        <form action="{{ request.get_full_path }}" method="post" data-product-mutation>
+            {% csrf_token %}<input type="hidden" name="post" value="yes">
+            <button class="workspace-button workspace-remove" type="submit">Delete product</button>
+        </form>
+    {% endif %}
+    <button class="workspace-button" type="button" data-cancel-delete>Cancel</button>
+</div>

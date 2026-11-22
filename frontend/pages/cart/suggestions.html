@@ -1,0 +1,18 @@
+{# Basket page: "Complete your basket" row. Styles: css/cart/suggestions.css · Filled by js/components/basket.js #}
+<section class="complete" data-complete aria-labelledby="complete-title" hidden>
+    <div class="complete__head">
+        <div>
+            <h2 class="complete__title" id="complete-title">Complete your <em>basket</em></h2>
+            <p class="complete__text">Picked from the categories you already love.</p>
+        </div>
+
+        <div class="complete__arrows">
+            <button class="complete__arrow" type="button" data-complete-prev
+                aria-label="Scroll suggestions back">←</button>
+            <button class="complete__arrow" type="button" data-complete-next
+                aria-label="Scroll suggestions forward">→</button>
+        </div>
+    </div>
+
+    <ul class="complete__track" data-complete-track></ul>
+</section>

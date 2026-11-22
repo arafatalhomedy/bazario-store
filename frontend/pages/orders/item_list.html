@@ -1,0 +1,23 @@
+<ul class="order-items__list">
+            {% for item in lines|slice:":3" %}
+                {% include "orders/customer_item_row.html" %}
+            {% empty %}
+                <li>No items on this order.</li>
+            {% endfor %}
+        </ul>
+        {% with remaining=lines|slice:"3:" %}
+        {% if remaining %}
+        <details class="customer-items-more">
+            <summary>
+                <span class="more-label">View more ({{ remaining|length }})</span>
+                <span class="less-label">View less</span>
+                <span class="more-chevron" aria-hidden="true">⌄</span>
+            </summary>
+            <ul class="order-items__list">
+                {% for item in remaining %}
+                    {% include "orders/customer_item_row.html" %}
+                {% endfor %}
+            </ul>
+        </details>
+        {% endif %}
+        {% endwith %}

@@ -1,0 +1,112 @@
+.bz-promotions {
+    max-width: 84rem;
+    margin-inline: auto;
+    color: var(--body-fg);
+}
+.bz-promotions * { box-sizing: border-box; }
+.bz-promotions [hidden] { display: none; }
+.bz-promotions .promo-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(1.5rem, 4vw, 3.3rem);
+    border-radius: 1.45rem;
+    color: #fff8e8;
+    background: repeating-radial-gradient(ellipse at 87% 180%, transparent 0 26px, #f8edb312 27px 28px, transparent 29px 44px),
+                linear-gradient(115deg, #211f1d 20%, light-dark(#554333, #393e26));
+}
+.promo-banner h1 { margin: 0; color: inherit; font-size: clamp(2rem, 5vw, 4.2rem); font-weight: 850; line-height: 1.05; letter-spacing: -.06em; }
+.promo-banner h1 span { color: var(--bazario-accent); }
+.promo-banner p { color: #e3ded0; margin: .5rem 0 0; }
+.promo-ticket { display: grid; justify-items: center; flex: none; width: clamp(3.4rem, 7vw, 6rem); padding: .25rem 0 .6rem; border-radius: .6rem; color: #242018; background: var(--bazario-accent); transform: rotate(7deg); box-shadow: -4px 5px #fff0d4; }
+.promo-ticket b { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.25; }
+.promo-ticket i { width: 72%; height: .7rem; background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 4px, currentColor 4px 5px, transparent 5px 8px); }
+.promo-heading, .promo-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem; margin-block: 1.5rem .85rem; }
+.promo-heading h2 { margin: 0; font-size: clamp(1.3rem, 2vw, 1.8rem); letter-spacing: -.045em; }
+.bz-promotions .promo-button {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .6rem 1.05rem;
+    border: 1px solid var(--bazario-line); border-radius: 99px; background: var(--bazario-surface); color: var(--body-fg); font: inherit; font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.bz-promotions .promo-button.primary { background: var(--bazario-accent); color: var(--bazario-ink); border-color: transparent; }
+.promo-list { display: grid; gap: .55rem; margin: 0; padding: 0; }
+.promo-list li, .promo-form { list-style: none; margin: 0; padding: clamp(1rem, 2vw, 1.5rem); background: var(--bazario-surface); border: 1px solid var(--bazario-line); border-radius: 1rem; }
+.promo-row { display: flex; align-items: center; gap: 1rem; }
+.promo-name { flex: 1; overflow-wrap: anywhere; }
+.promo-discount { background: var(--bazario-tint); padding: .75rem .6rem; border-radius: .65rem; font-weight: 700; white-space: nowrap; }
+.bz-promotions small, .promo-price del { display: block; color: var(--body-quiet-color); font-size: .85rem; }
+.promo-price { text-align: end; font-variant-numeric: tabular-nums; }
+.promo-fields { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+.promo-fields label { display: block; margin-bottom: .4rem; font-weight: 650; }
+.promo-fields :is(select,input) { width: 100%; min-height: 44px; padding: .6rem; font: inherit; color: var(--body-fg); background: var(--body-bg); border: 1px solid var(--bazario-line); border-radius: .65rem; }
+.promo-prices { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .8rem; margin-top: 1.25rem; padding: 1rem; border-radius: .8rem; background: var(--bazario-tint); }
+.promo-prices b { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.promo-actions { margin-bottom: 0; }
+.promo-actions .primary { margin-inline-start: auto; }
+.promo-pagination { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+.promo-pagination strong { font-size: .9rem; color: var(--body-quiet-color); }
+.bz-promotions .promo-timing { margin: 1.25rem 0 0; padding: 0; border: 0; }
+.promo-timing legend { margin-bottom: .5rem; font-weight: 650; }
+.promo-timing label { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .45rem .85rem; margin: 0 .35rem .35rem 0; border: 1px solid var(--bazario-line); border-radius: 99px; cursor: pointer; }
+.promo-timing label:has(:checked) { border-color: var(--bazario-accent); background: var(--bazario-tint); }
+.promo-timing input { margin: 0; accent-color: var(--body-fg); }
+.bz-promotions .promo-window { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); margin-top: .65rem; }
+.promo-window input { min-width: 0; }
+.bz-promotions .pc-trigger {
+    width: 100%; justify-content: space-between; gap: .65rem; border-radius: .7rem;
+    background: var(--body-bg); font-weight: 550; text-align: start;
+}
+.pc-trigger::after {
+    content: ""; flex: none; width: 1rem; height: 1rem; border: 1.5px solid currentColor;
+    border-radius: .22rem; background: linear-gradient(currentColor, currentColor) 0 .22rem / 100% 1.5px no-repeat;
+}
+.promo-window [data-end-hint] { margin-top: .4rem; }
+.bz-promotions [data-picker-error] { color: var(--error-fg); }
+#promo-calendar {
+    position: fixed; inset: 0; margin: auto; padding: 0; width: min(34rem, calc(100% - 1.5rem));
+    max-width: none; max-height: calc(100dvh - 1.5rem); overflow: auto; overscroll-behavior: contain;
+    color: var(--body-fg); background: var(--bazario-surface); border: 1px solid var(--bazario-line);
+    border-radius: 1.15rem; box-shadow: 0 18px 65px #201a144d;
+}
+#promo-calendar:not([open]) { display: none; }
+#promo-calendar::backdrop { background: #211e195e; backdrop-filter: blur(3px); }
+#promo-calendar .pc-head, #promo-calendar .pc-actions, .pc-month {
+    display: flex; justify-content: space-between; align-items: center; gap: .6rem;
+}
+#promo-calendar .pc-head { padding: .8rem 1rem; border-bottom: 1px solid var(--bazario-line); }
+#promo-calendar h2 { margin: 0; color: var(--body-fg); background: transparent; font-size: 1.15rem; font-weight: 750; }
+.pc-head .promo-button, .pc-month .promo-button { width: 2.4rem; min-height: 2.4rem; padding: .1rem; font-size: 1.2rem; }
+.pc-body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.pc-calendar, .pc-time { padding: 1rem; }
+.pc-week, .pc-days { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 2px; text-align: center; }
+.pc-week { margin: .85rem 0 .35rem; color: var(--body-quiet-color); font-size: .75rem; }
+.pc-days button {
+    padding: .2rem 0; min-height: 2.15rem; border: 0; border-radius: .6rem; background: transparent;
+    color: var(--body-fg); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer;
+}
+.pc-days button:enabled:hover { background: var(--bazario-tint); }
+.pc-days button[aria-pressed=true], .pc-days button[aria-pressed=true]:hover { background: var(--bazario-accent); color: var(--bazario-ink); font-weight: 700; }
+#promo-calendar button:disabled { opacity: .42; cursor: default; }
+.pc-time { display: flex; flex-direction: column; gap: .65rem; background: var(--bazario-tint); }
+.pc-time strong { font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.15; letter-spacing: -.04em; }
+.pc-time div { display: flex; align-items: flex-end; gap: .35rem; }
+.pc-time div > span { padding-bottom: .65rem; }
+.pc-time select { display: block; min-height: 44px; padding: .35rem; margin-top: .25rem; border: 1px solid var(--bazario-line); border-radius: .5rem; background: var(--bazario-surface); color: var(--body-fg); font: inherit; }
+#promo-calendar .pc-actions { justify-content: flex-end; flex-wrap: wrap; padding: .75rem; border-top: 1px solid var(--bazario-line); }
+.pc-actions [data-clear] { margin-inline-end: auto; }
+@media (max-width: 540px) { .pc-body { grid-template-columns: 1fr; } .pc-time { gap: .4rem; } }
+@media (prefers-reduced-motion: no-preference) {
+    #promo-calendar[open] { animation: bz-picker-in .18s ease-out; }
+    @keyframes bz-picker-in { from { opacity: .2; transform: translateY(.3rem) scale(.99); } }
+}
+@media (max-width: 650px) {
+    .promo-fields { grid-template-columns: 1fr; }
+    .promo-row { display: grid; grid-template-columns: auto 1fr auto; gap: .6rem; }
+    .promo-row .promo-button { grid-column: 2 / -1; justify-self: end; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .promo-button { transition: transform .16s ease, box-shadow .16s ease; }
+    .promo-button:hover { transform: translateY(-1px); box-shadow: var(--bazario-admin-shadow); }
+    .promo-form { animation: bz-promo-enter .22s ease-out; }
+    @keyframes bz-promo-enter { from { opacity: .3; transform: translateY(5px); } }
+}

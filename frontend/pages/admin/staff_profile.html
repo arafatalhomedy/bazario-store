@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load static admin_portraits %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin/staff-profile.css' %}">{% endblock %}
+{% block extrahead %}{{ block.super }}<script defer src="{% static 'js/admin/staff-profile.js' %}"></script>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content %}
+{% admin_photo_url as portrait %}
+<section class="bz-profile" aria-labelledby="profile-heading">
+  <h1 id="profile-heading">My profile<span>.</span></h1>
+  <div class="profile-layout">
+    <article class="profile-pass">
+      <div class="profile-cover" aria-hidden="true"></div>
+      <div class="profile-person">
+        <span class="profile-face" aria-hidden="true">
+          {{ user.username|first|upper }}
+          <img data-preview alt="" {% if portrait %}src="{{ portrait }}"{% else %}hidden{% endif %}>
+        </span>
+        <small>Bazario Administrator</small>
+        <h2>{{ user.username }}</h2>
+      </div>
+      <div class="profile-upload">
+        <label class="profile-picker">
+          Choose photo
+          <input name="photo" type="file" form="profile-identity" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-hint photo-status">
+        </label>
+        <small id="photo-hint">JPG, PNG or WebP · Up to 5 MB</small>
+        <span id="photo-status" role="status"></span>
+        {{ identity.photo.errors }}
+      </div>
+    </article>
+    <div class="profile-settings">
+      <form class="profile-panel" id="profile-identity" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="identity">
+        <h2>Account details</h2>
+        {{ identity.non_field_errors }}
+        {{ identity.username.label_tag }}
+        {{ identity.username }}
+        {{ identity.username.errors }}
+        <div class="profile-actions"><button type="submit">Save profile <span aria-hidden="true">→</span></button></div>
+      </form>
+      {% if user.has_usable_password %}
+      <section class="profile-panel">
+        <h2>Password</h2>
+        <details class="profile-security" {% if password_form.is_bound %}open{% endif %}>
+          <summary>Change password <span aria-hidden="true">⌄</span></summary>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="password">
+            {{ password_form.non_field_errors }}
+            {% for field in password_form %}
+              {{ field.label_tag }}
+              {{ field }}
+              {{ field.errors }}
+              {% if field.help_text %}<div id="{{ field.auto_id }}_helptext" class="profile-help">{{ field.help_text }}</div>{% endif %}
+            {% endfor %}
+            <label class="profile-show" hidden><input type="checkbox" data-show-password> Show passwords</label>
+            <div class="profile-actions"><button type="submit">Update password</button></div>
+          </form>
+        </details>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

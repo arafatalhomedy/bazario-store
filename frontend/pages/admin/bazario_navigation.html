@@ -1,0 +1,28 @@
+{% url 'admin:index' as dashboard_url %}
+
+<nav class="bazario-admin-nav" aria-label="Store administration">
+    <ul>
+        <li>
+            {% if request.path == dashboard_url %}
+            <a href="{{ dashboard_url }}" aria-current="page">
+                <span class="bazario-dashboard__icon" data-icon="dashboard" aria-hidden="true"></span>
+                Dashboard
+            </a>
+            {% else %}
+            <a href="{{ dashboard_url }}">
+                <span class="bazario-dashboard__icon" data-icon="dashboard" aria-hidden="true"></span>
+                Dashboard
+            </a>
+            {% endif %}
+        </li>
+
+        {% for link in menu %}
+        <li>
+            <a href="{{ link.url }}" {% if link.active %} aria-current="{{ link.active }}" {% endif %}>
+                <span class="bazario-dashboard__icon" data-icon="{{ link.icon }}" aria-hidden="true">{% if link.icon == "promotion" %}%{% endif %}</span>
+                {{ link.label }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>

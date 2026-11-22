@@ -1,0 +1,714 @@
+/* Bazario Orders changelist. Loaded after the shared admin stylesheet. */
+.bazario-order-list {
+    --orders-panel: var(--bazario-surface);
+    --orders-border: var(--bazario-line);
+    --orders-muted: var(--body-quiet-color);
+    --orders-control: color-mix(in srgb, var(--body-bg) 75%, var(--orders-panel));
+    --orders-hover: color-mix(in srgb, var(--bazario-accent) 6%, var(--orders-panel));
+    --orders-pending: light-dark(#694600, #ffd987);
+    --orders-confirmed: light-dark(#214a86, #accdff);
+    --orders-shipped: light-dark(#55429c, #cec2ff);
+    --orders-delivered: light-dark(#22613e, #a9ecc1);
+    --orders-cancelled: light-dark(#8c302f, #ffb9b2);
+}
+
+.bazario-order-list #content {
+    box-sizing: border-box;
+    max-width: 96rem;
+    margin-inline: auto;
+    padding: clamp(1rem, 3vw, 2.25rem);
+}
+
+.orders-masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    margin-block-end: 1.15rem;
+    padding: clamp(1.1rem, 3vw, 2rem);
+    border: 1px solid var(--orders-border);
+    border-radius: 1.15rem;
+    background: linear-gradient(110deg, var(--orders-panel) 45%, var(--bazario-tint));
+    box-shadow: inset 4px 0 var(--bazario-accent);
+}
+
+.orders-masthead h1 {
+    margin: 0 0 0.38rem;
+    color: var(--body-fg);
+    font-size: clamp(2.25rem, 5vw, 3.8rem);
+    font-weight: 800;
+    letter-spacing: -0.065em;
+    line-height: 1;
+}
+
+.orders-masthead p {
+    margin: 0;
+    color: var(--orders-muted);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bazario-order-list .orders-masthead .object-tools {
+    float: none;
+    margin: 0;
+    padding: 0;
+}
+
+.orders-masthead .object-tools li {
+    margin: 0;
+}
+
+.orders-masthead .object-tools a.addlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    box-sizing: border-box;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.95rem;
+    border-radius: 0.65rem;
+    background: var(--bazario-accent);
+    color: var(--bazario-ink);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.orders-masthead .object-tools a.addlink::after {
+    content: "+" / "";
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.orders-masthead .object-tools a.addlink:hover {
+    background: var(--bazario-accent-hover);
+}
+
+.bazario-order-list #changelist {
+    min-height: 0;
+}
+
+.orders-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    margin-block-end: 0.8rem;
+    padding: 0.8rem;
+    border: 1px solid var(--orders-border);
+    border-radius: 1rem;
+    background: var(--orders-panel);
+}
+
+.bazario-order-list #changelist #toolbar {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.bazario-order-list #changelist-search>div:first-child {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.bazario-order-list #toolbar #searchbar {
+    flex: 1 1 8rem;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding-inline: 0.7rem;
+    border-radius: 0.65rem;
+    background: var(--orders-control);
+}
+
+.bazario-order-list #toolbar input[type="submit"],
+.orders-filters>summary {
+    box-sizing: border-box;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--orders-border);
+    border-radius: 0.65rem;
+    background: var(--orders-control);
+    box-shadow: none;
+    color: var(--body-fg);
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.orders-filters {
+    position: relative;
+}
+
+.orders-filters>summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    list-style: none;
+}
+
+.orders-filters>summary::-webkit-details-marker {
+    display: none;
+}
+
+.orders-filters>summary::after {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    transform: translateY(-0.1rem) rotate(45deg);
+}
+
+.orders-filters[open]>summary::after {
+    transform: translateY(0.1rem) rotate(225deg);
+}
+
+.orders-filters>summary:hover,
+.orders-filters[open]>summary {
+    border-color: var(--link-fg);
+}
+
+.orders-filters__panel {
+    position: absolute;
+    z-index: 4;
+    inset-block-start: calc(100% + 0.4rem);
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    width: min(21rem, calc(100vw - 3rem));
+    max-height: min(23rem, 55vh);
+    overflow: auto;
+    padding: 0.85rem;
+    border: 1px solid var(--orders-border);
+    border-radius: 0.8rem;
+    background: var(--orders-panel);
+    box-shadow: var(--bazario-admin-shadow);
+}
+
+.orders-filters__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.orders-filters__panel>details {
+    margin-block-start: 0.65rem;
+    padding-block-start: 0.65rem;
+    border-block-start: 1px solid var(--orders-border);
+}
+
+.orders-filters__panel summary,
+.orders-statuses summary {
+    color: var(--orders-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.orders-filters__panel .selected a {
+    font-weight: 750;
+    text-decoration: underline;
+}
+
+.orders-statuses {
+    grid-column: 1 / -1;
+    padding-block-start: 0.7rem;
+    border-block-start: 1px solid var(--orders-border);
+}
+
+.orders-statuses ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.45rem 0 0;
+    padding: 0;
+}
+
+.orders-statuses li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.orders-statuses a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding-inline: 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--body-fg);
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.orders-statuses a:hover,
+.orders-statuses .selected a {
+    border-color: var(--orders-border);
+    background: var(--orders-control);
+}
+
+.orders-statuses .selected a {
+    border-color: var(--link-fg);
+    background: var(--bazario-tint);
+    color: var(--link-fg);
+    font-weight: 750;
+}
+
+.bazario-order-list #changelist .toplinks {
+    margin: 0;
+    padding: 0.25rem 0.15rem 0.8rem;
+    border: 0;
+}
+
+.bazario-order-list #changelist-form {
+    min-width: 0;
+    border: 1px solid var(--orders-border);
+    border-radius: 1rem;
+    background: var(--orders-panel);
+    box-shadow: var(--bazario-admin-shadow);
+}
+
+.bazario-order-list #changelist .actions {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: 1rem 1rem 0 0;
+    background: var(--orders-panel);
+}
+
+.bazario-order-list #changelist .actions :is(select, .button) {
+    height: auto;
+    min-height: 2rem;
+    border-radius: 0.45rem;
+    box-shadow: none;
+}
+
+.bazario-order-list #changelist-form .results {
+    width: 100%;
+    overflow-x: auto;
+    border-block-start: 1px solid var(--orders-border);
+}
+
+.bazario-order-list #result_list {
+    min-width: 52rem;
+    border: 0;
+    border-collapse: collapse;
+}
+
+.bazario-order-list #result_list thead th {
+    background: var(--orders-control);
+    color: var(--orders-muted);
+    font-size: 0.73rem;
+    letter-spacing: 0.035em;
+}
+
+.bazario-order-list #result_list thead th.sorted {
+    background: var(--bazario-tint);
+}
+
+.bazario-order-list #result_list thead th .text :is(a, span) {
+    padding: 0.75rem 0.65rem;
+}
+
+.bazario-order-list #result_list tbody tr {
+    background: var(--orders-panel);
+}
+
+.bazario-order-list #result_list tbody tr:is(:hover, :focus-within) {
+    background: var(--orders-hover);
+}
+
+.bazario-order-list #result_list tbody tr.selected,
+.bazario-order-list #result_list tbody tr:has(.action-select:checked) {
+    background: var(--selected-row);
+}
+
+.bazario-order-list #result_list tbody tr> :is(th, td) {
+    padding: 0.6rem 0.65rem;
+    border-block-end: 1px solid var(--orders-border);
+    background: transparent;
+    color: var(--body-fg);
+    font-size: 0.84rem;
+    vertical-align: middle;
+}
+
+.bazario-order-list #result_list .field-number a {
+    color: var(--link-fg);
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.bazario-order-list #result_list .field-number a:hover {
+    text-decoration: underline;
+}
+
+.bazario-order-list #result_list :is(.field-phone, .field-items, .field-order_total, .field-placed_at, .field-created_at) {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.bazario-order-list #result_list .field-order_total {
+    font-weight: 700;
+}
+
+.bazario-order-list #result_list .field-status select {
+    --status-ink: var(--body-fg);
+    min-height: 2.3rem;
+    max-width: none;
+    padding-inline: 0.55rem;
+    border: 1px solid color-mix(in srgb, var(--status-ink) 24%, var(--orders-border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--status-ink) 9%, var(--orders-panel));
+    color: var(--status-ink);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bazario-order-list #result_list .field-status select option {
+    background: var(--orders-panel);
+    color: var(--body-fg);
+}
+
+.bazario-order-list #result_list .field-status select:has(option[value="pending"]:checked) {
+    --status-ink: var(--orders-pending);
+}
+
+.bazario-order-list #result_list .field-status select:has(option[value="confirmed"]:checked) {
+    --status-ink: var(--orders-confirmed);
+}
+
+.bazario-order-list #result_list .field-status select:has(option[value="shipped"]:checked) {
+    --status-ink: var(--orders-shipped);
+}
+
+.bazario-order-list #result_list .field-status select:has(option[value="delivered"]:checked) {
+    --status-ink: var(--orders-delivered);
+}
+
+.bazario-order-list #result_list .field-status select:has(option[value="cancelled"]:checked) {
+    --status-ink: var(--orders-cancelled);
+}
+
+.bazario-order-list #changelist .paginator {
+    margin: 0;
+    padding: 0.85rem;
+    border: 0;
+    border-radius: 0 0 1rem 1rem;
+    background: var(--orders-panel);
+}
+
+.bazario-order-list #changelist .paginator input[name="_save"] {
+    min-height: 2.5rem;
+    padding-inline: 1.1rem;
+    border-radius: 0.65rem;
+    background: var(--bazario-accent);
+    color: var(--bazario-ink);
+    font-weight: 700;
+}
+
+.bazario-order-list #changelist .paginator input[name="_save"]:hover {
+    background: var(--bazario-accent-hover);
+}
+
+.orders-empty {
+    padding: clamp(1rem, 4vw, 2.5rem);
+    border-block-end: 1px solid var(--orders-border);
+    text-align: center;
+}
+
+.orders-empty h2 {
+    margin: 0;
+    font-size: 1.18rem;
+}
+
+.orders-empty a {
+    display: inline-block;
+    margin-block-start: 0.5rem;
+    text-decoration: underline;
+}
+
+.bazario-order-list :is(summary, a, input, select, button):focus-visible {
+    outline: 2px solid var(--link-fg);
+    outline-offset: 2px;
+}
+
+@media (max-width: 39rem) {
+    .orders-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .orders-filters__panel {
+        position: static;
+        width: 100%;
+        margin-block-start: 0.4rem;
+        box-shadow: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .orders-masthead,
+    .orders-toolbar,
+    .bazario-order-list #changelist-form {
+        animation: orders-enter 300ms ease-out backwards;
+    }
+
+    .orders-toolbar {
+        animation-delay: 45ms;
+    }
+
+    .bazario-order-list #changelist-form {
+        animation-delay: 85ms;
+    }
+
+    .bazario-order-list #result_list tbody tr,
+    .bazario-order-list #result_list .field-status select,
+    .orders-statuses a {
+        transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+}
+
+@keyframes orders-enter {
+    from {
+        opacity: 0;
+        transform: translateY(0.45rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.order-review {
+    display: grid;
+    gap: 1rem;
+    width: min(100%, 64rem);
+}
+
+.review-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(1rem, 3vw, 2rem);
+    border-radius: 1rem;
+    background: radial-gradient(ellipse at top right, #713d2e, transparent 65%), #29221e;
+    color: #fff3e7;
+}
+
+.review-heading h1 {
+    margin: 0;
+    color: inherit;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.065em;
+}
+
+.review-heading p {
+    margin: 0 0 0.35rem;
+    color: #ebcbb7;
+}
+
+.order-review-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.order-review-badge::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.order-review-badge[data-status="pending"] {
+    background: light-dark(#ffebd0, #4b321c);
+    color: light-dark(#714a18, #ffdb9e);
+}
+
+.order-review-badge[data-status="confirmed"] {
+    background: light-dark(#e3f1e6, #233b2c);
+    color: light-dark(#285a3c, #aee2bb);
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.review-card {
+    padding: clamp(1rem, 2vw, 1.4rem);
+    border: 1px solid var(--bazario-line);
+    border-radius: 0.85rem;
+    background: var(--bazario-surface);
+}
+
+.review-card h2 {
+    margin: 0 0 0.65rem;
+    color: var(--body-fg);
+    font-size: 1rem;
+}
+
+.review-card address {
+    margin: 0;
+    font-style: normal;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.review-note {
+    margin: 0.65rem 0 0;
+    color: var(--body-quiet-color);
+}
+
+.review-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review-items li,
+.review-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.45rem 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.review-total {
+    margin-top: 0.3rem;
+    border-top: 1px solid var(--bazario-line);
+}
+
+.review-decision {
+    border-inline-start: 4px solid var(--bazario-accent);
+}
+
+.review-inputs,
+.review-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.review-inputs label {
+    display: grid;
+    gap: 0.3rem;
+    font-weight: 650;
+}
+
+.review-inputs :is(select, input) {
+    box-sizing: border-box;
+    min-height: 2.65rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--bazario-line);
+    border-radius: 0.5rem;
+    background: var(--body-bg);
+    color: var(--body-fg);
+}
+
+@supports selector(:has(*)) {
+    .review-confirm:not(:has(option[value="custom"]:checked)) .review-dates {
+        display: none;
+    }
+}
+
+.review-primary,
+.review-danger {
+    min-height: 2.6rem;
+    margin-top: 0.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 0;
+    border-radius: 0.55rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.review-primary {
+    background: var(--bazario-accent);
+    color: var(--bazario-ink);
+}
+
+.review-primary:hover {
+    background: var(--bazario-accent-hover);
+}
+
+.review-danger {
+    background: light-dark(#f6dedb, #4b2927);
+    color: light-dark(#852e28, #ffc1b8);
+}
+
+.review-estimate {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 750;
+}
+
+.review-cancel,
+.review-native {
+    margin-top: 1rem;
+}
+
+.review-cancel summary,
+.review-native summary {
+    width: fit-content;
+    color: var(--link-fg);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.review-native[open]>summary {
+    margin-bottom: 0.9rem;
+}
+
+@media (max-width: 42rem) {
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .review-heading,
+    .review-decision {
+        animation: review-enter 300ms ease-out both;
+    }
+
+    .review-decision {
+        animation-delay: 65ms;
+    }
+}
+
+@keyframes review-enter {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

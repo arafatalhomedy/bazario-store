@@ -1,0 +1,78 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static tz %}
+{% block responsive %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/customer-directory.css' %}">{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}
+{% url 'admin:accounts_customer_changelist' as customers_url %}
+<div class="breadcrumbs customer-back-nav">
+  <a class="customer-back" href="{% add_preserved_filters customers_url %}">
+    <span class="customer-back-icon" aria-hidden="true">←</span>
+    <span>Back to customers</span>
+  </a>
+</div>
+{% endblock %}
+{% block content %}
+{% timezone "Asia/Kuala_Lumpur" %}
+<div class="customer-desk">
+  <header class="customer-cover">
+    <div><small>Customer orders</small>
+      <h1>{{ name }}<span>.</span></h1>{% if username %}<p>@{{ username }}</p>{% endif %}
+    </div>
+    <div class="order-ticket"><strong>{{ page.paginator.count|stringformat:"02d" }}</strong><small>Orders</small></div>
+  </header>
+  <div class="directory-rail">
+    <h2>Order history</h2><small>Newest first · MYT</small>
+  </div>
+  {% for row in order_rows %}
+  <details class="customer-receipt">
+    <summary>
+      <div class="receipt-id"><b>{{ row.order.number }}</b><small>{{ row.order.created_at|date:"j M Y · H:i" }}</small>
+      </div>
+      <span class="customer-status {{ row.order.status }}">{{ row.order.get_status_display }}</span>
+      <div class="receipt-amount">
+        <b>${{ row.total|floatformat:"2" }}</b>
+        <small>{{ row.units }} item{{ row.units|pluralize }}</small>
+      </div>
+      <span class="receipt-chevron" aria-hidden="true">+</span>
+    </summary>
+    <div class="receipt-body">
+      {% if can_view_items %}{% for item in row.order.items.all %}
+      <div class="receipt-line">
+        <div><b>{{ item.product_name }}</b><small>{{ item.quantity }} × ${{ item.unit_price|floatformat:"2" }}</small>
+        </div><b>${{ item.line_total|floatformat:"2" }}</b>
+      </div>
+      {% endfor %}{% endif %}
+      <div class="receipt-line receipt-total"><span>Order total</span><strong>${{ row.total|floatformat:"2" }}</strong>
+      </div>
+      <dl>
+        <div>
+          <dt>Delivering to</dt>
+          <dd>{{ row.order.full_name }}<br>{{ row.order.street }}, {{ row.order.city }}</dd>
+        </div>
+        <div>
+          <dt>Payment method</dt>
+          <dd>{{ row.order.get_payment_method_display }}</dd>
+        </div>
+        {% with start=row.order.estimated_delivery_start end=row.order.estimated_delivery_end %}
+        {% if row.order.status != "cancelled" and start %}
+        <div>
+          <dt>Estimated arrival</dt>
+          <dd>
+            {{ start|date:"j M Y" }}
+            {% if end and end != start %} – {{ end|date:"j M Y" }}{% endif %}
+          </dd>
+        </div>
+        {% endif %}
+        {% endwith %}
+      </dl>
+    </div>
+  </details>
+  {% empty %}<div class="customer-empty">This customer has no orders yet.</div>{% endfor %}
+  {% if page.has_other_pages %}<nav class="directory-rail" aria-label="Order history pages">{% if page.has_previous %}<a
+      href="{% querystring page=page.previous_page_number %}">← Previous</a>{% endif %}<span>Page {{ page.number }} of
+      {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a
+      href="{% querystring page=page.next_page_number %}">Next →</a>{% endif %}</nav>{% endif %}
+</div>
+{% endtimezone %}
+{% endblock %}

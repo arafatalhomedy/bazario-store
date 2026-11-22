@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% comment %}
+HOMEPAGE
+The shared frame (head, navbar, footer) comes from layouts/base.html.
+This file only lists the homepage sections, from top to bottom.
+{% endcomment %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/home/hero.css' %}">
+<link rel="stylesheet" href="{% static 'css/home/marquee.css' %}">
+<link rel="stylesheet" href="{% static 'css/home/collection.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/home.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% include "home/hero.html" %}
+
+{% include "home/marquee.html" %}
+{% include "home/collection.html" %}
+{% endblock %}

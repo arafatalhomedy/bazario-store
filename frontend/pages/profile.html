@@ -1,0 +1,120 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Account settings · Bazario{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/account/profile.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/profile.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="profile-shell" aria-labelledby="profile-title">
+    <h1 id="profile-title">Account <span>settings.</span></h1>
+
+    {% for message in messages %}
+    <p class="profile-notice" role="status">
+        <span aria-hidden="true">✓</span> {{ message }}
+    </p>
+    {% endfor %}
+
+    <div class="profile-layout">
+        <section class="profile-identity" aria-labelledby="profile-name">
+            <div class="profile-identity__cover">
+                {% with first=user.first_name|default:user.username %}
+                <div class="profile-avatar" aria-hidden="true">
+                    {% if user.customer_profile.username %}
+                    {{ user.customer_profile.username|slice:":2"|upper }}
+                    {% else %}
+                    {{ first|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </div>
+
+            <div class="profile-identity__body">
+                <h2 id="profile-name">
+                    {% firstof customer_profile.username user.get_full_name "Your profile" %}
+                </h2>
+
+                <dl>
+                    <div>
+                        <dt>Sign-in email</dt>
+                        <dd>{{ user.email }}</dd>
+                    </div>
+                    <div>
+                        <dt>Member since</dt>
+                        <dd>{{ user.date_joined|date:"F Y" }}</dd>
+                    </div>
+                </dl>
+
+                <details class="profile-username-edit" {% if username_form.errors %}open{% endif %}>
+                    <summary>Edit username</summary>
+
+                    <form class="profile-form" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="username">
+
+                        <div class="profile-field">
+                            {{ username_form.username.label_tag }}
+                            {{ username_form.username }}
+                            {{ username_form.username.errors }}
+                            <p class="profile-tips" id="id_username_helptext">
+                                {{ username_form.username.help_text }}
+                            </p>
+                        </div>
+
+                        <button class="profile-save" type="submit">Save username</button>
+                    </form>
+                </details>
+            </div>
+        </section>
+
+        <div class="profile-actions">
+            <details class="profile-password" {% if password_form.errors %}open{% endif %}>
+                <summary class="profile-action">
+                    <span class="profile-symbol profile-symbol--lock" aria-hidden="true"></span>
+                    <span class="profile-action__text">
+                        <strong>Change password</strong>
+                        <small>Update the password you use to sign in.</small>
+                    </span>
+                    <span class="profile-action__toggle" aria-hidden="true"></span>
+                </summary>
+
+                <form class="profile-form" method="post">
+                    {% csrf_token %}
+                    {{ password_form.non_field_errors }}
+
+                    <div class="profile-fields">
+                        {% for field in password_form %}
+                        <div class="profile-field profile-field--{{ field.name }}">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+
+                            {% if field.name == "new_password1" and field.help_text %}
+                            <details class="profile-tips" id="{{ field.auto_id }}_helptext">
+                                <summary>Password requirements</summary>
+                                {{ field.help_text }}
+                            </details>
+                            {% elif field.help_text %}
+                            <p class="visually-hidden" id="{{ field.auto_id }}_helptext">
+                                {{ field.help_text }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button class="profile-save" type="submit">Update password</button>
+                </form>
+            </details>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block footer %}{% endblock %}

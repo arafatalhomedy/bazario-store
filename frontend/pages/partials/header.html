@@ -1,0 +1,238 @@
+<!-- ===================== 1. HEADER ===================== -->
+<header class="site-header" data-header>
+
+    <!-- Announcement bar: short, TRUE messages that take turns -->
+    <div class="announcement" data-announcement>
+        <p class="announcement__message is-active">Browse anytime. Sign in to place an order.</p>
+        <p class="announcement__message">Track your order anytime with your order number</p>
+    </div>
+
+    <!-- Floating glass pill -->
+    <div class="site-header__bar">
+
+        <!-- Logo -->
+        <a class="logo" href="/" aria-label="Bazario home">Bazario<span class="logo__dot">.</span></a>
+
+        <!-- Menu: inline on desktop, dropdown panel on phones -->
+        <nav class="site-nav" id="site-nav" aria-label="Main" data-nav>
+            <span class="site-nav__indicator" aria-hidden="true" data-nav-indicator></span>
+            <a class="site-nav__link" href="{% url 'home' %}">Home</a>
+            <a class="site-nav__link" href="{% url 'shop-page' %}">Shop</a>
+            <!-- Categories dropdown (list is filled by JavaScript from the database) -->
+            <div class="dropdown" data-dropdown>
+                <button class="site-nav__link dropdown__toggle" type="button" aria-expanded="false"
+                    aria-controls="categories-menu" data-dropdown-toggle>
+                    Categories
+                    <svg class="dropdown__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true" focusable="false">
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+                </button>
+                <ul class="dropdown__menu" id="categories-menu" data-categories-menu
+                    data-shop-url="{% url 'shop-page' %}"></ul>
+            </div>
+
+            <a class="site-nav__link" href="/?new=1#shop">New in</a>
+            <a class="site-nav__link" href="/track/">Track order</a>
+
+            {% if user.is_authenticated %}
+            <a class="site-nav__link site-nav__link--mobile" href="{% url 'profile-page' %}">Profile</a>
+            <a class="site-nav__link site-nav__link--mobile" href="{% url 'orders-page' %}">Your orders</a>
+            <form class="site-nav__link--mobile" method="post" action="{% url 'logout-page' %}">
+                {% csrf_token %}
+                <button class="site-nav__link account-logout-button" type="submit">Log out</button>
+            </form>
+            {% else %}
+            <a class="site-nav__link site-nav__link--mobile" href="{% url 'login-page' %}">Log in</a>
+            <a class="site-nav__link site-nav__link--mobile" href="{% url 'signup-page' %}">Create account</a>
+            {% endif %}
+        </nav>
+
+        <!-- Right side buttons -->
+        <div class="site-header__actions">
+
+            <!-- Product search -->
+            <button class="icon-button" type="button" data-search-open data-magnetic aria-label="Search products"
+                aria-keyshortcuts="/" aria-expanded="false" aria-controls="product-search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                </svg>
+            </button>
+
+            <!-- Light / dark toggle -->
+            <button class="icon-button theme-toggle" type="button" data-theme-toggle data-magnetic
+                aria-label="Switch theme">
+                <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="4" />
+                    <path
+                        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                </svg>
+                <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                    focusable="false">
+                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                </svg>
+            </button>
+
+            <!-- Account menu (desktop) -->
+            <div class="dropdown account-menu" data-dropdown>
+                {% with handle=user.customer_profile.username first=user.first_name|default:user.username %}
+                <button class="icon-button" type="button" aria-label="Account" aria-expanded="false"
+                    aria-controls="account-menu" data-dropdown-toggle data-magnetic>
+                    {% if user.is_authenticated %}
+                    <span class="account-menu__initials" aria-hidden="true">
+                        {% if handle %}
+                        {{ handle|slice:":2"|upper }}
+                        {% else %}
+                        {{ first|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                        {% endif %}
+                    </span>
+                    {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 21a8 8 0 0 1 16 0" />
+                    </svg>
+                    {% endif %}
+                </button>
+
+                <ul class="dropdown__menu dropdown__menu--right account-menu__panel" id="account-menu">
+                    {% if user.is_authenticated %}
+                    <li class="account-menu__identity">
+                        <span class="account-menu__avatar" aria-hidden="true">
+                            {% if handle %}
+                            {{ handle|slice:":2"|upper }}
+                            {% else %}
+                            {{ first|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                            {% endif %}
+                        </span>
+                        <strong class="account-menu__name">
+                            {% if handle %}
+                            @{{ handle }}
+                            {% else %}
+                            {{ user.get_full_name|default:"Your account" }}
+                            {% endif %}
+                        </strong>
+                    </li>
+                    <li>
+                        <a class="dropdown__item account-menu__link" href="{% url 'profile-page' %}">
+                            <span class="account-menu__icon account-menu__icon--profile" aria-hidden="true"></span>
+                            <span>Profile</span>
+                            <span class="account-menu__chevron" aria-hidden="true">›</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown__item account-menu__link" href="{% url 'orders-page' %}">
+                            <span class="account-menu__icon account-menu__icon--orders" aria-hidden="true"></span>
+                            <span>Your orders</span>
+                            <span class="account-menu__chevron" aria-hidden="true">›</span>
+                        </a>
+                    </li>
+                    <li class="account-menu__logout">
+                        <form method="post" action="{% url 'logout-page' %}">
+                            {% csrf_token %}
+                            <button class="dropdown__item account-menu__link account-logout-button" type="submit">
+                                <span class="account-menu__icon" aria-hidden="true">↪</span>
+                                <span>Log out</span>
+                            </button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a class="dropdown__item account-menu__link" href="{% url 'login-page' %}">
+                            <span class="account-menu__icon account-menu__icon--profile" aria-hidden="true"></span>
+                            <span>Log in</span>
+                            <span class="account-menu__chevron" aria-hidden="true">›</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown__item account-menu__link" href="{% url 'signup-page' %}">
+                            <span class="account-menu__icon" aria-hidden="true">+</span>
+                            <span>Create account</span>
+                            <span class="account-menu__chevron" aria-hidden="true">›</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                {% endwith %}
+            </div>
+
+            <!-- Cart (link to the basket page) -->
+            <a class="cart-button" href="/cart/" data-cart-button data-magnetic aria-label="Open cart, 0 items">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M6 7h12l-1 13H7L6 7z" />
+                    <path d="M9 7a3 3 0 0 1 6 0" />
+                </svg>
+                <span class="cart-button__label">Cart</span>
+                <span class="cart-button__count" data-cart-count>0</span>
+            </a>
+
+            <!-- Phone menu button (hidden on desktop) -->
+            <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-label="Open menu"
+                aria-expanded="false" aria-controls="site-nav">
+                <span class="menu-toggle__line" aria-hidden="true"></span>
+                <span class="menu-toggle__line" aria-hidden="true"></span>
+                <span class="menu-toggle__line" aria-hidden="true"></span>
+            </button>
+
+        </div>
+
+        <!-- Scroll progress line (filled by header.js) -->
+        <span class="site-header__progress" data-scroll-progress aria-hidden="true"></span>
+        <section class="product-search" id="product-search" data-product-search
+            data-product-url="{% url 'product-page' 'product-slug' %}" aria-labelledby="product-search-title" hidden>
+
+            <h2 id="product-search-title">Search products</h2>
+
+            <form class="product-search__form" role="search" action="{% url 'home' %}#shop" method="get">
+                <div class="product-search__field">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true" focusable="false">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-3.5-3.5" />
+                    </svg>
+
+                    <input type="search" name="search" maxlength="100" autocomplete="off" spellcheck="false"
+                        placeholder="Search by name or category" aria-label="Product name or category">
+
+                    <button class="product-search__control" type="button" data-search-clear aria-label="Clear search"
+                        hidden>×</button>
+                </div>
+
+                <button class="product-search__control product-search__close" type="button" data-search-close
+                    aria-label="Close search" aria-keyshortcuts="Escape">Esc</button>
+            </form>
+
+            <div class="product-search__body">
+                <div class="product-search__matches">
+                    <p class="product-search__status" data-search-status role="status"></p>
+                    <ul class="product-search__results" data-search-results></ul>
+                    <button class="product-search__more" type="button" data-search-retry hidden>Try again</button>
+                    <a class="product-search__more" data-search-all hidden>View all results</a>
+                </div>
+
+                <a class="product-search__preview" data-search-preview hidden>
+                    <span class="product-search__art"><img alt="" decoding="async"></span>
+                    <span class="product-search__preview-info">
+                        <span data-search-category></span>
+                        <strong data-search-name></strong>
+                        <span class="product-search__price" data-search-price></span>
+                        <span class="product-search__view">
+                            View product <span aria-hidden="true">↗</span>
+                        </span>
+                    </span>
+                </a>
+            </div>
+
+            <p class="product-search__shortcuts" aria-hidden="true">
+                <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                <span><kbd>↵</kbd> Open product</span>
+            </p>
+        </section>
+    </div>
+</header>

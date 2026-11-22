@@ -1,0 +1,170 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list static %}
+
+{% block bodyclass %}{{ block.super }}{% if not is_popup %} bazario-products{% endif %}{% endblock %}
+
+{% block responsive %}
+{{ block.super }}
+{% if not is_popup %}
+<link rel="stylesheet" href="{% static 'css/admin/products.css' %}">
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{% if not is_popup %}
+<script defer src="{% static 'js/pages/admin-product-discount.js' %}"></script>
+<script type="module" src="{% static 'js/pages/admin-products-workspace.js' %}"></script>
+{% endif %}
+{% endblock %}
+
+{% block content_title %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
+{% block content_subtitle %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block content %}
+{% if is_popup %}
+{{ block.super }}
+{% else %}
+<section id="bazario-workspace" aria-label="Product management">
+    <header class="workspace-heading">
+        <div>
+            <h1>Products<span>.</span></h1>
+            <p>{{ cl.result_count }} product{{ cl.result_count|pluralize }}</p>
+        </div>
+        {% if catalog_add_url %}
+        <a class="workspace-button workspace-primary" href="{{ catalog_add_url }}" data-panel-link>＋ Add product</a>
+        {% endif %}
+    </header>
+
+    <div class="workspace-controls">
+        {% search_form cl %}
+        <nav class="workspace-tabs" aria-label="Stock and sale filters">
+            {% for tab in catalog_tabs %}
+            <a href="{{ tab.url }}" {% if tab.active %} aria-current="true" {% endif %}>
+                {{ tab.label }} <span>{{ tab.count }}</span>
+            </a>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <div class="workspace-tools">
+        <details class="workspace-options">
+            <summary class="workspace-button">Sort</summary>
+            <div class="workspace-menu">
+                {% for option in catalog_order %}
+                <a href="{{ option.url }}" {% if option.active %} aria-current="true" {% endif %}>{{ option.label }}</a>
+                {% endfor %}
+            </div>
+        </details>
+
+        {% if cl.has_filters %}
+        <details class="workspace-options">
+            <summary class="workspace-button">Filters</summary>
+            <nav class="workspace-menu" id="changelist-filter" aria-label="Product filters">
+                {% if cl.is_facets_optional %}
+                {% if cl.add_facets %}
+                <a href="{{ cl.remove_facet_link }}">Hide counts</a>
+                {% else %}
+                <a href="{{ cl.add_facet_link }}">Show counts</a>
+                {% endif %}
+                {% endif %}
+                {% if cl.has_active_filters %}
+                <a href="{{ cl.clear_all_filters_qs }}">Clear filters</a>
+                {% endif %}
+                {% for spec in cl.filter_specs %}
+                {% if spec.parameter_name != "catalog" %}
+                {% admin_list_filter cl spec %}
+                {% endif %}
+                {% endfor %}
+            </nav>
+        </details>
+        {% endif %}
+
+        {% if action_form and cl.show_admin_actions and catalog_rows %}
+        <details class="workspace-options workspace-bulk">
+            <summary class="workspace-button">Bulk actions</summary>
+            <form id="changelist-form" class="workspace-menu" method="post" novalidate>
+                {% csrf_token %}
+                <label><input id="action-toggle" type="checkbox"> Select all on this page</label>
+                {% admin_actions %}
+            </form>
+        </details>
+        {% endif %}
+    </div>
+
+    <table id="result_list" class="workspace-table" role="table" aria-label="Products">
+        <tbody class="workspace-grid" role="rowgroup">
+            {% for row in catalog_rows %}
+            {% with product=row.product photo=row.product.thumbnail|default:row.product.image %}
+            <tr role="row" data-product-row>
+                <td role="cell">
+                    <article class="workspace-tile">
+                        <div class="workspace-tile-top">
+                            <span class="workspace-badge"
+                                data-visibility="{{ product.is_active|yesno:'visible,hidden' }}">
+                                {{ product.is_active|yesno:"Visible,Hidden" }}
+                            </span>
+                            {% if action_form and cl.show_admin_actions %}
+                            <input class="action-select workspace-select" form="changelist-form" type="checkbox"
+                                name="_selected_action" value="{{ product.pk }}" aria-label="Select {{ product.name }}">
+                            {% endif %}
+                        </div>
+
+                        <a class="workspace-tile-link" href="{{ row.change_url }}" {% if row.can_change %}
+                            data-panel-link{% endif %}>
+                            <span class="workspace-photo" aria-hidden="true">
+                                {% if photo %}
+                                <img src="{{ photo.url }}" alt="" loading="lazy" decoding="async">
+                                {% else %}
+                                {{ product.name|slice:":1"|upper }}
+                                {% endif %}
+                            </span>
+                            <strong>{{ product.name }}</strong>
+                        </a>
+
+                        <span class="workspace-category">{{ product.category }}</span>
+
+                        <div class="workspace-tile-meta">
+                            <span class="workspace-price">
+                                {{ row.price }}
+                                {% if row.regular %}<s>{{ row.regular }}</s>{% endif %}
+                            </span>
+                            <span class="workspace-stock" data-stock="{{ row.stock_state }}">
+                                {{ row.stock_label }}
+                            </span>
+                        </div>
+
+                        <div class="workspace-tile-actions">
+                            {% if row.can_change %}
+                            <a class="workspace-button" href="{{ row.change_url }}" data-panel-link
+                                aria-label="Edit {{ product.name }}">Edit</a>
+                            {% else %}
+                            <a class="workspace-button" href="{{ row.change_url }}">View</a>
+                            {% endif %}
+                            {% if row.delete_url %}
+                            <a class="workspace-button workspace-remove" href="{{ row.delete_url }}" data-delete-link
+                                aria-expanded="false" aria-label="Delete {{ product.name }}">Delete</a>
+                            {% endif %}
+                        </div>
+
+                        <div data-product-delete-slot hidden></div>
+                    </article>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+
+
+        </tbody>
+    </table>
+
+    {% if not catalog_rows %}
+    <p class="workspace-empty">No products match these filters.</p>
+    {% endif %}
+    {% pagination cl %}
+
+    <dialog class="workspace-editor" aria-labelledby="workspace-editor-title" data-workspace-editor></dialog>
+    <p class="workspace-message" role="status" data-workspace-message></p>
+</section>
+{% endif %}
+{% endblock %}

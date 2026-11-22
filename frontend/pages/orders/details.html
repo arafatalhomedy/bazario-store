@@ -1,0 +1,118 @@
+{# Order details: items, receipt, address. Styles: css/orders/order.css #}
+<div class="order-grid-details">
+
+    {# Items #}
+    <section class="order-tile order-items" aria-labelledby="items-title">
+        {% with lines=order.items.all %}
+        <header class="customer-items-head">
+            <h2 id="items-title">Order items</h2>
+            <span>{{ order.item_count }} unit{{ order.item_count|pluralize }}</span>
+            {% if delivery_version and lines %}
+            <button id="start-item-edit" class="order-top__copy" type="button" aria-haspopup="dialog" aria-controls="bz-item-dialog" hidden>Edit items</button>
+            {% endif %}
+        </header>
+        {% include "orders/item_list.html" with delivery_version=False %}
+        {% if delivery_version and lines %}
+        <dialog id="bz-item-dialog" aria-labelledby="bz-editor-title">
+            <form id="item-edit-form" method="post" action="{% url 'order-page' number=order.number %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_items">
+                <input type="hidden" name="version" value="{{ delivery_version }}">
+                <header class="bz-dialog-head">
+                    <div><small>Order {{ order.number }}</small><h2 id="bz-editor-title">Edit items</h2></div>
+                    <button type="button" data-close aria-label="Close and discard unsaved changes" autofocus>×</button>
+                </header>
+                <div class="bz-dialog-body">
+                    {% include "orders/item_list.html" %}
+                </div>
+                <footer class="item-edit-footer">
+                    <div><span>New order total</span><strong data-edit-total></strong></div>
+                    <p data-edit-note role="status"></p>
+                    <div class="item-edit-buttons">
+                        <button class="order-top__copy" type="button" data-discard>Discard changes</button>
+                        <button class="order-top__copy" type="submit" data-save>Save changes</button>
+                    </div>
+                </footer>
+            </form>
+        </dialog>
+        {% endif %}
+        {% endwith %}
+    </section>
+
+    {# Receipt #}
+    <section class="order-tile order-receipt" aria-labelledby="receipt-title" data-receipt>
+        <p class="order-tile__kicker" id="receipt-title">Receipt</p>
+        <div class="paper" data-receipt-paper>
+            <span class="paper__stamp" aria-hidden="true">{{ order.get_payment_method_display }}</span>
+
+            <div class="paper__rows">
+                <p class="paper__row"><span>Subtotal</span><span>${{ order.subtotal|floatformat:"2g" }}</span></p>
+                <p class="paper__row"><span>Delivery</span><span>To your door</span></p>
+            </div>
+            <hr class="paper__tear">
+            <p class="paper__row paper__row--total"><span>Total</span><span>${{ order.total|floatformat:"2g" }}</span>
+            </p>
+            <p class="paper__row paper__row--muted">
+                <span>Payment</span>
+                <span>{% if order.status == "delivered" %}Paid on delivery{% else %}On delivery{% endif %}</span>
+            </p>
+            <hr class="paper__tear">
+
+            <div class="paper__barcode" data-barcode="{{ order.number }}" aria-hidden="true"></div>
+            <p class="paper__foot">{{ order.number }} · {{ order.created_at|date:"j M Y" }}</p>
+        </div>
+    </section>
+
+    {# Delivering to #}
+    <section class="order-tile order-address delivery-card" aria-labelledby="address-title">
+        <div class="delivery-destination">
+            <header class="delivery-destination__head">
+                <span class="delivery-pin" aria-hidden="true"></span>
+                <div>
+                    <h2 id="address-title">Delivering to</h2>
+                    <p class="delivery-recipient">{{ order.full_name }}</p>
+                </div>
+            </header>
+            <dl class="delivery-facts">
+                <dt>Address</dt><dd>{{ order.street }}, {{ order.city }}</dd>
+                <dt>Phone</dt><dd>Ending in {{ order.phone|slice:"-3:" }}</dd>
+                {% if order.note %}<dt>Delivery note</dt><dd>{{ order.note|linebreaksbr }}</dd>{% endif %}
+            </dl>
+        </div>
+        {% for message in messages %}
+        <p class="customer-order-feedback" role="status">{{ message }}</p>
+        {% endfor %}
+        {% if user.is_authenticated and order.user_id == user.pk and order.status == "pending" %}
+        <div class="customer-order-actions">
+            {% include "orders/edit_delivery.html" %}
+            {% include "orders/cancel_control.html" %}
+        </div>
+        {% elif user.is_authenticated and order.user_id == user.pk %}
+            {% with cancellation=order.cancellation_request %}
+                {% if cancellation %}
+                    <section class="delivery-decision" data-decision="{{ cancellation.decision }}" {% if cancellation.decision == "declined" %}aria-label="Your cancellation request was declined"{% else %}aria-labelledby="decision-title"{% endif %}>
+                        <div class="delivery-decision__head">
+                            <h3 id="decision-title">Cancellation request</h3>
+                            <span class="delivery-decision__status">{{ cancellation.get_decision_display }}</span>
+                        </div>
+                        {% if cancellation.decision == "declined" and cancellation.decline_reason %}
+                            <p class="delivery-decision__label">Reason from the store</p>
+                            <p class="delivery-decision__reason">{{ cancellation.decline_reason|linebreaksbr }}</p>
+                        {% elif cancellation.decision == "declined" %}
+                            <p>Follow your delivery progress in the order timeline.</p>
+                        {% elif cancellation.decision == "approved" %}
+                            <p>Your order is cancelled.</p>
+                        {% else %}
+                            <p>Dispatch is paused while the store reviews your request.</p>
+                        {% endif %}
+                    </section>
+                {% elif order.status == "confirmed" %}
+                    <div class="customer-order-actions">{% include "orders/cancel_control.html" with request_only=True %}</div>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+    </section>
+</div>
+
+{# Little messages: "Added to your basket", "Number copied" #}
+<p class="order-toast" data-toast role="status" aria-live="polite"></p>

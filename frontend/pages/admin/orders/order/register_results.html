@@ -1,0 +1,42 @@
+{% load admin_urls tz %}
+{% timezone "Asia/Kuala_Lumpur" %}
+<div class="results register-results">
+  <table id="result_list" aria-label="Orders">
+    <thead><tr>
+      {% if headers.action_checkbox %}<th scope="col" class="action-checkbox-column">{{ headers.action_checkbox.text }}</th>{% endif %}
+      <th scope="col"><a href="{{ headers.number.url_primary }}">Order</a> / <a href="{{ headers.placed_at.url_primary }}">Placed (MYT)</a></th>
+      <th scope="col"><a href="{{ headers.full_name.url_primary }}">Customer</a></th>
+      <th scope="col"><a href="{{ headers.review_status.url_primary }}">Status</a></th>
+      <th scope="col" class="sum"><a href="{{ headers.order_total.url_primary }}">Total</a></th>
+      <th scope="col"><span class="visually-hidden">Order details</span></th>
+    </tr></thead>
+    <tbody>
+    {% for row in register_rows %}
+      {% if group_orders_by_day %}
+        {% ifchanged row.order.created_at|date:"Y-m-d" %}
+          <tr class="register-day"><td colspan="{{ headers.action_checkbox|yesno:'6,5' }}"><span>{{ row.order.created_at|date:"j F Y" }}</span></td></tr>
+        {% endifchanged %}
+      {% endif %}
+      {% add_preserved_filters row.url as detail_url %}
+      <tr class="register-row" data-order="{{ row.order.pk }}">
+        {% if headers.action_checkbox %}<td class="action-checkbox">{{ row.checkbox }}</td>{% endif %}
+        <th scope="row" class="identity"><a href="{{ detail_url }}">{{ row.order.number }}</a>
+          <small><time datetime="{{ row.order.created_at|date:'c' }}">{% if not group_orders_by_day %}{{ row.order.created_at|date:"j M Y" }} · {% endif %}{{ row.order.created_at|date:"H:i" }} MYT</time></small>
+        </th>
+        <td class="buyer"><b>{{ row.order.full_name }}</b><small>{{ row.order.city }}</small></td>
+        <td class="state">{{ row.status }}</td>
+        <td class="sum"><b>${{ row.total|floatformat:"2" }}</b><small>{{ row.units }} item{{ row.units|pluralize }}</small></td>
+        <td class="view-cell"><a class="register-view" href="{{ detail_url }}" aria-label="View order {{ row.order.number }}">View order <span aria-hidden="true">→</span></a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<details class="register-sorts">
+  <summary>Sort orders</summary>
+  <div>{% for header in headers.values %}{% if header.sortable %}
+    <a href="{{ header.url_primary }}">{{ header.text }}{% if header.sorted %} {% if header.ascending %}↑{% else %}↓{% endif %}{% endif %}</a>
+    {% if header.sorted %}<a href="{{ header.url_remove }}" aria-label="Remove {{ header.text }} from sorting">×</a>{% endif %}
+  {% endif %}{% endfor %}</div>
+</details>
+{% endtimezone %}

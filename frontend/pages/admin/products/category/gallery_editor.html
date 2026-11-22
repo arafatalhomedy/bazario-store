@@ -1,0 +1,71 @@
+{% with form=adminform.form %}
+<div data-category-editor-fragment>
+    <header class="bg-dialog-header">
+        <h2 id="bg-category-editor-title">
+            {% if add %}
+            Add category
+            {% else %}
+            Edit category
+            {% endif %}
+        </h2>
+        <button type="button" class="bg-button bg-dialog-close" data-close-category-panel
+            aria-label="Close category editor">×</button>
+    </header>
+
+    <form class="bg-form" method="post" action="{{ request.get_full_path }}" data-category-mutation>
+        {% csrf_token %}
+
+        <div class="bg-dialog-layout">
+            <div class="bg-dialog-fields">
+                {{ form.non_field_errors }}
+
+                <div class="bg-field">
+                    <label for="{{ form.name.id_for_label }}">Category name</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+
+                <div class="bg-url">
+                    <span>Shop URL{% if add %} preview{% endif %}</span>
+                    {% if original.slug %}
+                    <code>{% url 'shop-page' %}?category={{ original.slug }}</code>
+                    {% else %}
+                    <code data-category-url-preview
+                        data-shop-url="{% url 'shop-page' %}">{% url 'shop-page' %}?category=your-category</code>
+                    {% endif %}
+                </div>
+
+                <p class="bg-dialog-status" role="status" data-category-editor-status></p>
+            </div>
+
+            <section class="bg-dialog-preview" aria-labelledby="bg-dialog-preview-title">
+                <h3 id="bg-dialog-preview-title">Shop preview</h3>
+
+                <div class="bg-preview-card">
+                    <span class="bg-preview-icon" aria-hidden="true">
+                        <span class="bazario-dashboard__icon" data-icon="category"></span>
+                    </span>
+                    <strong data-category-preview-name>{{ form.name.value|default:"New category" }}</strong>
+                </div>
+
+                <div class="bg-preview-chips">
+                    <span class="bg-preview-chip bg-preview-chip-all">All</span>
+                    <span class="bg-preview-chip" data-category-preview-name>{{ form.name.value|default:"New category"
+                        }}</span>
+                </div>
+            </section>
+        </div>
+
+        <footer class="bg-dialog-actions">
+            <button type="button" class="bg-button" data-close-category-panel>Cancel</button>
+            <button type="submit" name="_save" value="1" class="bg-button bg-primary">
+                {% if add %}
+                Add category
+                {% else %}
+                Save changes
+                {% endif %}
+            </button>
+        </footer>
+    </form>
+</div>
+{% endwith %}

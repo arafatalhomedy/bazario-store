@@ -1,0 +1,30 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Checkout · Bazario{% endblock %}
+{% block description %}Add your delivery details and place your Bazario order.{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/cart/heading.css' %}">
+<link rel="stylesheet" href="{% static 'css/checkout/bento.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/checkout.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{# The whole checkout. JavaScript loads the basket and sends the order #}
+<div class="basket checkout" data-checkout data-state="loading">
+    {% include "checkout/heading.html" %}
+    {% include "checkout/bento.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+{% with footer_title="Changed your mind?" footer_accent="Back to the basket." %}
+{% with footer_link="/cart/" footer_link_label="Back to the basket" %}
+{% include "partials/footer.html" %}
+{% endwith %}
+{% endwith %}
+{% endblock %}

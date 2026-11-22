@@ -1,0 +1,49 @@
+{% load static %}
+<div class="bz-delivery">
+  <button type="button" class="bz-delivery-trigger" aria-haspopup="dialog" aria-controls="bz-delivery-dialog" hidden>Edit delivery details</button>
+  <details class="bz-delivery-fallback"{% if delivery_errors %} open{% endif %}>
+    <summary>Edit delivery details</summary>
+    <form method="post" action="{% url 'order-page' number=order.number %}" id="bz-delivery-form">
+      {% csrf_token %}
+      <input type="hidden" name="delivery_version" value="{{ delivery_version }}">
+      <header class="bz-delivery-head">
+        <div><small>Order {{ order.number }}</small><h2 id="bz-delivery-title">Edit delivery details</h2></div>
+        <button type="button" data-delivery-close aria-label="Close and discard changes" autofocus>×</button>
+      </header>
+      <div class="bz-delivery-fields">
+        <fieldset>
+          <legend>Recipient</legend>
+          <label>Full name
+            <input name="full_name" autocomplete="name" maxlength="100" required value="{{ delivery_values.full_name }}" data-saved="{{ order.full_name }}">
+            {% for error in delivery_errors.full_name %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+          <label>Phone number
+            <input type="tel" name="phone" autocomplete="tel" maxlength="20" required value="{{ delivery_values.phone }}" data-saved="{{ order.phone }}">
+            {% for error in delivery_errors.phone %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Delivery address</legend>
+          <label class="bz-street">Street and building
+            <input name="street" autocomplete="street-address" maxlength="200" required value="{{ delivery_values.street }}" data-saved="{{ order.street }}">
+            {% for error in delivery_errors.street %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+          <label>City
+            <input name="city" autocomplete="address-level2" maxlength="80" required value="{{ delivery_values.city }}" data-saved="{{ order.city }}">
+            {% for error in delivery_errors.city %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+          <label class="bz-note">Delivery note (optional)
+            <textarea name="note" maxlength="300" rows="2" data-saved="{{ order.note }}">{{ delivery_values.note }}</textarea>
+            {% for error in delivery_errors.note %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+        </fieldset>
+      </div>
+      <footer class="bz-delivery-foot">
+        <button type="button" data-delivery-close>Discard changes</button>
+        <button type="submit">Save delivery details</button>
+      </footer>
+    </form>
+  </details>
+  <dialog id="bz-delivery-dialog" aria-labelledby="bz-delivery-title"></dialog>
+</div>
+<script defer src="{% static 'js/pages/edit-delivery.js' %}"></script>

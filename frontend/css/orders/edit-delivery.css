@@ -1,0 +1,100 @@
+.bz-delivery {
+    --delivery-paper: light-dark(#fffcf8, #272327);
+    --delivery-wash: light-dark(#f4efe8, #201c21);
+    --delivery-edge: light-dark(#dcd1c7, #584953);
+    --delivery-ink: light-dark(#292128, #fff5ed);
+    --delivery-thumb: light-dark(#a56355, #cb927e);
+    --delivery-track: light-dark(#ece1d8, #3e3139);
+}
+.bz-delivery [hidden] { display: none; }
+.bz-delivery button, .bz-delivery-fallback summary {
+    min-height: 44px; padding: 9px 16px; box-sizing: border-box;
+    border: 1px solid var(--delivery-edge); border-radius: 99px;
+    background: var(--delivery-paper); color: var(--delivery-ink);
+    font: inherit; font-weight: 650; cursor: pointer;
+}
+.bz-delivery .bz-delivery-trigger, .bz-delivery-fallback summary {
+    background: var(--delivery-ink); color: var(--delivery-paper);
+}
+.bz-delivery-fallback [data-delivery-close] { display: none; }
+#bz-delivery-dialog {
+    box-sizing: border-box; padding: 0; position: fixed; inset: 0; margin: auto;
+    width: min(620px, calc(100% - 32px)); max-width: none; max-height: none;
+    overflow: hidden; background: var(--delivery-paper); color: var(--delivery-ink);
+    border: 1px solid var(--delivery-edge); border-radius: 24px;
+    box-shadow: 0 26px 90px rgb(25 16 24 / 30%);
+}
+#bz-delivery-dialog:not([open]) { display: none; }
+#bz-delivery-dialog::backdrop { background: rgb(31 23 31 / 48%); backdrop-filter: blur(4px); }
+html:has(#bz-delivery-dialog[open]) { overflow: hidden; }
+#bz-delivery-form { margin: 0; }
+#bz-delivery-dialog form {
+    display: grid; grid-template-rows: auto minmax(0,1fr) auto;
+    max-height: min(670px, 88dvh);
+}
+.bz-delivery-head {
+    position: relative; isolation: isolate; overflow: hidden;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 20px clamp(16px,4vw,28px); color: #fff6eb;
+    background: radial-gradient(ellipse at 92% 120%,#9b5750,transparent 54%),linear-gradient(110deg,#261f2c,#4b3445 76%);
+}
+.bz-delivery-head::after {
+    content: ""; position: absolute; pointer-events: none; z-index: -1;
+    right: -3rem; top: -155%; width: 51%; height: 300%; transform: rotate(20deg);
+    background: repeating-radial-gradient(ellipse at center,transparent 0 14px,#f4baa738 15px,transparent 16px 24px);
+}
+.bz-delivery-head small { font-size: .8rem; color: #f5d3c5; }
+.bz-delivery-head h2 { margin: 4px 0 0; font: 700 clamp(24px,4vw,35px)/1.1 var(--font-display,system-ui),sans-serif; letter-spacing: -.05em; color: inherit; }
+.bz-delivery-head button { flex: none; width: 44px; padding: 0; background: #352833; color: #fff7f0; border-color: #ae8e93; font: 24px/1 system-ui; }
+.bz-delivery-fields {
+    display: grid; align-content: start; gap: 12px;
+    padding: 16px clamp(12px,3vw,24px); background: var(--delivery-wash);
+    min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+}
+.bz-delivery-fields fieldset {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 12px; margin: 0; min-width: 0; padding: 10px 14px 16px;
+    border-radius: 15px; border: 1px solid var(--delivery-edge); background: var(--delivery-paper);
+}
+.bz-delivery-fields legend { padding-inline: 5px; font-size: .9rem; font-weight: 700; }
+.bz-delivery-fields label { display: grid; align-content: start; gap: 5px; min-width: 0; font-size: .88rem; font-weight: 600; }
+.bz-delivery-fields .bz-note { grid-column: 1 / -1; }
+.bz-delivery-fields :is(input,textarea) {
+    box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px;
+    border-radius: 10px; border: 1px solid var(--delivery-edge); background: var(--delivery-paper);
+    color: inherit; font: inherit; font-weight: 450; font-size: 1rem;
+}
+.bz-delivery-fields textarea { resize: vertical; }
+.bz-delivery-fields .field-error { color: light-dark(#972f25,#ffa697); }
+.bz-delivery :is(input,textarea,button,summary):focus-visible { outline: 2px solid light-dark(#a44a32,#ffa384); outline-offset: 2px; }
+.bz-delivery-foot { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 14px clamp(12px,3vw,24px); border-top: 1px solid var(--delivery-edge); background: var(--delivery-paper); }
+.bz-delivery-foot [type="submit"] { background: #ff8968; color: #291913; border-color: transparent; }
+.bz-delivery-foot [type="submit"]:hover { background: #ff9d80; }
+.bz-delivery :is(.bz-delivery-fields,#bz-delivery-form) { scrollbar-width: thin; scrollbar-color: var(--delivery-thumb) var(--delivery-track); }
+@supports selector(::-webkit-scrollbar) {
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form) { scrollbar-color: auto; scrollbar-width: auto; }
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form)::-webkit-scrollbar { width: 12px; }
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form)::-webkit-scrollbar-track { background: var(--delivery-track) padding-box; border: 3px solid transparent; border-radius: 99px; margin-block: 7px; }
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form)::-webkit-scrollbar-thumb { background: var(--delivery-thumb) padding-box; border: 3px solid transparent; border-radius: 99px; min-height: 36px; }
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form)::-webkit-scrollbar-thumb:hover { border-width: 2px; }
+    .bz-delivery :is(.bz-delivery-fields,#bz-delivery-form)::-webkit-scrollbar-button { display: none; height: 0; }
+}
+@media (max-width: 520px) {
+    #bz-delivery-dialog { width: 100%; margin: auto auto 0; border-radius: 22px 22px 0 0; }
+    #bz-delivery-dialog form { max-height: 92dvh; }
+    .bz-delivery-fields fieldset { grid-template-columns: minmax(0,1fr); }
+    .bz-delivery-foot { padding-bottom: max(14px,env(safe-area-inset-bottom)); }
+}
+@media (max-height: 340px) {
+    #bz-delivery-dialog form { display: block; overflow: auto; }
+    .bz-delivery-fields { overflow: visible; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    #bz-delivery-dialog[open] { animation: delivery-popup-in .24s cubic-bezier(.2,.8,.25,1) both; }
+    #bz-delivery-dialog.is-closing { animation: delivery-popup-out .15s ease-in both; }
+    #bz-delivery-dialog[open]::backdrop { animation: delivery-veil .2s ease-out both; }
+    #bz-delivery-dialog.is-closing::backdrop { animation: delivery-veil .15s ease-in reverse both; }
+    @keyframes delivery-popup-in { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes delivery-popup-out { to { opacity: 0; transform: translateY(9px) scale(.985); } }
+    @keyframes delivery-veil { from { opacity: 0; } to { opacity: 1; } }
+}

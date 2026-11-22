@@ -1,0 +1,134 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if selected_category %}{{ selected_category.name }}{% else %}Shop{% endif %} · Bazario
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/shop/catalog.css' %}">
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/pages/shop.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="shop-page{% if selected_category %} shop-page--category{% endif %}" aria-labelledby="shop-title">
+    <header class="shop-heading">
+        <div>
+            {% if selected_category %}
+            <a class="shop-heading__back" href="{% url 'shop-page' %}">← All categories</a>
+            {% endif %}
+            <h1 id="shop-title">
+                {% if selected_category %}{{ selected_category.name }}{% else %}Shop{% endif %}<span>.</span>
+            </h1>
+        </div>
+        <p>{{ product_count }} product{{ product_count|pluralize }}</p>
+    </header>
+
+    {% if groups and not selected_category %}
+    <nav class="shop-index" aria-label="Shop categories">
+        {% for category, products in groups %}
+        <a href="#category-{{ category.slug }}">
+            {{ category.name }} <span>{{ category.product_count }}</span>
+        </a>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% for category, products in groups %}
+    <section class="shop-category" id="category-{{ category.slug }}" data-shop-rail>
+
+        {% if not selected_category %}
+        <div class="shop-category__heading">
+            <h2>{{ category.name }}</h2>
+            <div class="shop-shelf__tools">
+                <a class="shop-shelf__all" href="{% url 'shop-page' %}?category={{ category.slug|urlencode }}">
+                    {% if category.product_count %}View all {{ category.product_count }}{% else %}View category{% endif %} <span aria-hidden="true">↗</span>
+                </a>
+                <button class="shop-shelf__all" type="button" data-shop-autoplay hidden>
+                    Pause
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if selected_category and category_page.has_other_pages %}
+        <p class="shop-results-meta">
+            Showing {{ category_page.start_index }}–{{ category_page.end_index }}
+            of {{ product_count }} products
+        </p>
+        {% endif %}
+
+        {% if products %}
+        <ul class="shop-grid{% if not selected_category %} shop-grid--rail{% endif %}" {% if not selected_category %}
+            id="shop-track-{{ category.slug }}" data-shop-track tabindex="0" aria-label="{{ category.name }} products"
+            {% endif %}>
+
+            {% for product in products %}
+            <li>
+                <a class="shop-card" href="{% url 'product-page' product.slug %}">
+                    <div class="shop-card__photo">
+                        {% with photo=product.thumbnail|default:product.image %}
+                        {% if selected_category and product.image %}
+                        <img src="{{ product.image.url }}" alt="" loading="lazy" decoding="async">
+                        {% elif photo %}
+                        <img src="{{ photo.url }}" alt="" loading="lazy" decoding="async">
+                        {% else %}
+                        <span class="shop-card__placeholder" aria-hidden="true">
+                            {{ product.name|slice:":1"|upper }}
+                        </span>
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if product.is_sold_out %}
+                        <span class="shop-card__badge">Sold out</span>
+                        {% elif product.is_on_sale %}
+                        <span class="shop-card__badge shop-card__badge--sale">Sale</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="shop-card__body">
+                        <h3>{{ product.name }}</h3>
+                        <p class="shop-card__price">
+                            <span>${{ product.price|floatformat:"2" }}</span>
+                            {% if product.is_on_sale %}
+                            <s>${{ product.compare_at_price|floatformat:"2" }}</s>
+                            {% endif %}
+                        </p>
+                        <span class="shop-card__arrow" aria-hidden="true">↗</span>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="shop-empty">No products in this category yet.</p>
+        {% endif %}
+    </section>
+    {% empty %}
+    <p class="shop-empty">No products are available right now.</p>
+    {% endfor %}
+
+    {% if category_page.has_other_pages %}
+    <nav class="shop-pagination" aria-label="Product pages">
+        {% if category_page.has_previous %}
+        <a
+            href="?category={{ selected_category.slug|urlencode }}&amp;page={{ category_page.previous_page_number }}#category-{{ selected_category.slug }}">
+            ← Previous
+        </a>
+        {% endif %}
+
+        <span>Page {{ category_page.number }} of {{ category_page.paginator.num_pages }}</span>
+
+        {% if category_page.has_next %}
+        <a
+            href="?category={{ selected_category.slug|urlencode }}&amp;page={{ category_page.next_page_number }}#category-{{ selected_category.slug }}">
+            Next →
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}

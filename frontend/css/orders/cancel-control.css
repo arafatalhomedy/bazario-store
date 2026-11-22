@@ -1,0 +1,71 @@
+.bz-cancel {
+    margin: 0 0 1rem;
+}
+.bz-cancel button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    min-height: 44px;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+.bz-cancel-trigger {
+    padding: 4px 17px 4px 5px;
+    background: var(--card-bg, Canvas);
+    border: 1px solid var(--color-border, #999);
+    color: inherit;
+}
+.bz-cancel-symbol {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #842f29;
+    background: #ffe1d7;
+    font: 500 23px/1 system-ui, sans-serif;
+}
+#bz-cancel-panel {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(420px, calc(100% - 32px));
+    height: fit-content;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    padding: clamp(22px, 4vw, 32px);
+    border: 1px solid var(--color-border, #aaa);
+    border-radius: 22px;
+    color: inherit;
+    background: var(--card-bg, Canvas);
+    box-shadow: 0 20px 65px rgb(28 17 14 / 20%);
+}
+#bz-cancel-panel::backdrop { background: rgb(25 19 19 / 38%); }
+.bz-cancel-id { font-size: .85rem; font-weight: 600; }
+#bz-cancel-title {
+    margin: 10px 0 8px;
+    font: 700 clamp(25px, 4vw, 34px)/1.1 var(--font-display, system-ui), sans-serif;
+    letter-spacing: -.045em;
+}
+#bz-cancel-description { margin: 0; line-height: 1.55; }
+.bz-cancel-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.bz-cancel-actions button { flex: 1 1 auto; padding: 9px 16px; }
+.bz-keep { background: transparent; border: 1px solid var(--color-border, #999); color: inherit; }
+.bz-confirm-cancel { background: #a33b31; border: 1px solid #a33b31; color: #fff; }
+.bz-cancel-trigger:hover, .bz-keep:hover { border-color: currentColor; }
+.bz-confirm-cancel:hover { background: #872f26; }
+.bz-cancel button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.bz-cancel .bz-confirm-cancel:focus-visible { outline-color: #d36b56; }
+@media (prefers-reduced-motion: no-preference) {
+    #bz-cancel-panel:popover-open { animation: bz-cancel-in 180ms ease-out; }
+    .bz-cancel-symbol { transition: transform 180ms ease; }
+    .bz-cancel-trigger:hover .bz-cancel-symbol { transform: rotate(8deg); }
+    @keyframes bz-cancel-in {
+        from { opacity: 0; transform: translateY(7px) scale(.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+}

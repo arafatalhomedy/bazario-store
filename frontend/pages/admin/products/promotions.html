@@ -1,0 +1,107 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin/promotions.css' %}">{% endblock %}
+{% block extrahead %}{{ block.super }}{% if editor %}<script defer src="{% static 'js/admin/promotions.js' %}"></script>{% endif %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Home</a> › Promotions</div>{% endblock %}
+{% block content %}
+<section class="bz-promotions" aria-labelledby="promotions-title">
+  <header class="promo-banner">
+    <div><h1 id="promotions-title">Promotions<span>.</span></h1>
+      <p>{{ active_count }} product{{ active_count|pluralize }} on sale</p>
+    </div>
+    <div class="promo-ticket" aria-hidden="true"><b>%</b><i></i></div>
+  </header>
+  {% if editor %}
+    <div class="promo-heading"><h2>{% if editing %}Manage promotion{% else %}Add promotion{% endif %}</h2>
+      <a class="promo-button" href="{{ list_url }}"><span aria-hidden="true">←&nbsp;</span> Back to promotions</a></div>
+    {% if available %}
+      <form class="promo-form" method="post">
+        {% csrf_token %}{{ form.non_field_errors }}
+        <div class="promo-fields">
+          <div>{{ form.product.label_tag }}{{ form.product }}{{ form.product.errors }}</div>
+          <div><label for="{{ form.discount.id_for_label }}">Discount (%)</label>{{ form.discount }}{{ form.discount.errors }}</div>
+        </div>
+        <fieldset class="promo-timing">
+          <legend>When should the promotion start?</legend>
+          {% for option in form.timing %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
+          {{ form.timing.errors }}
+        </fieldset>
+        <div class="promo-fields promo-window" data-window>
+          <div data-start-field>{{ form.starts.label_tag }}{{ form.starts }}{{ form.starts.errors }}</div>
+          <div>{{ form.ends.label_tag }}{{ form.ends }}{{ form.ends.errors }}
+            <small data-end-hint>For Start now, leave this blank to end the promotion manually.</small>
+          </div>
+        </div>
+        <p data-picker-error role="alert" hidden></p>
+        <div class="promo-prices" aria-live="polite" hidden>
+          <div><small>Before the sale</small><b data-regular></b></div>
+          <div><small>During the sale</small><b data-sale></b></div>
+          <div><small>After the sale</small><b data-after></b></div>
+        </div>
+        <div class="promo-actions">
+          {% if editing %}<button class="promo-button" name="action" value="end" formnovalidate>{% if pending %}Cancel schedule{% else %}End promotion{% endif %}</button>{% endif %}
+          <button class="promo-button primary" name="action" value="save" data-save data-editing="{{ editing|yesno:'yes,no' }}">{% if editing %}Save changes{% else %}Apply promotion{% endif %}</button>
+        </div>
+      </form>
+      <dialog id="promo-calendar" aria-labelledby="promo-calendar-title">
+        <header class="pc-head"><h2 id="promo-calendar-title">Choose date and time</h2><button type="button" class="promo-button" data-dismiss aria-label="Close picker">×</button></header>
+        <div class="pc-body">
+          <div class="pc-calendar">
+            <div class="pc-month"><strong data-month aria-live="polite"></strong><div><button type="button" class="promo-button" data-prev aria-label="Previous month">‹</button> <button type="button" class="promo-button" data-next aria-label="Next month">›</button></div></div>
+            <div class="pc-week" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+            <div class="pc-days" role="group" aria-label="Choose day"></div>
+          </div>
+          <div class="pc-time">
+            <small data-context></small><strong data-day></strong>
+            <div><label>Hour<select data-hour></select></label><span aria-hidden="true">:</span><label>Minute<select data-minute></select></label></div>
+            <small data-warning role="status"></small>
+          </div>
+        </div>
+        <footer class="pc-actions"><button type="button" class="promo-button" data-clear>Clear</button><button type="button" class="promo-button" data-cancel>Cancel</button><button type="button" class="promo-button primary" data-apply>Set date &amp; time</button></footer>
+      </dialog>
+      {{ pricing|json_script:"promotion-pricing" }}
+    {% else %}<p>There are no products available for a new promotion.</p>{% endif %}
+  {% else %}
+    <div class="promo-heading"><h2>{% if upcoming and not sales %}Scheduled promotions{% else %}Active promotions{% endif %}</h2>
+      {% if can_manage and available %}<a class="promo-button primary" href="{% querystring new=1 %}">+ Add promotion</a>{% endif %}
+    </div>
+    {% if sales or not upcoming %}
+    <ul class="promo-list">
+      {% for product in sales %}
+      <li class="promo-row">
+        <span class="promo-discount">{{ product.promotion_rate|floatformat:"-2" }}% off</span>
+        <div class="promo-name"><strong>{{ product.name }}</strong><small>{{ product.category.name }}</small>
+          {% if product.promotion_ends %}<small>Ends {{ product.promotion_ends|date:"j M Y · H:i" }} MYT</small>{% endif %}
+        </div>
+        <div class="promo-price"><del>${{ product.compare_at_price|floatformat:2 }}</del><strong>${{ product.price|floatformat:2 }}</strong></div>
+        {% if can_manage %}<a class="promo-button" href="{% querystring edit=product.pk %}" aria-label="Manage promotion for {{ product.name }}">Manage →</a>{% endif %}
+      </li>
+      {% empty %}<li class="promo-empty">No active promotions.</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if upcoming %}
+    {% if sales %}<div class="promo-heading"><h2>Scheduled promotions</h2></div>{% endif %}
+    <ul class="promo-list">
+      {% for product in upcoming %}
+      <li class="promo-row">
+        <span class="promo-discount">{{ product.promotion_rate|floatformat:"-2" }}% off</span>
+        <div class="promo-name"><strong>{{ product.name }}</strong>
+          <small>{{ product.promotion_starts|date:"j M Y · H:i" }} – {{ product.promotion_ends|date:"j M Y · H:i" }} MYT</small>
+        </div>
+        <div class="promo-price"><small>Scheduled price</small><strong>${{ product.queued_price|floatformat:2 }}</strong></div>
+        {% if can_manage %}<a class="promo-button" href="{% querystring edit=product.pk %}" aria-label="Manage schedule for {{ product.name }}">Manage →</a>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if page.has_other_pages %}
+    <nav class="promo-pagination" aria-label="Promotion pages">
+      {% if page.has_previous %}<a class="promo-button" rel="prev" href="{% querystring page=page.previous_page_number %}">← Previous</a>{% endif %}
+      <strong>Page {{ page.number }} of {{ page.paginator.num_pages }}</strong>
+      {% if page.has_next %}<a class="promo-button" rel="next" href="{% querystring page=page.next_page_number %}">Next →</a>{% endif %}
+    </nav>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
