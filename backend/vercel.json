@@ -1,8 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": [
+    "iad1"
+  ],
   "functions": {
     "config/wsgi.py": {
-      "includeFiles": "catalog_bundle/**"
+      "includeFiles": "{catalog_bundle,staticfiles}/**"
     }
   }
 }
