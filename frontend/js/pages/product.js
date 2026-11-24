@@ -32,4 +32,10 @@ function init() {
     });
 }
 
-init();
+// Loaded in the background (before the click)? Start everything when the page is shown,
+// so the letters, price count and other animations play in front of the customer.
+if (document.prerendering) {
+    document.addEventListener("prerenderingchange", init, { once: true });
+} else {
+    init();
+}

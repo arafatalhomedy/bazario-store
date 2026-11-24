@@ -9,7 +9,7 @@
  * The address can choose the tab:  ?category=<slug>   ?new=1   ?search=<text>
  * HTML: pages/home/collection.html · Styles: css/home/collection.css
  */
-import { markPhoto } from "../animations/morph.js";
+import { markPhoto, warmUp } from "../animations/morph.js";
 import { fetchCategories, fetchProducts } from "../api/products.js";
 import { averageColorWhenLoaded } from "../utils/color.js";
 import { el } from "../utils/dom.js";
@@ -210,6 +210,12 @@ export function initShowroom() {
                 formatPrice(product.price),
             ]),
         ]);
+
+        // Mouse rests on the centre card: get its product page ready in the background,
+        // so the photo can fly into place the moment it's clicked
+        card.addEventListener("pointerenter", () => {
+            if (index === state.index) warmUp(productUrl(product));
+        });
 
         card.addEventListener("click", () => {
             if (drag.moved) return;
