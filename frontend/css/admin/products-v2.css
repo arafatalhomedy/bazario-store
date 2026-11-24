@@ -1,0 +1,1231 @@
+/* ==========================================================================
+   Bazario admin: Products v2 — glass cards, 2 rows of 4 per page
+   HTML: pages/admin/products/product/change_list.html · JS: js/admin/products-v2.js
+   ========================================================================== */
+@property --bz-run {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --bz-border {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+body.bazario-products {
+    --bz-card: var(--bazario-surface, light-dark(#ffffff, #18181a));
+    --bz-soft: light-dark(#f4f1ea, #222226);
+    --bz-line: var(--hairline-color, #0000001a);
+    --bz-text: var(--body-fg, #141414);
+    --bz-muted: var(--body-quiet-color, #5f5b53);
+    --bz-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes bz-rise {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+        filter: blur(6px);
+    }
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.bz-products-head {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.5rem 0 1rem;
+    padding: clamp(1.1rem, 2.4vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
+    border-radius: 26px;
+    background: #141414;
+    color: #f4f1ea;
+    animation: bz-rise 0.7s var(--bz-ease) both;
+}
+
+.bz-products-head__aurora {
+    position: absolute;
+    inset: -60%;
+    z-index: -1;
+    background:
+        radial-gradient(30% 40% at 20% 40%, #7c5cff73, transparent 70%),
+        radial-gradient(25% 35% at 80% 60%, #ff5a3659, transparent 70%);
+    animation: bz-aurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes bz-aurora {
+    50% {
+        transform: rotate(14deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(-10deg);
+    }
+}
+
+.bz-products-head::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--bz-run), transparent 0 70%, #7c5cff 80%, #ff5a36 88%, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: bz-run 6s linear infinite;
+}
+
+@keyframes bz-run {
+    to {
+        --bz-run: 360deg;
+    }
+}
+
+.bz-products-head__kicker {
+    margin: 0;
+    color: #b9a8ff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.bz-products-head__title {
+    margin: 0.25rem 0 0;
+    padding: 0;
+    color: #f4f1ea;
+    font-size: clamp(1.8rem, 3.6vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.bz-products-head__title span {
+    color: #ff5a36;
+}
+
+.bz-products-head__right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.bz-products-head__counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+}
+
+.bz-products-head__counts li {
+    --s: #f2a900;
+    list-style: none;
+    animation: bz-rise 0.6s 0.2s var(--bz-ease) both;
+}
+
+.bz-products-head__counts li:nth-child(2) {
+    --s: #8b8b8b;
+    animation-delay: 0.27s;
+}
+
+.bz-products-head__counts li:nth-child(3) {
+    --s: #ff5a36;
+    animation-delay: 0.34s;
+}
+
+.bz-products-head__counts a {
+    display: block;
+    min-width: 5rem;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #ffffff14;
+    border-radius: 14px;
+    background: #ffffff12;
+    color: #f4f1ea !important;
+    text-decoration: none !important;
+    transition: transform 0.35s var(--bz-ease), background 0.35s;
+}
+
+.bz-products-head__counts a:hover {
+    background: color-mix(in srgb, var(--s) 35%, transparent);
+    transform: translateY(-3px);
+}
+
+.bz-products-head__counts b {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.bz-products-head__counts small {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
+    font-size: 0.68rem;
+    opacity: 0.75;
+}
+
+.bz-products-head__counts small::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--s);
+}
+
+.bz-products-head__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 1.1rem;
+    border-radius: 14px;
+    background: #ff5a36;
+    color: #fff !important;
+    font-weight: 800;
+    text-decoration: none !important;
+    box-shadow: 0 10px 24px -10px #ff5a36;
+    transition: transform 0.3s;
+}
+
+.bz-products-head__add span {
+    font-size: 1.2rem;
+    transition: transform 0.45s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+
+.bz-products-head__add:hover {
+    transform: translateY(-2px);
+}
+
+.bz-products-head__add:hover span {
+    transform: rotate(90deg);
+}
+
+/* ==========================================================================
+   Search, tabs, tools
+   ========================================================================== */
+body.bazario-products .workspace-controls {
+    position: relative;
+    z-index: 20;
+    padding: 0.7rem;
+    border: 1px solid var(--bz-line);
+    border-radius: 22px;
+    background: var(--bz-card);
+    animation: bz-rise 0.7s 0.1s var(--bz-ease) both;
+}
+
+body.bazario-products #searchbar {
+    height: 2.7rem;
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    background: var(--bz-soft);
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+
+body.bazario-products #searchbar:focus {
+    border-color: #ff5a36;
+    background: var(--bz-card);
+    box-shadow: 0 0 0 5px #ff5a361f;
+    outline: none;
+}
+
+body.bazario-products .workspace-tabs {
+    gap: 4px;
+    padding: 4px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bz-soft);
+}
+
+body.bazario-products .workspace-tabs a {
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bz-muted) !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.4s var(--bz-ease), color 0.3s, transform 0.2s;
+}
+
+body.bazario-products .workspace-tabs a:active {
+    transform: scale(0.94);
+}
+
+body.bazario-products .workspace-tabs a[aria-current="true"] {
+    background: var(--bz-text);
+    color: var(--bz-card) !important;
+    box-shadow: 0 8px 16px -8px #0006;
+}
+
+body.bazario-products .workspace-tools {
+    position: relative;
+    z-index: 15;
+    animation: bz-rise 0.7s 0.15s var(--bz-ease) both;
+}
+
+body.bazario-products .workspace-tools .workspace-button {
+    border-radius: 999px;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.bazario-products .workspace-tools .workspace-button:hover {
+    background: var(--bz-text);
+    color: var(--bz-card);
+}
+
+/* ==========================================================================
+   The grid: 4 per row (2 rows per page)
+   ========================================================================== */
+body.bazario-products .bz-pgrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    perspective: 1100px;
+}
+
+body.bazario-products .bz-pgrid>tr,
+body.bazario-products .bz-pgrid>tr>td {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+/* ==========================================================================
+   Card
+   ========================================================================== */
+.bz-pcard {
+    --c: #8b8b8b;
+    --sc: #16b5a3;
+    --fill: 100%;
+
+    position: relative;
+    isolation: isolate;
+    height: 100%;
+    padding: 1.5px;
+    border-radius: 24px;
+    background: var(--bz-line);
+    transform: rotateY(var(--tx, 0deg)) rotateX(var(--ty, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 0.25s ease-out, box-shadow 0.4s;
+    animation: bz-deal 0.75s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes bz-deal {
+    from {
+        opacity: 0;
+        transform: translateY(-26px) rotateX(60deg) scale(0.95);
+    }
+}
+
+/* Deal in one after another */
+body.bazario-products .bz-pgrid>tr:nth-child(2) .bz-pcard {
+    animation-delay: 0.06s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(3) .bz-pcard {
+    animation-delay: 0.12s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(4) .bz-pcard {
+    animation-delay: 0.18s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(5) .bz-pcard {
+    animation-delay: 0.24s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(6) .bz-pcard {
+    animation-delay: 0.3s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(7) .bz-pcard {
+    animation-delay: 0.36s;
+}
+
+body.bazario-products .bz-pgrid>tr:nth-child(8) .bz-pcard {
+    animation-delay: 0.42s;
+}
+
+/* Category colour (by category number) */
+.bz-pcard[data-cat$="1"] {
+    --c: #7c5cff;
+}
+
+.bz-pcard[data-cat$="2"] {
+    --c: #f2a900;
+}
+
+.bz-pcard[data-cat$="3"] {
+    --c: #16b5a3;
+}
+
+.bz-pcard[data-cat$="4"] {
+    --c: #ff6b4a;
+}
+
+.bz-pcard[data-cat$="5"] {
+    --c: #ff4f9a;
+}
+
+.bz-pcard[data-cat$="6"] {
+    --c: #3d8bfd;
+}
+
+.bz-pcard[data-cat$="7"] {
+    --c: #8ac926;
+}
+
+.bz-pcard[data-cat$="8"] {
+    --c: #e76f51;
+}
+
+.bz-pcard[data-cat$="9"] {
+    --c: #2a9d8f;
+}
+
+.bz-pcard[data-cat$="0"] {
+    --c: #9b5de5;
+}
+
+/* Stock level → ring colour + fill */
+.bz-pcard[data-stock="low"] {
+    --sc: #f2a900;
+    --fill: 30%;
+}
+
+.bz-pcard[data-stock="out"] {
+    --sc: #8b8b8b;
+    --fill: 0%;
+}
+
+/* Spinning gradient border on hover */
+.bz-pcard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: conic-gradient(from var(--bz-border), var(--c), transparent 30%, #ff5a36 55%, transparent 80%, var(--c));
+    opacity: 0;
+    transition: opacity 0.4s;
+    animation: bz-border 3s linear infinite;
+}
+
+@keyframes bz-border {
+    to {
+        --bz-border: 360deg;
+    }
+}
+
+.bz-pcard:hover::before,
+.bz-pcard:focus-within::before {
+    opacity: 1;
+}
+
+.bz-pcard:hover {
+    box-shadow: 0 30px 40px -28px var(--c);
+}
+
+.bz-pcard:has(.bz-pcard__check:checked) {
+    background: #ff5a36;
+}
+
+.bz-pcard__in {
+    height: 100%;
+    padding: 0.5rem;
+    border-radius: 22.5px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, var(--bz-card)), var(--bz-card) 60%);
+}
+
+/* ---------- Photo stage ---------- */
+.bz-pcard__stage {
+    position: relative;
+    height: 10rem;
+    overflow: hidden;
+    border-radius: 18px;
+    background: radial-gradient(120% 90% at 50% 100%,
+            color-mix(in srgb, var(--c) 45%, #fff),
+            color-mix(in srgb, var(--c) 12%, #fff) 70%);
+}
+
+.bz-pcard__rays {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 13rem;
+    height: 13rem;
+    margin: -6.5rem 0 0 -6.5rem;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, #ffffff59 0 8deg, transparent 8deg 16deg);
+    opacity: 0.6;
+    animation: bz-rays 24s linear infinite;
+}
+
+@keyframes bz-rays {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.bz-pcard__photo {
+    position: absolute;
+    left: 50%;
+    top: 1.1rem;
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 6.75rem;
+    margin-left: -2.75rem;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--bz-card);
+    box-shadow: 0 18px 22px -14px #00000080;
+    animation: bz-float 4s ease-in-out infinite;
+    transition: scale 0.5s cubic-bezier(0.22, 1.4, 0.36, 1), rotate 0.5s;
+}
+
+.bz-pcard__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bz-pcard__photo b {
+    color: var(--c);
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+@keyframes bz-float {
+    50% {
+        translate: 0 -6px;
+    }
+}
+
+.bz-pcard:hover .bz-pcard__photo {
+    scale: 1.08;
+    rotate: -4deg;
+}
+
+.bz-pcard__shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 0.6rem;
+    width: 4.5rem;
+    height: 0.6rem;
+    margin-left: -2.25rem;
+    border-radius: 50%;
+    background: radial-gradient(#0000004d, transparent 70%);
+    animation: bz-shadow 4s ease-in-out infinite;
+}
+
+@keyframes bz-shadow {
+    50% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+}
+
+/* Visible / Hidden */
+.bz-pcard__vis {
+    position: absolute;
+    left: 0.6rem;
+    top: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: #ffffffd9;
+    color: #0e7d6f;
+    font-size: 0.66rem;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+}
+
+.bz-pcard__vis::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #16b5a3;
+}
+
+.bz-pcard__vis[data-visibility="hidden"] {
+    color: #666;
+}
+
+.bz-pcard__vis[data-visibility="hidden"]::before {
+    background: #999;
+}
+
+/* Swinging price tag */
+.bz-pcard__tag {
+    position: absolute;
+    right: 0.6rem;
+    top: 0.6rem;
+    padding: 0.3rem 0.55rem 0.3rem 0.9rem;
+    border-radius: 8px 6px 6px 8px;
+    background: #141414;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.15;
+    text-align: right;
+    transform-origin: 100% 0;
+    box-shadow: 0 8px 14px -8px #0009;
+    animation: bz-swing 3s 0.8s ease-in-out infinite;
+}
+
+.bz-pcard__tag::before {
+    content: "";
+    position: absolute;
+    left: 0.3rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin-top: -2.5px;
+    border-radius: 50%;
+    background: var(--bz-soft);
+}
+
+.bz-pcard__tag s {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    opacity: 0.6;
+}
+
+@keyframes bz-swing {
+
+    0%,
+    100% {
+        transform: rotate(4deg);
+    }
+
+    50% {
+        transform: rotate(-4deg);
+    }
+}
+
+.bz-pcard__sale {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: #ff5a36;
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 800;
+    box-shadow: 0 6px 12px -6px #ff5a36;
+    transition: opacity 0.25s;
+}
+
+/* Tick box (shows on hover) */
+.bz-pcard__check {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    z-index: 3;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0;
+    accent-color: #ff5a36;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.25s, bottom 0.35s var(--bz-ease);
+}
+
+.bz-pcard:hover .bz-pcard__check,
+.bz-pcard__check:checked,
+.bz-pcard__check:focus-visible {
+    opacity: 1;
+}
+
+.bz-pcard:hover .bz-pcard__check {
+    bottom: 3.1rem;
+}
+
+/* Quick actions slide up over the photo */
+.bz-pcard__actions {
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    display: flex;
+    gap: 0.35rem;
+    transform: translateY(130%);
+    transition: transform 0.45s cubic-bezier(0.22, 1.3, 0.36, 1);
+}
+
+.bz-pcard:hover .bz-pcard__actions,
+.bz-pcard:focus-within .bz-pcard__actions {
+    transform: none;
+}
+
+.bz-pcard:hover .bz-pcard__sale {
+    opacity: 0;
+}
+
+.bz-pcard__btn {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    height: 2rem;
+    border-radius: 11px;
+    background: #ffffffe0;
+    color: #141414 !important;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    backdrop-filter: blur(8px);
+    transition: background 0.3s, color 0.3s;
+}
+
+.bz-pcard__btn:hover {
+    background: #141414;
+    color: #fff !important;
+}
+
+.bz-pcard__btn--danger {
+    flex: 0 0 2rem;
+    color: #c0392b !important;
+}
+
+.bz-pcard__btn--danger:hover,
+.bz-pcard__btn--danger[aria-expanded="true"] {
+    background: #e5382a;
+    color: #fff !important;
+}
+
+/* ---------- Name + stock ring ---------- */
+.bz-pcard__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.25rem 0.25rem;
+}
+
+.bz-pcard__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.bz-pcard__name {
+    display: block;
+    overflow: hidden;
+    color: var(--bz-text) !important;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bz-pcard__cat {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--c) 13%, transparent);
+    color: color-mix(in srgb, var(--c) 70%, var(--bz-text));
+    font-size: 0.64rem;
+    font-weight: 700;
+}
+
+.bz-pcard__ring {
+    position: relative;
+    flex: none;
+    width: 2.6rem;
+    text-align: center;
+}
+
+.bz-pcard__ring-fill {
+    display: block;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--sc) var(--fill), var(--bz-soft) 0);
+    -webkit-mask: radial-gradient(circle, transparent 58%, #000 59%);
+    mask: radial-gradient(circle, transparent 58%, #000 59%);
+    animation: bz-ring 1.2s 0.5s var(--bz-ease) both;
+}
+
+@keyframes bz-ring {
+    from {
+        opacity: 0;
+        transform: rotate(-180deg) scale(0.5);
+    }
+}
+
+.bz-pcard__ring b {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2.6rem;
+    display: grid;
+    place-items: center;
+    color: var(--sc);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.bz-pcard__ring small {
+    display: block;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    color: var(--bz-muted);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Delete confirm (filled by your existing JS) */
+.bz-pcard [data-product-delete-slot]:not([hidden]) {
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 16px;
+    background: #fde4df;
+    animation: bz-rise 0.35s var(--bz-ease) both;
+}
+
+/* ==========================================================================
+   Floating bulk bar (JS opens it when something is ticked)
+   ========================================================================== */
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 60;
+    padding: 0.5rem 0.6rem;
+    border-radius: 999px;
+    background: #141414;
+    color: #f4f1ea;
+    box-shadow: 0 20px 40px -16px #0009;
+    transform: translateX(-50%);
+    animation: bz-bulk 0.5s cubic-bezier(0.22, 1.3, 0.36, 1) both;
+}
+
+@keyframes bz-bulk {
+    from {
+        transform: translate(-50%, 180%);
+    }
+}
+
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk>summary {
+    display: none;
+}
+
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk .workspace-menu {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0 0 0 0.6rem;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+}
+
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk select {
+    height: 2.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: #ffffff1a;
+    color: #fff;
+}
+
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk select option {
+    color: #141414;
+}
+
+#bazario-workspace:has(.bz-pcard__check:checked) .workspace-bulk :is(button, .button) {
+    height: 2.2rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: #ff5a36;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Page switcher (your existing product pagination)
+   ========================================================================== */
+body.bazario-products .workspace-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--bz-line);
+    border-radius: 999px;
+    background: var(--bz-card);
+    animation: bz-rise 0.7s 0.4s var(--bz-ease) both;
+}
+
+body.bazario-products .workspace-page-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+body.bazario-products .workspace-page-numbers {
+    display: flex;
+    gap: 0.25rem;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--bz-soft);
+}
+
+body.bazario-products .workspace-page-numbers a,
+body.bazario-products .workspace-page-current,
+body.bazario-products .workspace-page-gap {
+    display: grid;
+    place-items: center;
+    min-width: 2.1rem;
+    height: 2.1rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    color: var(--bz-muted) !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+body.bazario-products .workspace-page-numbers a:hover {
+    background: var(--bz-card);
+    color: var(--bz-text) !important;
+    transform: translateY(-2px);
+}
+
+body.bazario-products .workspace-page-current {
+    background: var(--bz-text);
+    color: var(--bz-card) !important;
+}
+
+body.bazario-products .workspace-page-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 2.4rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: var(--bz-soft);
+    color: var(--bz-text) !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.bazario-products a.workspace-page-step:hover {
+    background: #ff5a36;
+    color: #fff !important;
+}
+
+body.bazario-products .workspace-page-step[aria-disabled="true"] {
+    opacity: 0.35;
+}
+
+/* ==========================================================================
+   Smaller screens + reduced motion
+   ========================================================================== */
+@media (max-width: 75rem) {
+    body.bazario-products .bz-pgrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 56rem) {
+    body.bazario-products .bz-pgrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .bz-products-head,
+    .bz-products-head *,
+    .bz-products-head::after,
+    .bz-pcard,
+    .bz-pcard::before,
+    .bz-pcard *,
+    body.bazario-products .workspace-controls,
+    body.bazario-products .workspace-tools,
+    body.bazario-products .workspace-pagination {
+        animation: none !important;
+    }
+}
+
+/* ==========================================================================
+   Delete confirmation: glass overlay ON the card (the grid never stretches)
+   ========================================================================== */
+body.bazario-products .bz-pgrid {
+    align-items: start;
+}
+
+.bz-pcard [data-product-delete-slot]:not([hidden]) {
+    position: absolute;
+    inset: 0.5rem;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 1rem;
+    overflow-y: auto;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--bz-card) 82%, transparent);
+    backdrop-filter: blur(10px) saturate(1.2);
+    box-shadow: inset 0 0 0 2px #e5382a55;
+    scrollbar-width: none;
+    animation: bz-confirm-in 0.35s cubic-bezier(0.22, 1.3, 0.36, 1) both;
+}
+
+@keyframes bz-confirm-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+.bz-pcard .workspace-confirm {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: center;
+}
+
+.bz-pcard .workspace-confirm::before {
+    content: "🗑";
+    display: grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 15px;
+    background: #e5382a;
+    color: #fff;
+    font-size: 1.2rem;
+    box-shadow: 0 10px 20px -10px #e5382a;
+    animation: bz-confirm-wiggle 0.5s 0.2s;
+}
+
+@keyframes bz-confirm-wiggle {
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.bz-pcard .workspace-confirm strong {
+    color: var(--bz-text);
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+/* Django's "what will be deleted" summary: small and quiet */
+.bz-pcard .workspace-confirm :is(p, ul, h2, h3) {
+    margin: 0;
+    padding: 0;
+    color: var(--bz-muted);
+    font-size: 0.72rem;
+    list-style: none;
+}
+
+.bz-pcard .workspace-confirm form {
+    display: contents;
+}
+
+.bz-pcard .workspace-confirm .workspace-button {
+    width: 100%;
+    max-width: 12rem;
+    height: 2.4rem;
+    border: 0;
+    border-radius: 12px;
+    background: var(--bz-soft);
+    color: var(--bz-text);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+.bz-pcard .workspace-confirm .workspace-button:hover {
+    background: var(--bz-text);
+    color: var(--bz-card);
+}
+
+.bz-pcard .workspace-confirm .workspace-remove {
+    background: #e5382a;
+    color: #fff;
+    box-shadow: 0 10px 20px -12px #e5382a;
+}
+
+.bz-pcard .workspace-confirm .workspace-remove:hover {
+    background: #c22a1e;
+    color: #fff;
+}
+
+.bz-pcard .workspace-confirm .workspace-button:active {
+    transform: scale(0.95);
+}
+
+/* Keep the card still while the overlay is open */
+.bz-pcard:has([data-product-delete-slot]:not([hidden])) {
+    --tx: 0deg !important;
+    --ty: 0deg !important;
+}
+
+.bz-pcard:has([data-product-delete-slot]:not([hidden])) .bz-pcard__actions {
+    transform: translateY(130%);
+}
+
+/* ==========================================================================
+   Fix: hover menu closes when the mouse leaves (even after a click),
+   and the photo area can never scroll / shift
+   ========================================================================== */
+.bz-pcard__stage {
+    overflow: clip;
+}
+
+/* A mouse click leaves focus behind — that alone must NOT keep the menu open */
+.bz-pcard:focus-within .bz-pcard__actions {
+    transform: translateY(130%);
+}
+
+.bz-pcard:focus-within::before {
+    opacity: 0;
+}
+
+/* Open on hover, or for keyboard users moving with Tab */
+.bz-pcard:hover .bz-pcard__actions,
+.bz-pcard:has(:focus-visible) .bz-pcard__actions {
+    transform: none;
+}
+
+.bz-pcard:hover::before,
+.bz-pcard:has(:focus-visible)::before {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Filter tabs: readable, one colour each (All · Low stock · Sold out · On sale)
+   ========================================================================== */
+body.bazario-products .workspace-tabs a {
+    --s: #141414;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent !important;
+    color: var(--bz-muted) !important;
+    box-shadow: none !important;
+}
+
+body.bazario-products .workspace-tabs a:nth-of-type(2) {
+    --s: #f2a900;
+}
+
+body.bazario-products .workspace-tabs a:nth-of-type(3) {
+    --s: #8b8b8b;
+}
+
+body.bazario-products .workspace-tabs a:nth-of-type(4) {
+    --s: #ff5a36;
+}
+
+body.bazario-products .workspace-tabs a:not(:first-of-type)::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--s);
+}
+
+body.bazario-products .workspace-tabs a:hover {
+    color: var(--bz-text) !important;
+}
+
+body.bazario-products .workspace-tabs a span {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: #0000000f;
+    color: inherit;
+    font-size: 0.7rem;
+}
+
+/* The selected tab: solid in its colour, white text */
+body.bazario-products .workspace-tabs a[aria-current="true"] {
+    background: var(--s) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 16px -8px var(--s) !important;
+    animation: bz-tab-pop 0.45s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+
+body.bazario-products .workspace-tabs a[aria-current="true"]::before {
+    background: #fff;
+}
+
+body.bazario-products .workspace-tabs a[aria-current="true"] span {
+    background: #ffffff40;
+}
+
+@keyframes bz-tab-pop {
+    from {
+        transform: scale(0.9);
+    }
+}
+
+/* Search: faded button while empty + shake when there's nothing to search */
+body.bazario-products #changelist-search:has(#searchbar:placeholder-shown) input[type="submit"] {
+    opacity: 0.5;
+}
+
+body.bazario-products #searchbar.is-shake {
+    border-color: #ff5a36;
+    animation: bz-shake 0.4s;
+}
+
+@keyframes bz-shake {
+
+    20%,
+    60% {
+        transform: translateX(-6px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(6px);
+    }
+}

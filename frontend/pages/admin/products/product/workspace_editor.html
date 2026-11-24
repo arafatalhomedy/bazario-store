@@ -1,24 +1,81 @@
-<div data-product-editor-fragment>
-    <header class="workspace-dialog-header product-editor-header">
-        <div>
-            <h2 id="workspace-editor-title">{% if add %}Add product{% else %}Edit product{% endif %}</h2>
-            {% if original %}<p>{{ original.name }}</p>{% endif %}
-        </div>
-        <button type="button" class="workspace-button product-editor-close" data-close-product-editor
-            aria-label="Close product editor">×</button>
-    </header>
-
-    <form class="workspace-form product-editor-form" method="post" action="{{ request.get_full_path }}"
+{% with photo=original.thumbnail|default:adminform.form.image.initial %}
+<div class="bz-studio" data-product-editor-fragment data-bz-studio>
+    <form class="workspace-form product-editor-form bz-studio__form" method="post" action="{{request.get_full_path}}"
         enctype="multipart/form-data" data-product-mutation>
         {% csrf_token %}
-        {% include "admin/products/product/workspace_fields.html" with form=adminform.form %}
 
-        <footer class="workspace-dialog-actions product-editor-footer">
-            <p class="workspace-message" role="status" data-editor-message></p>
-            <button type="button" class="workspace-button" data-close-product-editor>Cancel</button>
-            <button type="submit" name="_save" value="1" class="workspace-button workspace-primary">
-                {% if add %}Add product{% else %}Save changes{% endif %}
-            </button>
-        </footer>
+        {# LEFT: dark stage with the live 3D card #}
+        <div class="bz-studio__stage" data-bz-stage>
+            <span class="bz-studio__grid" aria-hidden="true"></span>
+            <span class="bz-studio__sweep" data-bz-sweep aria-hidden="true"></span>
+            <span class="bz-studio__sparks" data-bz-sparks aria-hidden="true"></span>
+
+            <p class="bz-studio__kicker">
+                Product studio
+                <b id="workspace-editor-title">
+                    {% if add %}Add product.{% else %}Edit product.{% endif %}
+                </b>
+            </p>
+
+            <div class="bz-card" data-bz-card aria-hidden="true">
+                <div class="bz-card__in">
+                    <div class="bz-card__photo">
+                        <span class="bz-card__rays"></span>
+                        <span class="bz-card__vis" data-bz-card-vis>Visible</span>
+                        <span class="bz-card__tag" data-bz-card-tag>$0.00</span>
+                        <span class="bz-card__img" data-bz-card-img>
+                            {% if photo %}
+                            <img src="{{photo.url}}" alt="">
+                            {% else %}
+                            ?
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="bz-card__meta">
+                        <div class="bz-card__text">
+                            <p class="bz-card__name" data-bz-card-name></p>
+                            <span class="bz-card__cat" data-bz-card-cat>No category</span>
+                        </div>
+                        <div class="bz-card__ring" data-bz-card-ring>
+                            <i></i>
+                            <b data-bz-card-stock>0</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <span class="bz-studio__shadow" aria-hidden="true"></span>
+
+            <div class="bz-studio__done" data-bz-done>
+                <b>{% if add %}Product added ✓{% else %}Changes saved ✓{% endif %}</b>
+                <span>It's live in the shop</span>
+            </div>
+        </div>
+
+        {# RIGHT: 3 steps #}
+        <div class="bz-studio__side">
+            <div class="bz-studio__top">
+                <nav class="bz-steps" aria-label="Product steps" data-bz-steps>
+                    <span class="bz-steps__pill" data-bz-pill aria-hidden="true"></span>
+                    <button type="button" data-bz-step="0"><i>1</i>Details</button>
+                    <button type="button" data-bz-step="1"><i>2</i>Price</button>
+                    <button type="button" data-bz-step="2"><i>3</i>Photo</button>
+                </nav>
+                <button type="button" class="bz-studio__close" data-close-product-editor
+                    aria-label="Close product editor">×</button>
+            </div>
+
+            {% include "admin/products/product/workspace_fields.html" with form=adminform.form %}
+
+            <footer class="bz-studio__foot">
+                <p class="workspace-message bz-studio__message" role="status" data-editor-message></p>
+                <button type="button" class="bz-studio__back" data-bz-back>← Back</button>
+                <button type="button" class="bz-studio__next" data-bz-next>Next <i aria-hidden="true">→</i></button>
+                <button type="submit" name="_save" value="1" class="bz-studio__save" data-bz-save>
+                    <span>{% if add %}Add product{% else %}Save changes{% endif %}</span>
+                    <i aria-hidden="true">→</i>
+                </button>
+            </footer>
+        </div>
     </form>
 </div>
+{% endwith %}

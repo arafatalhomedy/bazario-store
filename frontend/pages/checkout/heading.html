@@ -1,29 +1,16 @@
-{# Checkout page: top. Styles: css/cart/heading.css (shared with the basket) #}
-<header class="basket-head">
-    <p class="basket-head__meta">
-        <span class="basket-head__index">(03)</span>
-        <span>Checkout · step 2 of 3</span>
-        <a class="basket-head__back" href="/cart/">← Back to basket</a>
-    </p>
+{# Checkout: top. Styles: css/checkout/bento.css #}
+<header class="co-head">
+    <div class="co-head__text">
+        <p class="co-head__kicker">
+            <b>(03)</b> Checkout · step 2 of 3
+            <a class="co-head__back" href="/cart/">← Back to basket</a>
+        </p>
+        <h1 class="co-head__title" data-split>Almost yours.</h1>
+        <p class="co-head__count" data-checkout-count aria-live="polite">Loading your order…</p>
+    </div>
 
-    <h1 class="basket-head__title" data-split>Almost yours.</h1>
-
-    <p class="basket-head__count" data-checkout-count aria-live="polite">Loading your order…</p>
-
-    <ol class="steps" aria-label="Checkout steps">
-        <li class="steps__item is-done">
-            <span class="steps__dot" aria-hidden="true">✓</span>
-            <span class="steps__label">Basket</span>
-        </li>
-        <li class="steps__line" aria-hidden="true"></li>
-        <li class="steps__item is-current" aria-current="step">
-            <span class="steps__dot" aria-hidden="true">2</span>
-            <span class="steps__label">Details</span>
-        </li>
-        <li class="steps__line" aria-hidden="true"></li>
-        <li class="steps__item">
-            <span class="steps__dot" aria-hidden="true">3</span>
-            <span class="steps__label">Done</span>
-        </li>
-    </ol>
+    <div class="co-progress" aria-hidden="true">
+        <span data-progress-text>0 of 4</span>
+        <span class="co-progress__track"><i data-progress-fill></i></span>
+    </div>
 </header>

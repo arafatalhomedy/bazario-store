@@ -1,75 +1,50 @@
-{# Order details: the living journey. Styles: css/orders/order.css · Motion: js/components/orderDetail.js #}
-<section class="journey-tile" aria-labelledby="journey-title">
-    <p class="journey-tile__kicker" id="journey-title">The journey</p>
+{# Order details v4: the journey as 4 stop cards. Styles: css/orders/order-v4.css #}
+<section class="od-journey" data-spot aria-labelledby="journey-title">
+    <header class="od-journey__head">
+        <p class="od-label" id="journey-title">The journey</p>
+        <span class="od-journey__next">
+            {% if order.status == "pending" %}Next up: <b>Confirmed</b>
+            {% elif order.status == "confirmed" %}Next up: <b>On the way</b>
+            {% elif order.status == "shipped" %}Next up: <b>Delivered</b>
+            {% elif order.status == "delivered" %}<b>All done</b>
+            {% else %}<b>Stopped</b>{% endif %}
+        </span>
+    </header>
 
     {% if order.status == "cancelled" %}
-    <p class="journey-tile__cancelled">This order was cancelled and its items went back on the shelf.</p>
+    <p class="od-journey__cancelled">This order was cancelled and its items went back on the shelf.</p>
     {% else %}
-
-    {# The 4 icons, defined once and reused by the stops #}
-    <svg class="route__icons" width="0" height="0" aria-hidden="true">
-        <symbol id="route-icon-pending" viewBox="0 0 24 24">
-            <path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" />
-        </symbol>
-        <symbol id="route-icon-confirmed" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M8 12l3 3 5-6" />
-        </symbol>
-        <symbol id="route-icon-shipped" viewBox="0 0 24 24">
-            <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
-            <circle cx="7" cy="17" r="2" />
-            <circle cx="17" cy="17" r="2" />
-        </symbol>
-        <symbol id="route-icon-delivered" viewBox="0 0 24 24">
-            <path d="M4 11l8-7 8 7v9H4zM10 20v-6h4v6" />
-        </symbol>
-    </svg>
-
-    <div class="route" data-route>
-        <svg class="route__map" viewBox="0 0 640 220" preserveAspectRatio="none" aria-hidden="true">
-            <defs>
-                <pattern id="route-dots" width="16" height="16" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1" />
-                </pattern>
-            </defs>
-            <rect class="route__dots" width="640" height="220" fill="url(#route-dots)" />
-            <path class="route__ahead" data-route-path
-                d="M50 160 C 140 160, 150 70, 240 70 S 340 160, 420 150 S 520 60, 590 60" />
-            <path class="route__done" data-route-done
-                d="M50 160 C 140 160, 150 70, 240 70 S 340 160, 420 150 S 520 60, 590 60" />
-            <path class="route__flow" data-route-flow
-                d="M50 160 C 140 160, 150 70, 240 70 S 340 160, 420 150 S 520 60, 590 60" />
-        </svg>
-
-        <ol class="route__stops">
-            {% for stop in timeline %}
-            <li class="route__stop is-{{ stop.state }}" data-route-stop data-at="{{ stop.at }}">
-                <span class="route__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                        <use href="#route-icon-{{ stop.status }}" />
-                    </svg>
-                </span>
-                <span class="route__label">
-                    {{ stop.label }}
-                    <small>
-                        {% if stop.time %}
-                        {{ stop.time|date:"j M, H:i" }}
-                        {% elif stop.done %}
-                        Done
-                        {% else %}
-                        Next
-                        {% endif %}
-                    </small>
-                </span>
-            </li>
-            {% endfor %}
-        </ol>
-
-        <span class="route__parcel" data-route-parcel aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-                <path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8" />
-            </svg>
-        </span>
+    <div class="od-track" aria-hidden="true">
+        <i class="od-track__fill"></i>
+        <i class="od-track__comet"></i>
     </div>
+
+    <ol class="od-stops">
+        {% for stop in timeline %}
+        <li class="od-stop is-{{ stop.state }}" style="--i: {{ forloop.counter0 }}" {% if stop.current %}
+            aria-current="step" {% endif %}>
+            <span class="od-stop__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    {% if stop.status == "pending" %}
+                    <path d="M7 3h10v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5zM10 8h4M10 12h4" />
+                    {% elif stop.status == "confirmed" %}
+                    <path d="M5 12l4 4 10-10" />
+                    {% elif stop.status == "shipped" %}
+                    <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
+                    <circle cx="7" cy="17" r="2" />
+                    <circle cx="17" cy="17" r="2" />
+                    {% else %}
+                    <path d="M4 11l8-7 8 7v9H4zM10 20v-5h4v5" />{% endif %}
+                </svg>
+            </span>
+            <p class="od-stop__label">{{ stop.label }}</p>
+            <small class="od-stop__time">
+                {% if stop.time %}{{ stop.time|date:"j M, H:i" }}
+                {% elif stop.done %}Done
+                {% else %}Next{% endif %}
+            </small>
+        </li>
+        {% endfor %}
+    </ol>
     {% endif %}
 </section>

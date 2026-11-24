@@ -1,12 +1,14 @@
 {% extends "admin/change_list.html" %}
 {% load admin_list static %}
 
-{% block bodyclass %}{{ block.super }}{% if not is_popup %} bazario-products{% endif %}{% endblock %}
+{% block bodyclass %}{{ block.super }} bazario-products{% endblock %}
 
 {% block responsive %}
 {{ block.super }}
 {% if not is_popup %}
 <link rel="stylesheet" href="{% static 'css/admin/products.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/products-v2.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/product-studio.css' %}">
 {% endif %}
 {% endblock %}
 
@@ -15,34 +17,65 @@
 {% if not is_popup %}
 <script defer src="{% static 'js/pages/admin-product-discount.js' %}"></script>
 <script type="module" src="{% static 'js/pages/admin-products-workspace.js' %}"></script>
+<script defer src="{% static 'js/admin/products-v2.js' %}"></script>
+<script defer src="{% static 'js/admin/product-studio.js' %}"></script>
 {% endif %}
 {% endblock %}
 
-{% block content_title %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
-{% block content_subtitle %}{% if is_popup %}{{ block.super }}{% endif %}{% endblock %}
+{% block content_title %}
+{% if is_popup %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
+
+{% block content_subtitle %}
+{% if is_popup %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
 
 {% block content %}
 {% if is_popup %}
 {{ block.super }}
 {% else %}
 <section id="bazario-workspace" aria-label="Product management">
-    <header class="workspace-heading">
+
+    <header class="bz-products-head">
+        <span class="bz-products-head__aurora" aria-hidden="true"></span>
         <div>
-            <h1>Products<span>.</span></h1>
-            <p>{{ cl.result_count }} product{{ cl.result_count|pluralize }}</p>
+            <p class="bz-products-head__kicker">Store · Catalog</p>
+            <h1 class="bz-products-head__title">Products<span>.</span></h1>
         </div>
-        {% if catalog_add_url %}
-        <a class="workspace-button workspace-primary" href="{{ catalog_add_url }}" data-panel-link>＋ Add product</a>
-        {% endif %}
+        <div class="bz-products-head__right">
+            <ul class="bz-products-head__counts">
+                {% for tab in catalog_tabs %}
+                {% if not forloop.first %}
+                <li>
+                    <a href="{{tab.url}}">
+                        <b data-bz-count>{{ tab.count }}</b>
+                        <small>{{ tab.label }}</small>
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% if catalog_add_url %}
+            <a class="bz-products-head__add" href="{{catalog_add_url}}" data-panel-link>
+                <span aria-hidden="true">+</span> Add product
+            </a>
+            {% endif %}
+        </div>
     </header>
 
     <div class="workspace-controls">
         {% search_form cl %}
         <nav class="workspace-tabs" aria-label="Stock and sale filters">
             {% for tab in catalog_tabs %}
-            <a href="{{ tab.url }}" {% if tab.active %} aria-current="true" {% endif %}>
-                {{ tab.label }} <span>{{ tab.count }}</span>
-            </a>
+            {% if tab.active %}
+            <a href="{{tab.url}}" aria-current="true">{{ tab.label }} <span>{{ tab.count }}</span></a>
+            {% else %}
+            <a href="{{tab.url}}">{{ tab.label }} <span>{{ tab.count }}</span></a>
+            {% endif %}
             {% endfor %}
         </nav>
     </div>
@@ -52,7 +85,11 @@
             <summary class="workspace-button">Sort</summary>
             <div class="workspace-menu">
                 {% for option in catalog_order %}
-                <a href="{{ option.url }}" {% if option.active %} aria-current="true" {% endif %}>{{ option.label }}</a>
+                {% if option.active %}
+                <a href="{{option.url}}" aria-current="true">{{ option.label }}</a>
+                {% else %}
+                <a href="{{option.url}}">{{ option.label }}</a>
+                {% endif %}
                 {% endfor %}
             </div>
         </details>
@@ -63,13 +100,13 @@
             <nav class="workspace-menu" id="changelist-filter" aria-label="Product filters">
                 {% if cl.is_facets_optional %}
                 {% if cl.add_facets %}
-                <a href="{{ cl.remove_facet_link }}">Hide counts</a>
+                <a href="{{cl.remove_facet_link}}">Hide counts</a>
                 {% else %}
-                <a href="{{ cl.add_facet_link }}">Show counts</a>
+                <a href="{{cl.add_facet_link}}">Show counts</a>
                 {% endif %}
                 {% endif %}
                 {% if cl.has_active_filters %}
-                <a href="{{ cl.clear_all_filters_qs }}">Clear filters</a>
+                <a href="{{cl.clear_all_filters_qs}}">Clear filters</a>
                 {% endif %}
                 {% for spec in cl.filter_specs %}
                 {% if spec.parameter_name != "catalog" %}
@@ -81,7 +118,7 @@
         {% endif %}
 
         {% if action_form and cl.show_admin_actions and catalog_rows %}
-        <details class="workspace-options workspace-bulk">
+        <details class="workspace-options workspace-bulk" data-bz-bulk>
             <summary class="workspace-button">Bulk actions</summary>
             <form id="changelist-form" class="workspace-menu" method="post" novalidate>
                 {% csrf_token %}
@@ -93,68 +130,87 @@
     </div>
 
     <table id="result_list" class="workspace-table" role="table" aria-label="Products">
-        <tbody class="workspace-grid" role="rowgroup">
+        <tbody class="workspace-grid bz-pgrid" role="rowgroup">
             {% for row in catalog_rows %}
             {% with product=row.product photo=row.product.thumbnail|default:row.product.image %}
             <tr role="row" data-product-row>
                 <td role="cell">
-                    <article class="workspace-tile">
-                        <div class="workspace-tile-top">
-                            <span class="workspace-badge"
-                                data-visibility="{{ product.is_active|yesno:'visible,hidden' }}">
-                                {{ product.is_active|yesno:"Visible,Hidden" }}
-                            </span>
-                            {% if action_form and cl.show_admin_actions %}
-                            <input class="action-select workspace-select" form="changelist-form" type="checkbox"
-                                name="_selected_action" value="{{ product.pk }}" aria-label="Select {{ product.name }}">
-                            {% endif %}
-                        </div>
+                    <article class="bz-pcard" data-cat="{{product.category_id}}" data-stock="{{row.stock_state}}">
+                        <div class="bz-pcard__in">
+                            <div class="bz-pcard__stage">
+                                <span class="bz-pcard__rays" aria-hidden="true"></span>
 
-                        <a class="workspace-tile-link" href="{{ row.change_url }}" {% if row.can_change %}
-                            data-panel-link{% endif %}>
-                            <span class="workspace-photo" aria-hidden="true">
-                                {% if photo %}
-                                <img src="{{ photo.url }}" alt="" loading="lazy" decoding="async">
-                                {% else %}
-                                {{ product.name|slice:":1"|upper }}
+                                <span class="bz-pcard__vis"
+                                    data-visibility="{{product.is_active|yesno:'visible,hidden'}}">
+                                    {{ product.is_active|yesno:"Visible,Hidden" }}
+                                </span>
+
+                                <span class="bz-pcard__tag">
+                                    {{ row.price }}
+                                    {% if row.regular %}
+                                    <s>{{ row.regular }}</s>
+                                    {% endif %}
+                                </span>
+
+                                <span class="bz-pcard__photo" aria-hidden="true">
+                                    {% if photo %}
+                                    <img src="{{photo.url}}" alt="" loading="lazy" decoding="async">
+                                    {% else %}
+                                    <b>{{ product.name|slice:":1"|upper }}</b>
+                                    {% endif %}
+                                </span>
+                                <span class="bz-pcard__shadow" aria-hidden="true"></span>
+
+                                {% if row.regular %}
+                                <span class="bz-pcard__sale">Sale</span>
                                 {% endif %}
-                            </span>
-                            <strong>{{ product.name }}</strong>
-                        </a>
 
-                        <span class="workspace-category">{{ product.category }}</span>
+                                {% if action_form and cl.show_admin_actions %}
+                                <input class="action-select workspace-select bz-pcard__check" form="changelist-form"
+                                    type="checkbox" name="_selected_action" value="{{product.pk}}"
+                                    aria-label="Select {{product.name}}">
+                                {% endif %}
 
-                        <div class="workspace-tile-meta">
-                            <span class="workspace-price">
-                                {{ row.price }}
-                                {% if row.regular %}<s>{{ row.regular }}</s>{% endif %}
-                            </span>
-                            <span class="workspace-stock" data-stock="{{ row.stock_state }}">
-                                {{ row.stock_label }}
-                            </span>
+                                <div class="bz-pcard__actions">
+                                    {% if row.can_change %}
+                                    <a class="bz-pcard__btn" href="{{row.change_url}}" data-panel-link
+                                        aria-label="Edit {{product.name}}">Edit</a>
+                                    {% else %}
+                                    <a class="bz-pcard__btn" href="{{row.change_url}}">Open</a>
+                                    {% endif %}
+                                    <a class="bz-pcard__btn" href="/products/{{product.slug}}/" target="_blank"
+                                        rel="noopener" aria-label="View {{product.name}} in the shop">View ↗</a>
+                                    {% if row.delete_url %}
+                                    <a class="bz-pcard__btn bz-pcard__btn--danger" href="{{row.delete_url}}"
+                                        data-delete-link aria-expanded="false"
+                                        aria-label="Delete {{product.name}}">🗑</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="bz-pcard__meta">
+                                <div class="bz-pcard__text">
+                                    {% if row.can_change %}
+                                    <a class="bz-pcard__name" href="{{row.change_url}}"
+                                        data-panel-link>{{product.name}}</a>
+                                    {% else %}
+                                    <a class="bz-pcard__name" href="{{row.change_url}}">{{product.name}}</a>
+                                    {% endif %}
+                                    <span class="bz-pcard__cat">{{ product.category }}</span>
+                                </div>
+                                <div class="bz-pcard__ring" title="{{row.stock_label}}">
+                                    <span class="bz-pcard__ring-fill" aria-hidden="true"></span>
+                                    <b>{{ product.stock }}</b>
+                                    <small>{{ row.stock_label }}</small>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="workspace-tile-actions">
-                            {% if row.can_change %}
-                            <a class="workspace-button" href="{{ row.change_url }}" data-panel-link
-                                aria-label="Edit {{ product.name }}">Edit</a>
-                            {% else %}
-                            <a class="workspace-button" href="{{ row.change_url }}">View</a>
-                            {% endif %}
-                            {% if row.delete_url %}
-                            <a class="workspace-button workspace-remove" href="{{ row.delete_url }}" data-delete-link
-                                aria-expanded="false" aria-label="Delete {{ product.name }}">Delete</a>
-                            {% endif %}
-                        </div>
-
                         <div data-product-delete-slot hidden></div>
                     </article>
                 </td>
             </tr>
             {% endwith %}
             {% endfor %}
-
-
         </tbody>
     </table>
 

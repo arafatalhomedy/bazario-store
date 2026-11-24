@@ -7,6 +7,7 @@
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/cart/heading.css' %}">
 <link rel="stylesheet" href="{% static 'css/checkout/bento.css' %}">
+<link rel="stylesheet" href="{% static 'css/checkout/placed.css' %}">
 {% endblock %}
 
 {% block page_js %}
@@ -18,6 +19,7 @@
 <div class="basket checkout" data-checkout data-state="loading">
     {% include "checkout/heading.html" %}
     {% include "checkout/bento.html" %}
+    {% include "checkout/placed.html" %}
 </div>
 {% endblock %}
 

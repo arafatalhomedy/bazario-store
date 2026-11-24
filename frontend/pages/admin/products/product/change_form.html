@@ -1,12 +1,15 @@
 {% extends "admin/change_form.html" %}
 {% load static %}
 
-{% block bodyclass %}{{ block.super }}{% if not is_popup %} bazario-products{% endif %}{% endblock %}
+{% block bodyclass %}{{ block.super }} bazario-products{% endblock %}
 
 {% block responsive %}
 {{ block.super }}
 {% if not is_popup %}
 <link rel="stylesheet" href="{% static 'css/admin/products.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/product-studio.css' %}">
+<script defer src="{% static 'js/pages/admin-product-discount.js' %}"></script>
+<script defer src="{% static 'js/admin/product-studio.js' %}"></script>
 {% endif %}
 {% endblock %}
 
@@ -14,23 +17,10 @@
 {% if is_popup %}
 {{ block.super }}
 {% elif add or has_change_permission %}
-<div id="bazario-workspace">
-    <div class="workspace-form product-editor-page">
-        {{ block.super }}
-    </div>
+{% url 'admin:products_product_changelist' as list_url %}
+<div class="bz-studio-page" data-bz-list-url="{{list_url}}">
+    {% include "admin/products/product/workspace_editor.html" %}
 </div>
-{% else %}
-{{ block.super }}
-{% endif %}
-{% endblock %}
-
-{% block field_sets %}
-{% if is_popup %}
-{{ block.super }}
-{% elif add or has_change_permission %}
-{% with form=adminform.form full_page=True %}
-{% include "admin/products/product/workspace_fields.html" %}
-{% endwith %}
 {% else %}
 {{ block.super }}
 {% endif %}

@@ -1,108 +1,106 @@
-{% firstof form.description.errors form.slug.errors as detail_errors %}
-<div class="product-editor-layout">
-    {{ form.price_snapshot }}
-    {% if form.errors and not full_page %}
-    <div class="product-editor-errors" role="alert">
-        <p>Check the highlighted fields below.</p>
-        {{ form.non_field_errors }}
-    </div>
-    {% endif %}
+{% url 'bazario_promotions' as promo_url %}
+{{ form.price_snapshot }}
 
-    <div class="product-editor-column">
-        <section class="product-editor-section">
-            <h3>Product details</h3>
+{% if form.errors and not full_page %}
+<div class="bz-studio__errors" role="alert">
+    <p>Check the highlighted fields.</p>
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
 
-            <div class="workspace-pair">
-                <div class="workspace-field">
-                    {{ form.name.label_tag }}
-                    {{ form.name }}
-                    {{ form.name.errors }}
-                </div>
-                <div class="workspace-field">
-                    {{ form.category.label_tag }}
-                    {{ form.category }}
-                    {{ form.category.errors }}
-                </div>
+<div class="bz-studio__view">
+    <div class="bz-studio__track" data-bz-track>
+
+        {# STEP 1 · Details #}
+        <section class="bz-pane" data-bz-pane="0">
+            <h3>What are you selling?</h3>
+            <p class="bz-pane__lead">Name it and pick where it lives.</p>
+
+            <div class="bz-field">
+                {{ form.name }}
+                <label for="{{form.name.id_for_label}}">Product name</label>
+                {{ form.name.errors }}
             </div>
 
-            <details class="workspace-extra product-editor-extra" {% if detail_errors %}open{% endif %}>
+            <div class="bz-field bz-field--chips">
+                <p class="bz-field__title">Category</p>
+                <div class="bz-chips" data-bz-chips></div>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+
+            <details class="bz-more" data-bz-more>
                 <summary>Description and product URL</summary>
-                <div class="workspace-field">
-                    {{ form.description.label_tag }}
+                <div class="bz-field">
                     {{ form.description }}
+                    <label for="{{form.description.id_for_label}}">Description</label>
                     {{ form.description.errors }}
                 </div>
-                <div class="workspace-field">
-                    {{ form.slug.label_tag }}
+                <div class="bz-field">
                     {{ form.slug }}
+                    <label for="{{form.slug.id_for_label}}">Product URL</label>
                     {{ form.slug.errors }}
                 </div>
             </details>
         </section>
 
-        <section class="product-editor-section">
-            <h3>Pricing and inventory</h3>
+        {# STEP 2 · Price and stock #}
+        <section class="bz-pane" data-bz-pane="1">
+            <h3>Price &amp; stock</h3>
+            <p class="bz-pane__lead">Customers pay this at their door.</p>
 
-            <div class="workspace-pair">
-                <div class="workspace-field">
-                    {{ form.price.label_tag }}
-                    {{ form.price }}
-                    {{ form.price.errors }}
-                </div>
-                {% if original.is_on_sale %}
-                <div class="workspace-field"><strong>On promotion</strong>
-                    <a href="{% url 'bazario_promotions' %}?edit={{ original.pk }}">Manage promotion →</a>
-                </div>
-                {% endif %}
+            <div class="bz-field bz-field--money">
+                <b class="bz-field__cur" aria-hidden="true">$</b>
+                {{ form.price }}
+                <label for="{{form.price.id_for_label}}">Regular price</label>
+                {{ form.price.errors }}
             </div>
 
-            <div class="workspace-pair">
-                <div class="workspace-field">
-                    {{ form.stock.label_tag }}
+            <output class="workspace-sale bz-sale" for="id_price" data-product-price hidden>
+                <span class="workspace-sale-heading">
+                    <span>Storefront price</span>
+                    <span data-savings hidden></span>
+                </span>
+                <span class="workspace-sale-values">
+                    <strong data-current-price></strong>
+                    <s data-regular-price hidden></s>
+                </span>
+            </output>
+
+            {% if original.is_on_sale %}
+            <a class="bz-promo" href="{{promo_url}}?edit={{original.pk}}">On promotion · Manage promotion →</a>
+            {% endif %}
+
+            <div class="bz-field bz-field--stock" data-bz-stepper>
+                <button type="button" data-bz-stock="-1" aria-label="One less in stock">−</button>
+                <div>
+                    <label for="{{form.stock.id_for_label}}">In stock</label>
                     {{ form.stock }}
-                    {{ form.stock.errors }}
                 </div>
-                <div class="workspace-field product-editor-visibility">
-                    <label for="{{ form.is_active.id_for_label }}">
-                        {{ form.is_active }} Visible in shop
-                    </label>
-                    {{ form.is_active.errors }}
-                </div>
+                <button type="button" data-bz-stock="1" aria-label="One more in stock">+</button>
             </div>
+            {{ form.stock.errors }}
+
+            <label class="bz-switch" for="{{form.is_active.id_for_label}}">
+                <span>Visible in shop</span>
+                {{ form.is_active }}
+                <i class="bz-switch__track" aria-hidden="true"></i>
+            </label>
+            {{ form.is_active.errors }}
         </section>
-    </div>
 
-    <div class="product-editor-column">
-        <output class="workspace-sale product-editor-price" for="id_price" data-product-price
-            hidden>
-            <span class="workspace-sale-heading">
-                <span>Storefront price</span>
-                <span data-savings hidden></span>
-            </span>
-            <span class="workspace-sale-values">
-                <strong data-current-price></strong>
-                <s data-regular-price hidden></s>
-            </span>
-        </output>
+        {# STEP 3 · Photo #}
+        <section class="bz-pane" data-bz-pane="2">
+            <h3>Add a photo</h3>
+            <p class="bz-pane__lead">It flies straight onto the card.</p>
 
-        <section class="product-editor-section">
-            <h3>Product image</h3>
-
-            {% with photo=original.thumbnail|default:form.image.initial %}
-            <div class="product-editor-photo">
-                {% if photo %}
-                <img src="{{ photo.url }}" alt="Current product image" decoding="async">
-                {% else %}
-                <span>No image uploaded</span>
-                {% endif %}
+            <div class="bz-drop" data-bz-drop>
+                <span class="bz-drop__icon" aria-hidden="true">↑</span>
+                <b data-bz-drop-text>Drop a photo here</b>
+                <small>or click to choose · JPG, PNG, WebP</small>
+                <div class="bz-drop__input">{{ form.image }}</div>
             </div>
-            {% endwith %}
-
-            <div class="workspace-field">
-                {{ form.image.label_tag }}
-                {{ form.image }}
-                {{ form.image.errors }}
-            </div>
+            {{ form.image.errors }}
         </section>
     </div>
 </div>

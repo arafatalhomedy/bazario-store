@@ -1,5 +1,0 @@
-<div class="product-row">
-  <span class="product-tile" aria-hidden="true">{{ item.product_name|slice:":1"|upper }}</span>
-  <div>{{ item.product_name }}<small>{{ item.quantity }} × ${{ item.unit_price|floatformat:"2" }}</small></div>
-  <strong>${{ item.line_total|floatformat:"2" }}</strong>
-</div>

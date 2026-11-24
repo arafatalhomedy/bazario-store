@@ -1,0 +1,548 @@
+/* ==========================================================================
+   Order placed pop-up (checkout)
+   Opens in a circle that grows out of the place order button.
+   checkout.js adds .is-open to play it and sets --cx / --cy.
+   ========================================================================== */
+
+/* ---------- The dialog itself ---------- */
+.placed {
+    width: min(92vw, 27.5rem);
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: 30px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.55);
+    overflow: hidden auto;
+    clip-path: circle(0 at var(--cx, 50%) var(--cy, 100%));
+    transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.15, 1);
+}
+
+.placed.is-open {
+    clip-path: circle(150% at var(--cx, 50%) var(--cy, 100%));
+}
+
+/* Page behind: blur + soft accent glow */
+.placed::backdrop {
+    background:
+        radial-gradient(circle at 50% 60%,
+            color-mix(in srgb, var(--color-accent) 28%, transparent),
+            rgba(10, 10, 10, 0.5) 65%);
+    backdrop-filter: blur(8px) saturate(0.7);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.placed.is-open::backdrop {
+    opacity: 1;
+}
+
+/* ---------- Accent top panel ---------- */
+.placed__top {
+    position: relative;
+    padding: 1.6rem 1.5rem 4rem;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Slowly turning rays */
+.placed__top::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: repeating-conic-gradient(from 0deg,
+            color-mix(in srgb, var(--color-accent-contrast) 7%, transparent) 0 10deg,
+            transparent 10deg 20deg);
+    animation: placed-spin 30s linear infinite;
+}
+
+@keyframes placed-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.placed__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.875rem;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-accent-contrast) 12%, transparent);
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform var(--dur) var(--ease-out), background var(--dur);
+}
+
+.placed__close:hover {
+    transform: rotate(90deg);
+    background: color-mix(in srgb, var(--color-accent-contrast) 22%, transparent);
+}
+
+/* ---------- Check that draws + sparks ---------- */
+.placed__check {
+    position: relative;
+    width: 4.6rem;
+    height: 4.6rem;
+    margin: 0 auto;
+}
+
+.placed__check svg {
+    width: 100%;
+    height: 100%;
+}
+
+.placed__check circle {
+    fill: color-mix(in srgb, var(--color-accent-contrast) 10%, transparent);
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+}
+
+.placed__check path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 46;
+    stroke-dashoffset: 46;
+}
+
+.placed.is-open .placed__check circle {
+    animation: placed-draw 0.8s 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.placed.is-open .placed__check path {
+    animation: placed-draw 0.45s 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes placed-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.placed__spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+}
+
+.placed.is-open .placed__spark {
+    animation: placed-spark 0.9s 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes placed-spark {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.4);
+    }
+}
+
+/* ---------- Text ---------- */
+.placed__kicker {
+    position: relative;
+    margin: 0.75rem 0 0;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.placed__title {
+    position: relative;
+    margin: 0.5rem 0 0.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 6vw, 2.3rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.placed__word {
+    display: inline-block;
+    opacity: 0;
+}
+
+.placed.is-open .placed__word {
+    animation: placed-rise 0.6s calc(0.8s + var(--i, 0) * 0.1s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes placed-rise {
+    from {
+        opacity: 0;
+        transform: translateY(70%) rotate(6deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.placed__lead {
+    position: relative;
+    margin: 0;
+    font-size: var(--fs-sm);
+    opacity: 0.85;
+}
+
+/* ---------- Fanned product photos ---------- */
+.placed__fan {
+    position: absolute;
+    left: 50%;
+    bottom: -2.25rem;
+    z-index: 2;
+    display: flex;
+    transform: translateX(-50%);
+}
+
+.placed__fan img {
+    width: 4rem;
+    height: 4rem;
+    margin-left: -1.1rem;
+    border: 4px solid var(--color-surface);
+    border-radius: 18px;
+    background: var(--color-surface-2);
+    object-fit: cover;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.placed__fan img:first-child {
+    margin-left: 0;
+}
+
+.placed.is-open .placed__fan img {
+    animation: placed-fan 0.7s calc(1.1s + var(--i, 0) * 0.1s) cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
+}
+
+@keyframes placed-fan {
+    to {
+        opacity: 1;
+        transform: translateY(0) rotate(var(--r, 0deg));
+    }
+}
+
+/* The fan sits on the panel edge, so the panel must not clip it */
+.placed__top {
+    overflow: visible;
+}
+
+.placed__top::before {
+    clip-path: inset(40% 40% 0 40%);
+}
+
+/* ---------- Bottom part ---------- */
+.placed__body {
+    padding: 3.25rem 1.4rem 1.25rem;
+}
+
+.placed__sum {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+}
+
+.placed__sum b {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.placed__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.65rem;
+    border: 1.5px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.placed__pill i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-accent);
+}
+
+/* Perforated ticket stub */
+.placed__stub {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 -1.4rem 1rem;
+    padding: 0.9rem 1.4rem;
+    border-block: 2px dashed var(--color-border);
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.placed__stub::before,
+.placed__stub::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(10, 10, 10, 0.55);
+    transform: translateY(-50%);
+}
+
+.placed__stub::before {
+    left: -11px;
+}
+
+.placed__stub::after {
+    right: -11px;
+}
+
+.placed__stub.is-wiggle {
+    animation: placed-wiggle 0.5s;
+}
+
+@keyframes placed-wiggle {
+    25% {
+        transform: rotate(-1.5deg);
+    }
+
+    75% {
+        transform: rotate(1.5deg);
+    }
+}
+
+.placed__label {
+    margin: 0;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+/* Slot-machine order number */
+.placed__odo {
+    display: flex;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0.03em;
+}
+
+.placed__digit {
+    display: inline-block;
+    height: 1.05em;
+    overflow: hidden;
+}
+
+.placed__strip {
+    display: block;
+    transition: transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.placed__strip span {
+    display: block;
+    height: 1.05em;
+}
+
+.placed__copy {
+    flex: none;
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text);
+    font: 600 var(--fs-xs) var(--font-body);
+    cursor: pointer;
+    transition: background var(--dur), border-color var(--dur), color var(--dur);
+}
+
+.placed__copy.is-copied {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+}
+
+/* ---------- Track your order (breathing, truck drives off) ---------- */
+.placed__track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-weight: 700;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.placed.is-open .placed__track {
+    animation: placed-breathe 2.4s 2s ease-in-out infinite;
+}
+
+@keyframes placed-breathe {
+    50% {
+        box-shadow: 0 12px 26px -12px var(--color-text);
+    }
+}
+
+.placed__track svg {
+    width: 1.4rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.placed__track-label {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.placed__track:hover svg,
+.placed__track:focus-visible svg {
+    transform: translateX(8rem);
+}
+
+.placed__track:hover .placed__track-label,
+.placed__track:focus-visible .placed__track-label {
+    transform: translateX(-0.6rem);
+}
+
+.placed__track:focus-visible,
+.placed__copy:focus-visible,
+.placed__close:focus-visible,
+.placed__keep:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+.placed__keep {
+    display: block;
+    width: fit-content;
+    margin: 0.75rem auto 0;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.placed__keep:hover {
+    color: var(--color-text);
+}
+
+/* ---------- Confetti (inside the pop-up) ---------- */
+.placed__confetti {
+    position: absolute;
+    top: -12px;
+    z-index: 5;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: placed-fall linear forwards;
+}
+
+@keyframes placed-fall {
+    to {
+        transform: translate(var(--x, 0), 40rem) rotate(540deg);
+        opacity: 0;
+    }
+}
+
+/* ---------- Reduced motion: show everything at once ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    .placed,
+    .placed::backdrop {
+        transition: none;
+    }
+
+    .placed *,
+    .placed *::before {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .placed__check circle,
+    .placed__check path {
+        stroke-dashoffset: 0;
+    }
+
+    .placed__word,
+    .placed__fan img {
+        opacity: 1;
+        transform: rotate(var(--r, 0deg));
+    }
+}
+
+/* ---------- Fix: centre the pop-up, no scrollbar, rays stay inside ---------- */
+@property --placed-rays {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+.placed {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    overflow: hidden;
+}
+
+/* The rays now turn inside the panel instead of spinning a big square */
+.placed__top::before {
+    inset: 0;
+    clip-path: none;
+    background: repeating-conic-gradient(from var(--placed-rays) at 50% 35%,
+            color-mix(in srgb, var(--color-accent-contrast) 7%, transparent) 0 10deg,
+            transparent 10deg 20deg);
+    animation: placed-rays 30s linear infinite;
+}
+
+@keyframes placed-rays {
+    to {
+        --placed-rays: 360deg;
+    }
+}

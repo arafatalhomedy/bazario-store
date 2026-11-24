@@ -147,7 +147,12 @@ workspace.addEventListener("submit", async event => {
         });
 
         if (response.type === "opaqueredirect") {
-            window.location.reload();
+            if (isDelete) {
+                window.location.reload();
+            } else {
+                form.dispatchEvent(new CustomEvent("bazario:product-saved", { bubbles: true }));
+                setTimeout(() => window.location.reload(), 1500);
+            }
             return;
         }
 

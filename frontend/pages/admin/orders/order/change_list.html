@@ -1,131 +1,170 @@
 {% extends "admin/change_list.html" %}
-{% load admin_list admin_urls i18n static tz %}
+{% load admin_list admin_urls i18n static tz bazario_admin %}
 
 {% block responsive %}
-    {{ block.super }}
-    {% if not is_popup %}
-        <link rel="stylesheet" href="{% static 'css/admin/orders.css' %}">
-        <link rel="stylesheet" href="{% static 'css/admin/order-register.css' %}">
-        <link rel="stylesheet" href="{% static 'css/admin/order-filters.css' %}">
-        <script src="{% static 'js/admin/order-register.js' %}" defer></script>
-        <script src="{% static 'js/admin/order-filters.js' %}" defer></script>
-    {% endif %}
+{{ block.super }}
+{% if not is_popup %}
+<link rel="stylesheet" href="{% static 'css/admin/orders.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/order-register.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/order-filters.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/orders-v2.css' %}">
+<script src="{% static 'js/admin/order-register.js' %}" defer></script>
+<script src="{% static 'js/admin/order-filters.js' %}" defer></script>
+<script src="{% static 'js/admin/orders-list.js' %}" defer></script>
+{% endif %}
 {% endblock %}
 
-{% block bodyclass %}{{ block.super }}{% if not is_popup %} bazario-order-list{% endif %}{% endblock %}
+{% block bodyclass %}{{ block.super }} bazario-order-list{% endblock %}
 
 {% block breadcrumbs %}
-    <div class="breadcrumbs bazario-admin-breadcrumbs">
-        <a href="{% url 'admin:index' %}">Dashboard</a>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page">Orders</span>
-    </div>
+<div class="breadcrumbs bazario-admin-breadcrumbs">
+    <a href="{% url 'admin:index' %}">Dashboard</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">Orders</span>
+</div>
 {% endblock %}
 
 {% block content_title %}
-    {% if is_popup %}
-        {{ block.super }}
-    {% else %}
-        <header class="orders-masthead register-hero">
-            <div>
-                <time>{% timezone "Asia/Kuala_Lumpur" %}{% now "l, j F Y" %}{% endtimezone %}</time>
-                <h1>Orders<span>.</span></h1>
-            </div>
-            <div class="register-ticket"><span>Total orders</span><strong>{{ cl.full_result_count|stringformat:"02d" }}</strong></div>
-        </header>
-    {% endif %}
+{% if is_popup %}
+{{ block.super }}
+{% else %}
+{% bazario_order_counts as order_counts %}
+<header class="bz-orders-head">
+    <span class="bz-orders-head__aurora" aria-hidden="true"></span>
+    <div>
+        <p class="bz-orders-head__kicker">
+            {% timezone "Asia/Kuala_Lumpur" %}
+            {% now "l, j F Y" %}
+            {% endtimezone %}
+        </p>
+        <h1 class="bz-orders-head__title">Orders<span>.</span></h1>
+    </div>
+    <ul class="bz-orders-head__counts">
+        {% for item in order_counts %}
+        <li data-status="{{item.status}}">
+            <a href="?status__exact={{item.status}}">
+                <b data-bz-count>{{ item.count }}</b>
+                <small>{{ item.label }}</small>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</header>
+{% endif %}
 {% endblock %}
 
 {% block object-tools %}
-    {% if is_popup %}{{ block.super }}{% endif %}
+{% if is_popup %}
+{{ block.super }}
+{% endif %}
 {% endblock %}
 
 {% block search %}
-    {% if is_popup %}
-        {{ block.super }}
-    {% else %}
-        <div class="orders-toolbar">
-            <div class="orders-search">{{ block.super }}</div>
-            {% if cl.has_filters %}
-                <details class="orders-filters" data-filter-title="bazario-orders-advanced">
-                    <summary>More filters</summary>
-                    <div class="orders-filters__panel">
-                        {% if cl.is_facets_optional or cl.has_active_filters %}
-                            <div class="orders-filters__actions">
-                                {% if cl.is_facets_optional %}
-                                    {% if cl.add_facets %}
-                                        <a href="{{ cl.remove_facet_link }}">Hide counts</a>
-                                    {% else %}
-                                        <a href="{{ cl.add_facet_link }}">Show counts</a>
-                                    {% endif %}
-                                {% endif %}
-                                {% if cl.has_active_filters %}
-                                    <a href="{{ cl.clear_all_filters_qs }}">Clear filters</a>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                        {% for spec in cl.filter_specs %}
-                            {% if spec.field_path != "status" and spec.field_path != "created_at" %}
-                                {% admin_list_filter cl spec %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </details>
-
-                <div class="order-filter-strip">
-                <nav class="orders-statuses" aria-label="Filter orders by status">
-                    {% for spec in cl.filter_specs %}
-                        {% if spec.field_path == "status" %}
-                            {% admin_list_filter cl spec %}
-                        {% endif %}
-                    {% endfor %}
-                </nav>
-                <details class="order-date-picker">
-                    <summary>
-                        <span class="order-calendar-icon" aria-hidden="true"></span>
-                        <span class="order-date-caption"><small>Order date · MYT</small><strong>All dates</strong></span>
-                        <span class="order-date-chevron" aria-hidden="true"></span>
-                    </summary>
-                    <div class="order-date-panel">
-                        <form class="order-day-form" hidden>
-                            <label for="order-placement-day">Choose a day</label>
-                            <div><input type="date" id="order-placement-day" required><button type="submit">Apply</button></div>
-                        </form>
-                        {% for spec in cl.filter_specs %}
-                            {% if spec.field_path == "created_at" %}{% admin_list_filter cl spec %}{% endif %}
-                        {% endfor %}
-                    </div>
-                </details>
-                </div>
+{% if is_popup %}
+{{ block.super }}
+{% else %}
+<div class="orders-toolbar">
+    <div class="orders-search">{{ block.super }}</div>
+    {% if cl.has_filters %}
+    <details class="orders-filters" data-filter-title="bazario-orders-advanced">
+        <summary>More filters</summary>
+        <div class="orders-filters__panel">
+            {% if cl.is_facets_optional or cl.has_active_filters %}
+            <div class="orders-filters__actions">
+                {% if cl.is_facets_optional %}
+                {% if cl.add_facets %}
+                <a href="{{cl.remove_facet_link}}">Hide counts</a>
+                {% else %}
+                <a href="{{cl.add_facet_link}}">Show counts</a>
+                {% endif %}
+                {% endif %}
+                {% if cl.has_active_filters %}
+                <a href="{{cl.clear_all_filters_qs}}">Clear filters</a>
+                {% endif %}
+            </div>
             {% endif %}
+            {% for spec in cl.filter_specs %}
+            {% if spec.field_path != "status" and spec.field_path != "created_at" %}
+            {% admin_list_filter cl spec %}
+            {% endif %}
+            {% endfor %}
         </div>
+    </details>
+
+    <div class="order-filter-strip">
+        <nav class="orders-statuses" aria-label="Filter orders by status">
+            {% for spec in cl.filter_specs %}
+            {% if spec.field_path == "status" %}
+            {% admin_list_filter cl spec %}
+            {% endif %}
+            {% endfor %}
+        </nav>
+        <details class="order-date-picker">
+            <summary>
+                <span class="order-calendar-icon" aria-hidden="true"></span>
+                <span class="order-date-caption">
+                    <small>Order date · MYT</small>
+                    <strong>All dates</strong>
+                </span>
+                <span class="order-date-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="order-date-panel">
+                <form class="order-day-form" hidden>
+                    <label for="order-placement-day">Choose a day</label>
+                    <div>
+                        <input type="date" id="order-placement-day" required>
+                        <button type="submit">Apply</button>
+                    </div>
+                </form>
+                {% for spec in cl.filter_specs %}
+                {% if spec.field_path == "created_at" %}
+                {% admin_list_filter cl spec %}
+                {% endif %}
+                {% endfor %}
+            </div>
+        </details>
+    </div>
     {% endif %}
+</div>
+{% endif %}
 {% endblock %}
 
 {% block filters %}
-    {% if is_popup %}{{ block.super }}{% endif %}
+{% if is_popup %}
+{{ block.super }}
+{% endif %}
 {% endblock %}
 
 {% block date_hierarchy %}
-    {% if is_popup %}{{ block.super }}{% else %}<noscript>{{ block.super }}</noscript>{% endif %}
+{% if is_popup %}
+{{ block.super }}
+{% else %}
+<noscript>{{ block.super }}</noscript>
+{% endif %}
 {% endblock %}
 
 {% block result_list %}
-    {% if is_popup or cl.formset %}
-        {{ block.super }}
+{% if is_popup or cl.formset %}
+{{ block.super }}
+{% else %}
+{% if action_form and actions_on_top and cl.show_admin_actions %}
+{% admin_actions %}
+{% endif %}
+{% if register_rows %}
+{% include "admin/orders/order/register_results.html" with headers=order_register_headers %}
+{% endif %}
+{% if action_form and actions_on_bottom and cl.show_admin_actions %}
+{% admin_actions %}
+{% endif %}
+{% endif %}
+{% if not is_popup and not cl.result_count %}
+<div class="orders-empty">
+    {% if cl.query or cl.has_active_filters or cl.params %}
+    <h2>No matching orders</h2>
+    <a href="{{request.path}}">Reset search and filters</a>
     {% else %}
-        {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
-        {% if register_rows %}{% include "admin/orders/order/register_results.html" with headers=order_register_headers %}{% endif %}
-        {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+    <h2>No orders yet</h2>
     {% endif %}
-    {% if not is_popup and not cl.result_count %}
-        <div class="orders-empty">
-            {% if cl.query or cl.has_active_filters or cl.params %}
-                <h2>No matching orders</h2>
-                <a href="{{ request.path }}">Reset search and filters</a>
-            {% else %}
-                <h2>No orders yet</h2>
-            {% endif %}
-        </div>
-    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

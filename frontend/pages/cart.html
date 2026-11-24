@@ -6,8 +6,7 @@
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/cart/heading.css' %}">
-<link rel="stylesheet" href="{% static 'css/cart/ticket.css' %}">
-<link rel="stylesheet" href="{% static 'css/cart/items.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart/board.css' %}">
 <link rel="stylesheet" href="{% static 'css/cart/suggestions.css' %}">
 {% endblock %}
 
@@ -18,9 +17,7 @@
 {% block content %}
 {# The whole basket. JavaScript fills it from /api/cart/ #}
 <div class="basket" data-basket data-state="loading">
-    {% include "cart/heading.html" %}
-    {% include "cart/ticket.html" %}
-    {% include "cart/items.html" %}
+    {% include "cart/board.html" %}
     {% include "cart/suggestions.html" %}
 </div>
 {% endblock %}

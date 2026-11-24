@@ -1,0 +1,995 @@
+/* ==========================================================================
+   Bazario admin dashboard v2
+   HTML: pages/admin/index.html + dashboard_activity.html · JS: js/admin/dashboard.js
+   Every section restyled; the server logic is untouched.
+   ========================================================================== */
+@property --bz-run {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+body.bazario-dashboard {
+    --bz-card: var(--bazario-surface, light-dark(#ffffff, #18181a));
+    --bz-soft: light-dark(#f4f1ea, #222226);
+    --bz-line: var(--hairline-color, #0000001a);
+    --bz-text: var(--body-fg, #141414);
+    --bz-muted: var(--body-quiet-color, #5f5b53);
+    --bz-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Colour + icon of each kind (cards, quick actions, activity) */
+.bazario-dashboard [data-metric],
+.bazario-dashboard [data-kind] {
+    --k: #8b8b8b;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3C/svg%3E");
+}
+
+.bazario-dashboard :is([data-metric="order"], [data-kind="order"]) {
+    --k: #ff6b4a;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M7 3h10v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5zM10 8h4M10 12h4'/%3E%3C/svg%3E");
+}
+
+.bazario-dashboard :is([data-metric="product"], [data-kind="product"]) {
+    --k: #7c5cff;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E");
+}
+
+.bazario-dashboard :is([data-metric="category"], [data-kind="category"]) {
+    --k: #f2a900;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 12l9-9h8v8l-9 9z'/%3E%3Ccircle cx='15.5' cy='8.5' r='1.5'/%3E%3C/svg%3E");
+}
+
+.bazario-dashboard :is([data-metric="customer"], [data-kind="customer"]) {
+    --k: #16b5a3;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1-4 4.5-6 8-6s7 2 8 6'/%3E%3C/svg%3E");
+}
+
+/* Coloured icon tile (replaces the faint old icons) */
+.bazario-dashboard .bazario-dashboard__metric-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 0;
+    border-radius: 12px;
+    background: var(--k);
+    box-shadow: 0 8px 18px -8px var(--k);
+    transition: transform 0.5s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+
+.bazario-dashboard .bazario-dashboard__metric-mark .bazario-dashboard__icon {
+    display: none;
+}
+
+.bazario-dashboard .bazario-dashboard__metric-mark::before {
+    content: "";
+    width: 1.15rem;
+    height: 1.15rem;
+    background: #fff;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+@keyframes bz-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+        filter: blur(6px);
+    }
+}
+
+/* ==========================================================================
+   Hero strip
+   ========================================================================== */
+.bz-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.5rem 0 1rem;
+    padding: clamp(1.2rem, 2.6vw, 1.75rem) clamp(1.2rem, 3vw, 2rem);
+    border-radius: 26px;
+    background: #141414;
+    color: #f4f1ea;
+    animation: bz-rise 0.7s var(--bz-ease) both;
+}
+
+.bz-hero__aurora {
+    position: absolute;
+    inset: -60%;
+    z-index: -1;
+    background:
+        radial-gradient(30% 40% at 25% 40%, #ff5a3673, transparent 70%),
+        radial-gradient(25% 35% at 75% 60%, #7c5cff59, transparent 70%),
+        radial-gradient(20% 25% at 55% 20%, #f2a90040, transparent 70%);
+    animation: bz-aurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes bz-aurora {
+    50% {
+        transform: rotate(14deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(-10deg) translate(5%, -4%);
+    }
+}
+
+/* A light keeps running around the border */
+.bz-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--bz-run), transparent 0 70%, #ff5a36 80%, #f2a900 88%, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: bz-run 6s linear infinite;
+}
+
+@keyframes bz-run {
+    to {
+        --bz-run: 360deg;
+    }
+}
+
+.bz-hero__date {
+    margin: 0;
+    color: #f2a900;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.bz-hero__title {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    color: #f4f1ea;
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.bz-word {
+    display: inline-block;
+    animation: bz-word 0.7s calc(0.15s + var(--i, 0) * 0.09s) var(--bz-ease) both;
+}
+
+@keyframes bz-word {
+    from {
+        opacity: 0;
+        transform: translateY(60%) rotate(4deg);
+        filter: blur(6px);
+    }
+}
+
+.bz-hero__name {
+    color: #ff5a36;
+}
+
+.bz-hero__sub {
+    margin: 0.45rem 0 0;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+.bz-hero__sub b {
+    color: #fff;
+}
+
+.bz-hero__side {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.bz-hero__clock {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.bz-hero__clock i {
+    font-style: normal;
+    animation: bz-blink 1s steps(1) infinite;
+}
+
+@keyframes bz-blink {
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.bz-hero__refresh {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: #ffffff1a;
+    color: #fff !important;
+    font-size: 1.15rem;
+    text-decoration: none !important;
+    transition: background 0.3s, transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.bz-hero__refresh:hover {
+    background: #ff5a36;
+    transform: rotate(360deg);
+}
+
+/* ==========================================================================
+   Number cards
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__totals {
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.bazario-dashboard .bazario-dashboard__totals li {
+    animation: bz-rise 0.7s calc(0.15s + var(--i, 0) * 0.07s) var(--bz-ease) both;
+}
+
+.bazario-dashboard .bazario-dashboard__metric {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    padding: 1.1rem;
+    border: 1px solid var(--bz-line);
+    border-radius: 22px;
+    background: var(--bz-card);
+    color: var(--bz-text) !important;
+    text-decoration: none !important;
+    transition: transform 0.4s var(--bz-ease), box-shadow 0.4s;
+}
+
+/* Colour bubble that spreads on hover */
+.bazario-dashboard .bazario-dashboard__metric::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: -2.5rem;
+    top: -2.5rem;
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 50%;
+    background: var(--k);
+    opacity: 0.12;
+    transition: transform 0.6s var(--bz-ease);
+}
+
+.bazario-dashboard .bazario-dashboard__metric:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 34px -24px var(--k);
+}
+
+.bazario-dashboard .bazario-dashboard__metric:hover::before {
+    transform: scale(2.8);
+}
+
+.bazario-dashboard .bazario-dashboard__metric:hover .bazario-dashboard__metric-mark {
+    transform: rotate(-10deg) scale(1.08);
+}
+
+.bazario-dashboard .bazario-dashboard__metric-arrow {
+    justify-self: end;
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1.5px solid var(--bz-line);
+    border-radius: 50%;
+    font-size: 0.85rem;
+    opacity: 1;
+    transition: all 0.35s;
+}
+
+.bazario-dashboard .bazario-dashboard__metric:hover .bazario-dashboard__metric-arrow {
+    border-color: var(--bz-text);
+    background: var(--bz-text);
+    color: var(--bz-card);
+    transform: rotate(45deg);
+}
+
+.bazario-dashboard .bazario-dashboard__metric-label {
+    grid-column: 1 / -1;
+    margin-top: 0.9rem;
+    color: var(--bz-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.bazario-dashboard .bazario-dashboard__metric-value {
+    grid-column: 1 / -1;
+    font-size: 2.3rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.bazario-dashboard .bazario-dashboard__metric-detail {
+    grid-column: 1 / -1;
+    color: var(--bz-muted);
+    font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Panels (shared)
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__workspace {
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.bazario-dashboard .bazario-dashboard__panel {
+    position: relative;
+    margin-bottom: 1rem;
+    padding: clamp(1rem, 2vw, 1.4rem);
+    border: 1px solid var(--bz-line);
+    border-radius: 24px;
+    background: var(--bz-card);
+    box-shadow: none;
+    animation: bz-rise 0.7s 0.35s var(--bz-ease) both;
+}
+
+.bazario-dashboard .bazario-dashboard__workspace .bazario-dashboard__panel {
+    margin-bottom: 0;
+}
+
+.bazario-dashboard .bazario-dashboard__panel h2 {
+    margin: 0 0 0.9rem;
+    padding: 0;
+    background: none;
+    color: var(--bz-text);
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: none;
+}
+
+/* ==========================================================================
+   Order activity: pill switch + growing bars
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__periods label {
+    min-height: 0;
+    padding: 0.4rem 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bz-soft);
+    color: var(--bz-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.35s, color 0.35s, transform 0.2s;
+}
+
+.bazario-dashboard .bazario-dashboard__periods label:active {
+    transform: scale(0.94);
+}
+
+.bazario-dashboard .bazario-dashboard__periods input:checked+label {
+    background: var(--bz-text);
+    color: var(--bz-card);
+}
+
+.bazario-dashboard .bazario-dashboard__series p {
+    margin: 0.9rem 0 0.25rem;
+    color: var(--bz-muted);
+}
+
+.bazario-dashboard .bazario-dashboard__series p b {
+    margin-right: 0.25rem;
+    color: var(--bz-text);
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.bazario-dashboard .bazario-dashboard__track {
+    border-radius: 10px;
+    background: repeating-linear-gradient(0deg, var(--bz-soft) 0 2px, transparent 2px 12px);
+}
+
+.bazario-dashboard .bazario-dashboard__bar {
+    border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(to top, #ff5a3680, #ff5a36);
+    transform-origin: bottom;
+    animation: bz-bar 0.9s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+    transition: filter 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(2) .bazario-dashboard__bar {
+    animation-delay: 0.06s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(3) .bazario-dashboard__bar {
+    animation-delay: 0.12s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(4) .bazario-dashboard__bar {
+    animation-delay: 0.18s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(5) .bazario-dashboard__bar {
+    animation-delay: 0.24s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(6) .bazario-dashboard__bar {
+    animation-delay: 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:nth-child(7) .bazario-dashboard__bar {
+    animation-delay: 0.36s;
+}
+
+@keyframes bz-bar {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:hover .bazario-dashboard__bar {
+    filter: brightness(1.1) drop-shadow(0 6px 10px #ff5a3666);
+}
+
+.bazario-dashboard .bazario-dashboard__track strong {
+    padding: 0.1rem 0.45rem;
+    border-radius: 7px;
+    background: var(--bz-text);
+    color: var(--bz-card);
+    font-size: 0.72rem;
+    opacity: 0;
+    transform: translateY(4px) scale(0.7);
+    transition: opacity 0.3s, transform 0.3s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+
+.bazario-dashboard .bazario-dashboard__bars li:hover .bazario-dashboard__track strong {
+    opacity: 1;
+    transform: none;
+}
+
+.bazario-dashboard .bazario-dashboard__bar-label {
+    color: var(--bz-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Quick actions: tiles fill with colour from the corner
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: bz-rise 0.6s 0.5s var(--bz-ease) both;
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.4rem;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0.9rem;
+    border: 0;
+    border-radius: 18px;
+    background: var(--bz-soft);
+    color: var(--bz-text) !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: color 0.35s, transform 0.35s var(--bz-ease);
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--k);
+    clip-path: circle(0 at 100% 0);
+    transition: clip-path 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a:hover {
+    color: #fff !important;
+    transform: translateY(-3px);
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a:hover::before {
+    clip-path: circle(150% at 100% 0);
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a:hover .bazario-dashboard__metric-mark {
+    background: #ffffff40;
+    box-shadow: none;
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a>span:last-child {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    transition: transform 0.35s;
+}
+
+.bazario-dashboard .bazario-dashboard__quick-actions a:hover>span:last-child {
+    transform: rotate(45deg);
+}
+
+/* ==========================================================================
+   Recent orders: floating rows + status pills
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__recent-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-header h2 {
+    margin: 0;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-header a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: var(--bz-soft);
+    color: var(--bz-text) !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.3s, color 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-header a:hover {
+    background: #ff5a36;
+    color: #fff !important;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table {
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table thead th {
+    padding: 0.3rem 1rem;
+    border: 0;
+    background: none;
+    color: var(--bz-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr {
+    background: transparent !important;
+    animation: bz-slide 0.6s var(--bz-ease) both;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr:nth-child(2) {
+    animation-delay: 0.07s;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr:nth-child(3) {
+    animation-delay: 0.14s;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr:nth-child(4) {
+    animation-delay: 0.21s;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr:nth-child(5) {
+    animation-delay: 0.28s;
+}
+
+@keyframes bz-slide {
+    from {
+        opacity: 0;
+        transform: translateX(-16px);
+    }
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody :is(th, td) {
+    padding: 0.8rem 1rem;
+    border: 0;
+    background: var(--bz-soft);
+    vertical-align: middle;
+    transition: background 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody :is(th, td):first-child {
+    border-radius: 14px 0 0 14px;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody :is(th, td):last-child {
+    border-radius: 0 14px 14px 0;
+    font-weight: 800;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody tr:hover :is(th, td) {
+    background: color-mix(in srgb, #ff5a36 10%, var(--bz-soft));
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody th a {
+    display: block;
+    color: var(--bz-text) !important;
+    font-weight: 800;
+    text-decoration: none !important;
+}
+
+.bazario-dashboard .bazario-dashboard__recent-table tbody th time {
+    color: var(--bz-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+/* Status pills in the shop's status colours */
+.bazario-dashboard [data-status] {
+    --s: #8b8b8b;
+}
+
+.bazario-dashboard [data-status="pending"] {
+    --s: #ff6b4a;
+}
+
+.bazario-dashboard [data-status="confirmed"] {
+    --s: #7c5cff;
+}
+
+.bazario-dashboard [data-status="shipped"] {
+    --s: #f2a900;
+}
+
+.bazario-dashboard [data-status="delivered"] {
+    --s: #16b5a3;
+}
+
+.bazario-dashboard .bazario-dashboard__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--s) 15%, transparent);
+    color: color-mix(in srgb, var(--s) 70%, var(--bz-text));
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.bazario-dashboard .bazario-dashboard__status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--s);
+}
+
+.bazario-dashboard .bazario-dashboard__status[data-status="pending"]::before {
+    animation: bz-pulse 1.4s infinite;
+}
+
+@keyframes bz-pulse {
+    50% {
+        box-shadow: 0 0 0 5px color-mix(in srgb, var(--s) 25%, transparent);
+    }
+}
+
+/* ==========================================================================
+   Recent activity: pill tabs + timeline
+   ========================================================================== */
+.bazario-dashboard .bazario-dashboard__activity-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-header h2 {
+    margin: 0;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-header form {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-header select,
+.bazario-dashboard .bazario-dashboard__activity-header button {
+    height: 2.3rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--bz-line);
+    border-radius: 999px;
+    background: var(--bz-soft);
+    color: var(--bz-text);
+    font-weight: 600;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-header button {
+    border-color: var(--bz-text);
+    background: var(--bz-text);
+    color: var(--bz-card);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-header button:active {
+    transform: scale(0.94);
+}
+
+.bazario-dashboard .bazario-dashboard__activity-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1rem 0;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--bz-soft);
+}
+
+.bazario-dashboard .bazario-dashboard__activity-tabs a {
+    padding: 0.4rem 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    box-shadow: none;
+    color: var(--bz-muted) !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.3s, color 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-tabs a:hover {
+    color: var(--bz-text) !important;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-tabs a[aria-current] {
+    background: var(--bz-text);
+    color: var(--bz-card) !important;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-date {
+    margin: 1rem 0 0.5rem;
+    color: var(--bz-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* Timeline: a thin line joins the icons */
+.bazario-dashboard .bazario-dashboard__activity-list {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list::before {
+    content: "";
+    position: absolute;
+    left: 1.2rem;
+    top: 1rem;
+    bottom: 1rem;
+    width: 2px;
+    background: var(--bz-line);
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list li {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 0.55rem 0.6rem 0.55rem 0;
+    border: 0;
+    border-radius: 14px;
+    list-style: none;
+    animation: bz-slide 0.6s var(--bz-ease) both;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list li:hover {
+    background: var(--bz-soft);
+    transform: translateX(4px);
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list small {
+    display: inline-block;
+    margin-top: 0.2rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--k) 15%, transparent);
+    color: color-mix(in srgb, var(--k) 75%, var(--bz-text));
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.bazario-dashboard .bazario-dashboard__activity-list time {
+    color: var(--bz-muted);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bazario-dashboard .activity-footer {
+    margin-top: 0.75rem;
+}
+
+.bazario-dashboard .activity-orders-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #ff5a36 !important;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.bazario-dashboard .activity-orders-arrow {
+    transition: transform 0.3s;
+}
+
+.bazario-dashboard .activity-orders-link:hover .activity-orders-arrow {
+    transform: translateX(5px);
+}
+
+/* ==========================================================================
+   Order queue: big ring + liquid bars
+   ========================================================================== */
+.bz-queue-ring {
+    position: relative;
+    width: 8rem;
+    height: 8rem;
+    margin: 0 auto 1.1rem;
+}
+
+.bz-queue-ring span {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--pie, var(--bz-soft));
+    -webkit-mask: radial-gradient(circle, transparent 58%, #000 59%);
+    mask: radial-gradient(circle, transparent 58%, #000 59%);
+    animation: bz-ring 1.2s 0.4s var(--bz-ease) both;
+}
+
+@keyframes bz-ring {
+    from {
+        opacity: 0;
+        transform: rotate(-200deg) scale(0.4);
+    }
+}
+
+.bz-queue-ring b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.bz-queue-ring small {
+    margin-top: 0.25rem;
+    color: var(--bz-muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.bazario-dashboard .bazario-dashboard__queue>div {
+    padding: 0.6rem 0.75rem;
+    border-radius: 14px;
+    background: var(--bz-soft);
+    transition: transform 0.3s;
+}
+
+.bazario-dashboard .bazario-dashboard__queue>div:hover {
+    transform: translateX(4px);
+}
+
+.bazario-dashboard .bazario-dashboard__queue dt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--bz-text);
+    font-weight: 700;
+}
+
+.bazario-dashboard .bazario-dashboard__queue dt::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--s);
+}
+
+.bazario-dashboard .bazario-dashboard__queue>div::after {
+    height: 6px;
+    border-radius: 9px;
+    background:
+        linear-gradient(var(--s), var(--s)) 0 0 / var(--queue-share) 100% no-repeat,
+        color-mix(in srgb, var(--s) 15%, transparent);
+    animation: bz-queue 1.1s 0.6s var(--bz-ease) both;
+}
+
+@keyframes bz-queue {
+    from {
+        background-size: 0 100%, auto;
+    }
+}
+
+/* ==========================================================================
+   Phones + reduced motion
+   ========================================================================== */
+@media (max-width: 40rem) {
+    .bazario-dashboard .bazario-dashboard__quick-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bz-hero__clock {
+        font-size: 1.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .bz-hero,
+    .bz-hero *,
+    .bz-hero::after,
+    .bazario-dashboard .bazario-dashboard__totals li,
+    .bazario-dashboard .bazario-dashboard__panel,
+    .bazario-dashboard .bazario-dashboard__bar,
+    .bazario-dashboard .bazario-dashboard__quick-actions li,
+    .bazario-dashboard .bazario-dashboard__recent-table tbody tr,
+    .bazario-dashboard .bazario-dashboard__activity-list li,
+    .bazario-dashboard .bazario-dashboard__status::before,
+    .bazario-dashboard .bazario-dashboard__queue>div::after,
+    .bz-queue-ring span {
+        animation: none !important;
+    }
+}

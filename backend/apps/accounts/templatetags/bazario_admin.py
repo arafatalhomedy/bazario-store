@@ -281,3 +281,25 @@ def bazario_dashboard_activity(context, overview):
         "actions": actions,
         "overview": overview,
     }
+@register.simple_tag
+def bazario_store_pulse():
+    """Small live numbers for the admin menu: open orders badge + products in the shop."""
+    return {
+        "open_orders": Order.objects.filter(status__in=OPEN_ORDER_STATUSES).count(),
+        "products": visible_products().count(),
+    }
+
+@register.simple_tag
+def bazario_order_counts():
+    """Orders per status for the Orders page header."""
+    rows = Order.objects.values("status").annotate(total=Count("id"))
+    counts = {row["status"]: row["total"] for row in rows}
+    return [
+        {"status": status, "label": label, "count": counts.get(status, 0)}
+        for status, label in (
+            (Order.Status.PENDING, "Pending"),
+            (Order.Status.CONFIRMED, "Confirmed"),
+            (Order.Status.SHIPPED, "On the way"),
+            (Order.Status.DELIVERED, "Delivered"),
+        )
+    ]

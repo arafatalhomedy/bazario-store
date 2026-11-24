@@ -1,0 +1,44 @@
+{# Order placed pop-up. Hidden until the order is sent; checkout.js fills it #}
+<dialog class="placed" data-placed aria-labelledby="placed-title">
+    <div class="placed__top">
+        <button class="placed__close" type="button" data-placed-close aria-label="Close">×</button>
+
+        <div class="placed__check" data-placed-check aria-hidden="true">
+            <svg viewBox="0 0 74 74">
+                <circle cx="37" cy="37" r="33" />
+                <path d="M24 38l9 9 18-20" />
+            </svg>
+        </div>
+
+        <p class="placed__kicker">Order placed</p>
+        <h2 class="placed__title" id="placed-title" data-placed-title>It's yours!</h2>
+        <p class="placed__lead">We'll call you before delivery.</p>
+
+        <div class="placed__fan" data-placed-photos aria-hidden="true"></div>
+    </div>
+
+    <div class="placed__body">
+        <div class="placed__sum">
+            <span class="placed__pill"><i aria-hidden="true"></i>Cash on delivery</span>
+            <span><span data-placed-count>0 items</span> · <b data-placed-total>$0.00</b></span>
+        </div>
+
+        <div class="placed__stub" data-placed-stub>
+            <div>
+                <p class="placed__label">Order number</p>
+                <span class="placed__odo" data-placed-number></span>
+            </div>
+            <button class="placed__copy" type="button" data-placed-copy>Copy</button>
+        </div>
+
+        <a class="placed__track" href="/orders/" data-placed-track>
+            <span class="placed__track-label">Track your order</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
+                <circle cx="7" cy="17" r="2" />
+                <circle cx="17" cy="17" r="2" />
+            </svg>
+        </a>
+        <a class="placed__keep" href="/#shop">Keep shopping</a>
+    </div>
+</dialog>

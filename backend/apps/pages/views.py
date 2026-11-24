@@ -86,21 +86,6 @@ def checkout(request):
     """Show checkout to signed-in customers."""
     return render(request, "checkout.html")
 
-@ensure_csrf_cookie
-def order_done(request, number):
-    """
-    The Done page after placing an order. Only the browser that placed it
-    (or the customer it belongs to) can see it; anyone else gets 404.
-    """
-    order = (
-        Order.objects.filter(number__iexact=number)
-        .prefetch_related("items__product")
-        .first()
-    )
-    if order is None or not can_see(request, order):
-        raise Http404("Order not found")
-    return render(request, "done.html", {"order": order})
-
 MAX_ORDERS = 20   # most orders shown in "Your orders"
 
 

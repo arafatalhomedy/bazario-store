@@ -1,28 +1,95 @@
+{% load bazario_admin %}
 {% url 'admin:index' as dashboard_url %}
+{% url 'bazario_admin_profile' as profile_url %}
+{% bazario_store_pulse as pulse %}
+{% firstof request.user.get_username as me %}
+{% if request.path == dashboard_url %}
+{% firstof "page" as dash_current %}
+{% endif %}
 
-<nav class="bazario-admin-nav" aria-label="Store administration">
-    <ul>
-        <li>
-            {% if request.path == dashboard_url %}
-            <a href="{{ dashboard_url }}" aria-current="page">
-                <span class="bazario-dashboard__icon" data-icon="dashboard" aria-hidden="true"></span>
-                Dashboard
-            </a>
-            {% else %}
-            <a href="{{ dashboard_url }}">
-                <span class="bazario-dashboard__icon" data-icon="dashboard" aria-hidden="true"></span>
-                Dashboard
-            </a>
+<nav class="bz-nav" aria-label="Store administration" data-bz-nav>
+    <div class="bz-nav__top">
+        <a class="bz-nav__brand" href="{{dashboard_url}}">
+            <span class="bz-nav__mark" aria-hidden="true">B.</span>
+            <span class="bz-nav__brand-text"><b>Bazario</b><small>Admin</small></span>
+        </a>
+        <button class="bz-nav__collapse" type="button" data-bz-collapse aria-pressed="false"
+            aria-label="Collapse menu">‹</button>
+    </div>
+
+    <label class="bz-nav__jump">
+        <span class="visually-hidden">Jump to a page</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-4-4" />
+        </svg>
+        <input type="search" placeholder="Jump to…" autocomplete="off" data-bz-jump>
+        <kbd aria-hidden="true">/</kbd>
+    </label>
+
+    <div class="bz-nav__links">
+        <span class="bz-nav__indicator" data-bz-indicator aria-hidden="true"></span>
+
+        <p class="bz-nav__group">Overview</p>
+        <ul>
+            <li>
+                <a class="bz-nav__link" href="{{dashboard_url}}" data-icon="dashboard" data-label="Dashboard"
+                    aria-current="{{dash_current|default:'false'}}">
+                    <span class="bz-nav__icon" aria-hidden="true"></span>
+                    <span class="bz-nav__label">Dashboard</span>
+                </a>
+            </li>
+        </ul>
+
+        <p class="bz-nav__group">Store</p>
+        <ul>
+            {% for link in menu %}
+            {% if link.icon != "customer" and link.icon != "promotion" %}
+            {% include "admin/bazario_nav_link.html" %}
             {% endif %}
-        </li>
+            {% endfor %}
+        </ul>
 
-        {% for link in menu %}
-        <li>
-            <a href="{{ link.url }}" {% if link.active %} aria-current="{{ link.active }}" {% endif %}>
-                <span class="bazario-dashboard__icon" data-icon="{{ link.icon }}" aria-hidden="true">{% if link.icon == "promotion" %}%{% endif %}</span>
-                {{ link.label }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+        <p class="bz-nav__group">People &amp; growth</p>
+        <ul>
+            {% for link in menu %}
+            {% if link.icon == "customer" or link.icon == "promotion" %}
+            {% include "admin/bazario_nav_link.html" %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="bz-nav__bottom">
+        <a class="bz-nav__site" href="/" target="_blank" rel="noopener">
+            <span class="bz-nav__site-label">View site</span>
+            <span class="bz-nav__site-arrow" aria-hidden="true">↗</span>
+        </a>
+
+        <div class="bz-nav__status">
+            <span class="bz-nav__live" aria-hidden="true"></span>
+            <p class="bz-nav__status-text">
+                <b>Store is live</b>
+                <small>{{ pulse.products }} product{{ pulse.products|pluralize }} visible</small>
+            </p>
+            <svg class="bz-nav__spark" viewBox="0 0 160 26" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0 22 L22 20 L44 14 L66 18 L88 10 L110 12 L132 6 L160 3" />
+            </svg>
+        </div>
+
+        <a class="bz-nav__me" href="{{profile_url}}" data-label="{{me}}">
+            <span class="bz-nav__avatar" aria-hidden="true">{{ me|first|upper }}</span>
+            <span class="bz-nav__me-text">
+                <b>{{ me }}</b>
+                <small>
+                    {% if request.user.is_superuser %}
+                    Store owner
+                    {% else %}
+                    Staff
+                    {% endif %}
+                </small>
+            </span>
+            <span class="bz-nav__me-more" aria-hidden="true">⋯</span>
+        </a>
+    </div>
 </nav>

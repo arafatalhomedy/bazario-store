@@ -1,0 +1,1316 @@
+/* ==========================================================================
+   Bazario admin: order details v2 (compact)
+   HTML: pages/admin/orders/order/change_form.html · JS: js/admin/order-detail-v2.js
+   ========================================================================== */
+@property --bz-run {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+.bz-od {
+    --card: var(--bazario-surface, light-dark(#ffffff, #18181a));
+    --soft: light-dark(#f4f1ea, #222226);
+    --line: var(--hairline-color, #0000001a);
+    --text: var(--body-fg, #141414);
+    --muted: var(--body-quiet-color, #5f5b53);
+    --red: #e5382a;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Status colour (--s) and rail position (--p) */
+    --s: #ff6b4a;
+    --p: 0;
+    display: grid;
+    gap: 0.85rem;
+    margin: 0.25rem 0 2rem;
+    color: var(--text);
+}
+
+.bz-od[data-status="confirmed"] {
+    --s: #7c5cff;
+    --p: 1;
+}
+
+.bz-od[data-status="shipped"] {
+    --s: #f2a900;
+    --p: 2;
+}
+
+.bz-od[data-status="delivered"] {
+    --s: #16b5a3;
+    --p: 3;
+}
+
+.bz-od[data-status="cancelled"] {
+    --s: #8b8b8b;
+    --p: 0;
+}
+
+.bz-od[data-request="pending"] {
+    --s: #f2a900;
+}
+
+@keyframes bz-od-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+        filter: blur(6px);
+    }
+}
+
+/* Back link */
+.bz-order-nav {
+    margin: 0.25rem 0 0.5rem;
+}
+
+.bz-order-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bazario-surface, #fff);
+    color: inherit !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.3s;
+}
+
+.bz-order-back-arrow {
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: #141414;
+    color: #fff;
+    transition: transform 0.3s;
+}
+
+.bz-order-back:hover .bz-order-back-arrow {
+    transform: translateX(-3px);
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.bz-od__head {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 24px;
+    background: #141414;
+    color: #f4f1ea;
+    animation: bz-od-in 0.6s var(--ease) both;
+}
+
+.bz-od__aurora {
+    position: absolute;
+    inset: -60%;
+    z-index: -1;
+    background:
+        radial-gradient(30% 40% at 20% 40%, color-mix(in srgb, var(--s) 55%, transparent), transparent 70%),
+        radial-gradient(25% 35% at 80% 60%, #7c5cff59, transparent 70%);
+    animation: bz-od-aurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes bz-od-aurora {
+    50% {
+        transform: rotate(14deg) scale(1.1);
+    }
+}
+
+.bz-od__head::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--bz-run), transparent 0 70%, var(--s) 80%, #ff5a36 88%, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: bz-od-run 6s linear infinite;
+}
+
+@keyframes bz-od-run {
+    to {
+        --bz-run: 360deg;
+    }
+}
+
+.bz-od__kicker {
+    margin: 0;
+    color: #f2a900;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.bz-od__number {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+}
+
+.bz-od__number h1 {
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.bz-od__number h1 span {
+    color: #ff5a36;
+}
+
+.bz-od__copy {
+    padding: 0.3rem 0.7rem;
+    border: 0;
+    border-radius: 999px;
+    background: #ffffff1a;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.bz-od__copy:hover {
+    background: #ffffff33;
+}
+
+.bz-od__copy.is-ok {
+    background: #16b5a3;
+}
+
+.bz-od__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+}
+
+.bz-od__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--s) 28%, transparent);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.bz-od__pill i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--s);
+    animation: bz-od-pulse 1.4s infinite;
+}
+
+.bz-od[data-status="delivered"] .bz-od__pill i,
+.bz-od[data-status="cancelled"] .bz-od__pill i {
+    animation: none;
+}
+
+@keyframes bz-od-pulse {
+    50% {
+        box-shadow: 0 0 0 5px color-mix(in srgb, var(--s) 30%, transparent);
+    }
+}
+
+.bz-od__chip-result {
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: #ffffff1a;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.bz-od__chip-result[data-decision="declined"] {
+    background: #e5382a33;
+    color: #ffb3a8;
+}
+
+.bz-od__ticket {
+    position: relative;
+    padding: 0.65rem 1rem 0.65rem 1.3rem;
+    border: 1px solid #ffffff1f;
+    border-radius: 14px;
+    background: #ffffff14;
+    text-align: right;
+}
+
+.bz-od__ticket::before,
+.bz-od__ticket::after {
+    content: "";
+    position: absolute;
+    left: -7px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #141414;
+}
+
+.bz-od__ticket::before {
+    top: -7px;
+}
+
+.bz-od__ticket::after {
+    bottom: -7px;
+}
+
+.bz-od__ticket small {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    opacity: 0.7;
+}
+
+.bz-od__ticket b {
+    font-size: 1.6rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Two cards
+   ========================================================================== */
+.bz-od__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 0.85rem;
+}
+
+.bz-od__card {
+    position: relative;
+    padding: 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--card);
+    animation: bz-od-in 0.6s 0.1s var(--ease) both;
+}
+
+.bz-od__side {
+    animation-delay: 0.18s;
+}
+
+.bz-od__card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.bz-od__card h2 {
+    margin: 0;
+    padding: 0;
+    background: none;
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: none;
+}
+
+/* Arrival chip with a flipping calendar */
+.bz-od__eta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.65rem 0.3rem 0.3rem;
+    border-radius: 12px;
+    background: var(--soft);
+    font-size: 0.8rem;
+}
+
+.bz-od__cal {
+    width: 2.1rem;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fff;
+    color: #141414;
+    text-align: center;
+    box-shadow: 0 4px 10px -6px #0000004d;
+}
+
+.bz-od__cal small {
+    display: block;
+    padding: 1px 0;
+    background: var(--s);
+    color: #fff;
+    font-size: 0.45rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.bz-od__cal b {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 800;
+    transform-origin: top;
+    animation: bz-od-flip 0.7s 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+}
+
+@keyframes bz-od-flip {
+    from {
+        transform: rotateX(-90deg);
+    }
+}
+
+.bz-od__eta strong {
+    font-weight: 800;
+}
+
+/* ---------- Delivery rail ---------- */
+.bz-od__rail {
+    position: relative;
+    height: 3.4rem;
+    margin: 1.6rem 0.7rem 0.4rem;
+    transition: filter 0.5s, opacity 0.5s;
+}
+
+.bz-od__rail-track,
+.bz-od__rail-fill {
+    position: absolute;
+    left: 0;
+    top: 0.8rem;
+    height: 5px;
+    border-radius: 9px;
+}
+
+.bz-od__rail-track {
+    right: 0;
+    background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 14px);
+    background-size: 14px 100%;
+    animation: bz-od-march 1s linear infinite;
+}
+
+@keyframes bz-od-march {
+    to {
+        background-position: 14px 0;
+    }
+}
+
+.bz-od__rail-fill {
+    width: calc(var(--p) * 33.333%);
+    background: repeating-linear-gradient(90deg, var(--s) 0 12px, color-mix(in srgb, var(--s) 55%, #fff) 12px 20px);
+    background-size: 20px 100%;
+    box-shadow: 0 0 12px -2px var(--s);
+    animation: bz-od-flow 0.6s linear infinite, bz-od-grow 1.2s 0.4s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes bz-od-flow {
+    to {
+        background-position: 20px 0;
+    }
+}
+
+@keyframes bz-od-grow {
+    from {
+        width: 0;
+    }
+}
+
+.bz-od__parcel {
+    position: absolute;
+    top: -0.35rem;
+    left: calc(var(--p) * 33.333%);
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-left: -0.8rem;
+    border-radius: 8px;
+    background: #141414;
+    font-size: 0.75rem;
+    animation: bz-od-hop 1.4s ease-in-out infinite;
+}
+
+@keyframes bz-od-hop {
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.bz-od__stop {
+    position: absolute;
+    top: 0.1rem;
+    left: calc(var(--n) * 33.333%);
+    width: 1.8rem;
+    margin-left: -0.9rem;
+    text-align: center;
+}
+
+.bz-od__stop i {
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    background: var(--card);
+    transition: all 0.5s;
+}
+
+.bz-od__stop small {
+    position: absolute;
+    left: 50%;
+    top: 2.2rem;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transform: translateX(-50%);
+}
+
+/* Which stops are done (stops are children 5–8) */
+.bz-od[data-status="confirmed"] .bz-od__stop:nth-child(-n+5) i,
+.bz-od[data-status="shipped"] .bz-od__stop:nth-child(-n+6) i,
+.bz-od[data-status="delivered"] .bz-od__stop i {
+    border-color: var(--s);
+    background: var(--s);
+}
+
+.bz-od[data-status="confirmed"] .bz-od__stop:nth-child(-n+5) i::before,
+.bz-od[data-status="shipped"] .bz-od__stop:nth-child(-n+6) i::before,
+.bz-od[data-status="delivered"] .bz-od__stop i::before {
+    content: "✓";
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+/* The current stop glows */
+.bz-od[data-status="pending"] .bz-od__stop:nth-child(5) i,
+.bz-od[data-status="confirmed"] .bz-od__stop:nth-child(6) i,
+.bz-od[data-status="shipped"] .bz-od__stop:nth-child(7) i,
+.bz-od[data-status="delivered"] .bz-od__stop:nth-child(8) i {
+    border-color: var(--s);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--s) 22%, transparent);
+    transform: scale(1.12);
+}
+
+.bz-od[data-status="pending"] .bz-od__stop:nth-child(5) small,
+.bz-od[data-status="confirmed"] .bz-od__stop:nth-child(6) small,
+.bz-od[data-status="shipped"] .bz-od__stop:nth-child(7) small,
+.bz-od[data-status="delivered"] .bz-od__stop:nth-child(8) small {
+    color: var(--text);
+    font-weight: 800;
+}
+
+/* Paused (customer asked to cancel) */
+.bz-od__paused {
+    position: absolute;
+    left: 50%;
+    top: -1.1rem;
+    display: none;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: #fff4d6;
+    color: #8a5a00;
+    font-size: 0.62rem;
+    font-weight: 800;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 10px -6px #0000004d;
+}
+
+.bz-od[data-request="pending"] .bz-od__paused {
+    display: block;
+}
+
+.bz-od[data-request="pending"] :is(.bz-od__rail-track, .bz-od__rail-fill, .bz-od__parcel) {
+    animation-play-state: paused;
+}
+
+/* Cancelled: grey rail + stamp */
+.bz-od[data-status="cancelled"] .bz-od__rail {
+    filter: grayscale(1);
+    opacity: 0.4;
+}
+
+.bz-od__stamp {
+    position: absolute;
+    right: 1.4rem;
+    top: 3.2rem;
+    padding: 0.35rem 0.9rem;
+    border: 3px solid var(--red);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--card) 85%, transparent);
+    color: var(--red);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    transform: rotate(-10deg);
+    animation: bz-od-stamp 0.55s 0.4s cubic-bezier(0.22, 1.6, 0.36, 1) both;
+}
+
+@keyframes bz-od-stamp {
+    from {
+        opacity: 0;
+        transform: rotate(-10deg) scale(2.4);
+    }
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.bz-od__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.bz-od__actions>form {
+    flex: 1;
+    display: flex;
+}
+
+/* Hold-to-confirm button */
+.bz-hold {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 3rem;
+    width: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 16px;
+    background: #141414;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bz-hold__fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--s);
+    transform: translateX(-101%);
+}
+
+.bz-hold--red {
+    background: var(--red);
+}
+
+.bz-hold--red .bz-hold__fill {
+    background: #8f1a10;
+}
+
+.bz-hold.is-done {
+    background: #16b5a3;
+}
+
+.bz-hold:focus-visible {
+    outline: 2px solid var(--s);
+    outline-offset: 3px;
+}
+
+.bz-od__ghost,
+.bz-od__plain {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 3rem;
+    padding: 0 1rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.bz-od__ghost {
+    border: 1.5px solid color-mix(in srgb, var(--red) 35%, var(--line));
+    background: transparent;
+    color: var(--red) !important;
+}
+
+.bz-od__ghost:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff !important;
+}
+
+.bz-od__plain {
+    flex: 1;
+    border: 0;
+    background: var(--soft);
+    color: var(--text) !important;
+}
+
+.bz-od__plain:hover {
+    background: var(--text);
+    color: var(--card) !important;
+}
+
+.bz-od__plain.is-ok {
+    background: #16b5a3;
+    color: #fff !important;
+}
+
+/* Arrival window chips (the real select is hidden by JS) */
+.bz-od__label {
+    margin: 1rem 0 0.4rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.bz-od__windows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.bz-od__windows button {
+    padding: 0.5rem 0.85rem;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+.bz-od__windows button:hover {
+    transform: translateY(-2px);
+}
+
+.bz-od__windows button[aria-pressed="true"] {
+    border-color: var(--s);
+    background: var(--s);
+    color: #fff;
+    box-shadow: 0 8px 16px -8px var(--s);
+}
+
+.bz-od__confirm.has-chips .bz-od__window-select {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bz-od__dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.bz-od__dates[hidden] {
+    display: none;
+}
+
+.bz-od__dates label {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.bz-od__dates input {
+    height: 2.5rem;
+    padding: 0 0.6rem;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+}
+
+.bz-od__estimate {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.bz-od__estimate[hidden] {
+    display: none;
+}
+
+.bz-od__estimate output {
+    color: var(--text);
+    font-weight: 800;
+}
+
+/* ---------- Fold-out boxes (cancel, decline, history) ---------- */
+.bz-od__fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.bz-od__fold.is-open {
+    grid-template-rows: 1fr;
+}
+
+.bz-od__fold>div {
+    overflow: hidden;
+}
+
+.bz-od__danger,
+.bz-od__decline {
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    border: 1.5px solid #f6c3bc;
+    border-radius: 16px;
+    background: light-dark(#fff3f1, #2a1614);
+}
+
+.bz-od__danger b {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: light-dark(#9b1c12, #ffb3a8);
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.bz-od__danger b i {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 8px;
+    background: var(--red);
+    color: #fff;
+    font-style: normal;
+}
+
+.bz-od__fold.is-open .bz-od__danger b i {
+    animation: bz-od-wiggle 0.5s 0.3s;
+}
+
+@keyframes bz-od-wiggle {
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.bz-od__danger p,
+.bz-od__decline p {
+    margin: 0.35rem 0 0;
+    color: light-dark(#7a3a32, #e7b7af);
+    font-size: 0.78rem;
+}
+
+/* ---------- Customer asked to cancel ---------- */
+.bz-od__request {
+    position: relative;
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    overflow: hidden;
+    border: 1.5px solid #f5d98a;
+    border-radius: 16px;
+    background: light-dark(#fff8e6, #2a2312);
+}
+
+.bz-od__request::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #f2a900;
+    animation: bz-od-blink 1.6s ease-in-out infinite;
+}
+
+@keyframes bz-od-blink {
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.bz-od__request-head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.bz-od__request-head>i {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 11px;
+    background: #f2a900;
+    font-style: normal;
+    animation: bz-od-ring 2.4s ease-in-out infinite;
+}
+
+@keyframes bz-od-ring {
+
+    0%,
+    80%,
+    100% {
+        transform: rotate(0);
+    }
+
+    85% {
+        transform: rotate(-14deg);
+    }
+
+    90% {
+        transform: rotate(14deg);
+    }
+
+    95% {
+        transform: rotate(-8deg);
+    }
+}
+
+.bz-od__request-head b {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.bz-od__request-head small {
+    color: light-dark(#8a5a00, #f2c766);
+    font-size: 0.72rem;
+}
+
+.bz-od__decline {
+    border-color: var(--line);
+    background: var(--card);
+}
+
+.bz-od__decline label {
+    font-weight: 800;
+}
+
+.bz-od__decline p {
+    color: var(--muted);
+}
+
+.bz-od__reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.6rem 0;
+}
+
+.bz-od__reasons button {
+    padding: 0.4rem 0.75rem;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.bz-od__reasons button:hover,
+.bz-od__reasons button[aria-pressed="true"] {
+    border-color: #141414;
+    background: #141414;
+    color: #fff;
+}
+
+.bz-od__decline textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--soft);
+    color: var(--text);
+    font: inherit;
+    resize: vertical;
+}
+
+.bz-od__decline textarea:focus {
+    border-color: #141414;
+    outline: none;
+}
+
+.bz-od__send {
+    margin-top: 0.6rem;
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-radius: 12px;
+    background: #141414;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bz-od__next {
+    margin-top: 0.75rem;
+}
+
+.bz-od__note {
+    margin: 0.75rem 0 0;
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+    background: var(--soft);
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.bz-od__note b {
+    display: block;
+    color: var(--text);
+}
+
+/* ---------- Latest update + history ---------- */
+[data-status] {
+    --dot: #8b8b8b;
+}
+
+[data-status="pending"] {
+    --dot: #ff6b4a;
+}
+
+[data-status="confirmed"] {
+    --dot: #7c5cff;
+}
+
+[data-status="shipped"] {
+    --dot: #f2a900;
+}
+
+[data-status="delivered"] {
+    --dot: #16b5a3;
+}
+
+[data-status="cancelled"] {
+    --dot: #e5382a;
+}
+
+[data-status="edit"] {
+    --dot: #3d8bfd;
+}
+
+.bz-od__last {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 12px;
+    background: var(--soft);
+    font-size: 0.8rem;
+}
+
+.bz-od__last>i {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dot);
+}
+
+.bz-od__last span {
+    flex: 1;
+}
+
+.bz-od__last time {
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+
+.bz-od__history-btn {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #ff5a36;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bz-od__history {
+    position: relative;
+    margin: 0.5rem 0 0;
+    padding: 0 0 0 1.2rem;
+    list-style: none;
+}
+
+.bz-od__history::before {
+    content: "";
+    position: absolute;
+    left: 0.3rem;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 2px;
+    background: var(--line);
+}
+
+.bz-od__history li {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.78rem;
+    list-style: none;
+}
+
+.bz-od__history li::before {
+    content: "";
+    position: absolute;
+    left: -1.1rem;
+    top: 0.6rem;
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--dot);
+    border-radius: 50%;
+    background: var(--card);
+}
+
+.bz-od__history time {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   Items | Delivery card
+   ========================================================================== */
+.bz-od__tabs {
+    position: relative;
+    display: flex;
+    margin-bottom: 0.85rem;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--soft);
+}
+
+.bz-od__tabs-pill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 999px;
+    background: #141414;
+    transition: transform 0.45s cubic-bezier(0.5, 1.5, 0.4, 1);
+}
+
+.bz-od__tabs.is-right .bz-od__tabs-pill {
+    transform: translateX(100%);
+}
+
+.bz-od__tabs button {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.bz-od__tabs button.is-on {
+    color: #fff;
+}
+
+.bz-od__pane {
+    display: none;
+}
+
+.bz-od__pane.is-on {
+    display: block;
+    animation: bz-od-in 0.4s both;
+}
+
+.bz-od__item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 -0.5rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.bz-od__item:hover {
+    background: var(--soft);
+    transform: translateX(3px);
+}
+
+.bz-od__thumb {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.7rem;
+    height: 2.7rem;
+    overflow: hidden;
+    border-radius: 11px;
+    background: var(--soft);
+    font-weight: 800;
+}
+
+.bz-od__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bz-od__item>div {
+    flex: 1;
+    min-width: 0;
+}
+
+.bz-od__item b {
+    display: block;
+    overflow: hidden;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bz-od__item small {
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+
+.bz-od__item strong {
+    font-weight: 800;
+}
+
+.bz-od__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 0.5rem;
+    padding-top: 0.6rem;
+    border-top: 2px dashed var(--line);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.bz-od__total b {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.bz-od__who {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.bz-od__initial {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 12px;
+    background: #141414;
+    color: #fff;
+    font-weight: 800;
+}
+
+.bz-od__who b {
+    display: block;
+    font-size: 1rem;
+}
+
+.bz-od__who small {
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.bz-od__address {
+    margin: 0.65rem 0 0;
+    padding: 0.65rem 0.8rem;
+    border-radius: 12px;
+    background: var(--soft);
+    font-size: 0.8rem;
+    font-style: normal;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Phones + reduced motion
+   ========================================================================== */
+@media (max-width: 56rem) {
+    .bz-od__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 30rem) {
+    .bz-od__head {
+        padding: 1rem;
+    }
+
+    .bz-od__ticket {
+        width: 100%;
+        text-align: left;
+    }
+
+    .bz-od__rail {
+        margin-inline: 0.9rem;
+    }
+
+    .bz-od__stop small {
+        font-size: 0.6rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .bz-od *,
+    .bz-od *::before,
+    .bz-od *::after,
+    .bz-od__head::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

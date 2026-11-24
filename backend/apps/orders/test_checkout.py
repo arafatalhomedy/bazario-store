@@ -55,7 +55,7 @@ class CheckoutTests(TestCase):
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock, 3)
         self.assertEqual(self.browser.get(reverse("cart")).json()["items"], [])
-        receipt = self.browser.get(reverse("order-done-page", args=[order.number]))
+        receipt = self.browser.get(reverse("order-page", args=[order.number]))
         self.assertEqual(receipt.status_code, 200)
 
     def test_invalid_phone_keeps_basket_and_stock(self):

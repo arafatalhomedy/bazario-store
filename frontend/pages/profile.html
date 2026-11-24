@@ -37,13 +37,13 @@
 
             <div class="profile-identity__body">
                 <h2 id="profile-name">
-                    {% firstof customer_profile.username user.get_full_name "Your profile" %}
+                    {% firstof customer_profile.username user.get_full_name user.username %}
                 </h2>
 
                 <dl>
                     <div>
-                        <dt>Sign-in email</dt>
-                        <dd>{{ user.email }}</dd>
+                        <dt>Signs in with</dt>
+                        <dd>{{ user.email|default:user.username }}</dd>
                     </div>
                     <div>
                         <dt>Member since</dt>

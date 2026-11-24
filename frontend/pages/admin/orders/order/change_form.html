@@ -2,190 +2,341 @@
 {% load static tz admin_urls %}
 
 {% block breadcrumbs %}
-  {% if original and not is_popup %}
-    {% url 'admin:orders_order_changelist' as orders_url %}
-    <div class="bz-order-nav">
-      <a class="bz-order-back" href="{% add_preserved_filters orders_url %}">
-        <span class="bz-order-back-arrow" aria-hidden="true">←</span>
-        <span>Back to orders</span>
-      </a>
-    </div>
-  {% else %}
-    {{ block.super }}
-  {% endif %}
+{% if original and not is_popup %}
+{% url 'admin:orders_order_changelist' as orders_url %}
+{% add_preserved_filters orders_url as back_url %}
+<div class="bz-order-nav">
+  <a class="bz-order-back" href="{{back_url}}">
+    <span class="bz-order-back-arrow" aria-hidden="true">←</span>
+    <span>Back to orders</span>
+  </a>
+</div>
+{% else %}
+{{ block.super }}
+{% endif %}
 {% endblock %}
 
 {% block responsive %}
-  {{ block.super }}
-  {% if original and not is_popup %}
-    <link rel="stylesheet" href="{% static 'css/admin/cancellation-review.css' %}">
-    <link rel="stylesheet" href="{% static 'css/admin/order-detail.css' %}">
-    <script defer src="{% static 'js/admin/order-detail.js' %}"></script>
-  {% endif %}
+{{ block.super }}
+{% if original and not is_popup %}
+<link rel="stylesheet" href="{% static 'css/admin/order-detail-v2.css' %}">
+<script defer src="{% static 'js/admin/order-detail.js' %}"></script>
+<script defer src="{% static 'js/admin/order-detail-v2.js' %}"></script>
+{% endif %}
 {% endblock %}
-{% block content_title %}{% if not original or is_popup %}{{ block.super }}{% endif %}{% endblock %}
-{% block content_subtitle %}{% if not original or is_popup %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block content_title %}
+{% if not original or is_popup %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
+
+{% block content_subtitle %}
+{% if not original or is_popup %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
 
 {% block content %}
 {% if original and not is_popup %}
 {% timezone "Asia/Kuala_Lumpur" %}
-<article id="bz-order" data-status="{{ original.status }}">
-  <header class="bazario-dashboard__hero">
-    <div class="bazario-dashboard__orbit" aria-hidden="true"></div>
-    <div class="bazario-dashboard__welcome">
-      <time datetime="{{ original.created_at|date:'c' }}">{{ original.created_at|date:"l, j F Y" }}</time>
-      <h1>Order {{ original.number }}<span aria-hidden="true">.</span></h1>
-      <p>Placed at {{ original.created_at|date:"H:i" }} MYT</p>
+{% url "admin:orders_order_review_action" original.pk as review_url %}
+{% with cancellation=original.cancellation_request %}
+{% with eta_from=original.estimated_delivery_start %}
+{% with eta_to=original.estimated_delivery_end %}
+{% with status=original.status %}
+<article id="bz-order" class="bz-od" data-status="{{status}}" data-request="{{cancellation.decision|default:'none'}}">
+
+  <header class="bz-od__head">
+    <span class="bz-od__aurora" aria-hidden="true"></span>
+    <div>
+      <p class="bz-od__kicker">{{original.created_at|date:"j M Y · H:i"}} MYT</p>
+      <div class="bz-od__number">
+        <h1>{{original.number}}<span aria-hidden="true">.</span></h1>
+        <button type="button" class="bz-od__copy" data-copy="{{original.number}}">Copy</button>
+      </div>
+      <div class="bz-od__chips">
+        <span class="bz-od__pill">
+          <i aria-hidden="true"></i>
+          {% if cancellation.decision == "pending" %}
+          Cancel requested
+          {% elif status == "pending" %}
+          Pending review
+          {% else %}
+          {{original.get_status_display}}
+          {% endif %}
+        </span>
+        {% if cancellation %}
+        {% if cancellation.decision != "pending" %}
+        <span class="bz-od__chip-result" data-decision="{{cancellation.decision}}">
+          Cancel request {{cancellation.get_decision_display|lower}}
+        </span>
+        {% endif %}
+        {% endif %}
+      </div>
     </div>
-    <div class="payment-stub">
-      <span class="ticket-label">{{ original.get_payment_method_display }}</span>
-      <strong><span class="visually-hidden">Order total </span>${{ original.total|floatformat:"2" }}</strong>
+    <div class="bz-od__ticket">
+      <small>{{original.get_payment_method_display}}</small>
+      <b data-bz-money>${{original.total|floatformat:"2"}}</b>
     </div>
   </header>
 
-  <div class="desk">
-    <div class="ledger-left">
-      {% if perms.orders.view_orderitem or perms.orders.change_orderitem %}
-      <section class="sheet">
-        {% with items=original.items.all %}
-          <header class="heading"><span class="icon-tile" aria-hidden="true"><i class="bazario-dashboard__icon" data-icon="order"></i></span><h2>Order items</h2><small>{{ items|length }} product{{ items|length|pluralize }}</small></header>
-          {% for item in items|slice:":3" %}
-            {% include "admin/orders/order/product_row.html" %}
-          {% empty %}<p>No items on this order.</p>{% endfor %}
-          {% if items|length > 3 %}
-            {% with rest=items|slice:"3:" %}
-            <details class="more">
-              <summary><span class="closed-label">Show {{ rest|length }} more product{{ rest|length|pluralize }}</span><span class="open-label">Show fewer products</span></summary>
-              {% for item in rest %}{% include "admin/orders/order/product_row.html" %}{% endfor %}
-            </details>
-            {% endwith %}
-          {% endif %}
-        {% endwith %}
-      </section>
-      {% endif %}
-      <section class="sheet">
-        <header class="heading"><span class="icon-tile person" aria-hidden="true"><i class="bazario-dashboard__icon" data-icon="customer"></i></span><h2>Delivering to</h2></header>
-        <address class="customer">
-          <div><h3>{{ original.full_name }}</h3>{{ original.street }}<br>{{ original.city }}<br>{{ original.phone }}
-            {% if original.note %}<p><strong>Delivery note</strong><br>{{ original.note|linebreaksbr }}</p>{% endif %}
-          </div>
-        </address>
-      </section>
-    </div>
-    <section class="decision" aria-label="Order review">
-      <header class="heading"><span class="icon-tile parcel" aria-hidden="true"><i class="bazario-dashboard__icon" data-icon="product"></i></span><h2>Fulfillment</h2><span class="status">{% if original.status == "pending" %}Pending review{% else %}{{ original.get_status_display }}{% endif %}</span></header>
-      {% url "admin:orders_order_review_action" original.pk as review_url %}
-      {% if original.status != "cancelled" and original.status != "delivered" and original.estimated_delivery_start and original.estimated_delivery_end %}
-        <div class="estimate"><small>Estimated arrival</small><strong>{% if original.estimated_delivery_start == original.estimated_delivery_end %}{{ original.estimated_delivery_start|date:"j M Y" }}{% elif original.estimated_delivery_start|date:"Y-m" == original.estimated_delivery_end|date:"Y-m" %}{{ original.estimated_delivery_start|date:"j" }}–{{ original.estimated_delivery_end|date:"j M Y" }}{% else %}{{ original.estimated_delivery_start|date:"j M Y" }} – {{ original.estimated_delivery_end|date:"j M Y" }}{% endif %}</strong></div>
-      {% endif %}
-      {% if original.status != "cancelled" %}
-        <ol class="ledger-progress" aria-label="Order progress">
-          <li {% if original.status == "pending" %}aria-current="step"{% endif %}>Pending</li>
-          <li {% if original.status == "confirmed" %}aria-current="step"{% endif %}>Confirmed</li>
-          <li {% if original.status == "shipped" %}aria-current="step"{% endif %}>On the way</li>
-          <li {% if original.status == "delivered" %}aria-current="step"{% endif %}>Delivered</li>
-        </ol>
-      {% endif %}
-      {% if review_form %}
-        <form id="bz-confirm-form" method="post" action="{{ review_url }}">
-          {% csrf_token %}<input type="hidden" name="action" value="confirm">
-          <input type="hidden" name="review_version" value="{{ original.updated_at.isoformat }}">
-          <label for="{{ review_form.window.id_for_label }}">Arrival window</label>{{ review_form.window }}
-          <div class="dates">
-            <label>{{ review_form.start.label }} {{ review_form.start }}</label>
-            <label>{{ review_form.end.label }} {{ review_form.end }}</label>
-          </div>
-          <div class="estimate" hidden><small>Estimated arrival</small><output aria-live="polite"></output></div>
-          <button class="confirm" type="submit">Confirm order <span aria-hidden="true">↗</span></button>
-        </form>
-        <details class="cancel">
-          <summary>Cancel this pending order</summary>
-          <form method="post" action="{{ review_url }}">
-            {% csrf_token %}<input type="hidden" name="action" value="cancel">
-            <p>Cancelling returns these items to stock.</p><button type="submit">Cancel order</button>
-          </form>
-        </details>
-      {% elif original.cancellation_request.decision == "pending" %}
-        {% include "admin/orders/order/cancellation_review.html" with cancellation=original.cancellation_request %}
-      {% else %}
-        {% if original.status == "delivered" %}
-          <div class="estimate">
-            <small>Delivery recorded</small>
-            {% if delivery_recorded_at %}
-              <time datetime="{{ delivery_recorded_at|date:'c' }}">
-                {{ delivery_recorded_at|date:"j M Y · H:i" }} MYT
-              </time>
-            {% else %}
-              <span>Time unavailable</span>
+  <div class="bz-od__grid">
+
+    <section class="bz-od__card bz-od__ful" aria-label="Order review">
+      <div class="bz-od__card-head">
+        <h2>Fulfillment</h2>
+        {% if eta_from and eta_to %}
+        {% if status != "cancelled" and status != "delivered" %}
+        <span class="bz-od__eta">
+          <span class="bz-od__cal" aria-hidden="true">
+            <small>{{eta_from|date:"M"}}</small>
+            <b>{{eta_from|date:"j"}}</b>
+          </span>
+          <strong>
+            {{eta_from|date:"j M"}}
+            {% if eta_to != eta_from %}
+            – {{eta_to|date:"j M"}}
             {% endif %}
-          </div>
+          </strong>
+        </span>
         {% endif %}
-        {% if delivery_action and original.cancellation_request.decision != "pending" %}
-          <form action="{{ review_url }}" method="post">
+        {% endif %}
+      </div>
+
+      <div class="bz-od__rail" aria-hidden="true">
+        <span class="bz-od__rail-track"></span>
+        <span class="bz-od__rail-fill"></span>
+        <span class="bz-od__parcel">📦</span>
+        <span class="bz-od__paused">⏸ Dispatch paused</span>
+        <span class="bz-od__stop" style="--n:0"><i></i><small>Pending</small></span>
+        <span class="bz-od__stop" style="--n:1"><i></i><small>Confirmed</small></span>
+        <span class="bz-od__stop" style="--n:2"><i></i><small>On the way</small></span>
+        <span class="bz-od__stop" style="--n:3"><i></i><small>Delivered</small></span>
+      </div>
+      {% if status == "cancelled" %}
+      <span class="bz-od__stamp" aria-hidden="true">CANCELLED</span>
+      {% endif %}
+
+      {% if review_form %}
+      <form id="bz-confirm-form" class="bz-od__confirm" method="post" action="{{review_url}}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="confirm">
+        <input type="hidden" name="review_version" value="{{original.updated_at.isoformat}}">
+        <p class="bz-od__label">Arrival window</p>
+        <div class="bz-od__windows" data-bz-windows></div>
+        <div class="bz-od__window-select">
+          <label for="{{review_form.window.id_for_label}}">Arrival window</label>
+          {{review_form.window}}
+        </div>
+        <div class="dates bz-od__dates">
+          <label>{{review_form.start.label}} {{review_form.start}}</label>
+          <label>{{review_form.end.label}} {{review_form.end}}</label>
+        </div>
+        <div class="estimate bz-od__estimate" hidden>
+          <small>Customer will see</small>
+          <output aria-live="polite"></output>
+        </div>
+        <div class="bz-od__actions">
+          <button class="confirm bz-hold" type="submit" data-bz-hold>
+            <span class="bz-hold__fill" aria-hidden="true"></span>
+            <span>Hold to confirm order</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="bz-od__ghost" data-bz-toggle="cancel-box">✕ Cancel order</button>
+        </div>
+      </form>
+
+      <div class="bz-od__fold" id="cancel-box">
+        <div>
+          <form class="bz-od__danger" method="post" action="{{review_url}}">
             {% csrf_token %}
-            <button class="confirm" type="submit" name="action" value="{{ delivery_action }}">
-              {{ delivery_label }} <span aria-hidden="true">→</span>
+            <input type="hidden" name="action" value="cancel">
+            <b><i aria-hidden="true">!</i>Cancel {{original.number}}?</b>
+            <p>The items go back on the shelf and the customer is told. This can't be undone.</p>
+            <div class="bz-od__actions">
+              <button type="button" class="bz-od__plain" data-bz-toggle="cancel-box">Keep order</button>
+              <button type="submit" class="bz-hold bz-hold--red" data-bz-hold>
+                <span class="bz-hold__fill" aria-hidden="true"></span>
+                <span>Hold to cancel</span>
+                <span aria-hidden="true">✕</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% elif cancellation.decision == "pending" %}
+      <div class="bz-od__request">
+        <div class="bz-od__request-head">
+          <i aria-hidden="true">🔔</i>
+          <div>
+            <b>Customer wants to cancel</b>
+            <small>
+              Asked {{cancellation.requested_at|date:"j M, H:i"}}
+              · dispatch is paused until you decide
+            </small>
+          </div>
+        </div>
+        {% if has_change_permission %}
+        <div class="bz-od__actions">
+          <form method="post" action="{{review_url}}">
+            {% csrf_token %}
+            <button class="bz-hold bz-hold--red" type="submit" name="action" value="approve_cancellation" data-bz-hold>
+              <span class="bz-hold__fill" aria-hidden="true"></span>
+              <span>Hold to approve cancel</span>
+              <span aria-hidden="true">✓</span>
             </button>
           </form>
+          <button type="button" class="bz-od__plain" data-bz-toggle="decline-box">Decline</button>
+        </div>
+        <div class="bz-od__fold" id="decline-box">
+          <div>
+            <form class="bz-od__decline" method="post" action="{{review_url}}">
+              {% csrf_token %}
+              <label for="cr-reason-text">Why are you declining?</label>
+              <p id="cr-reason-hint">The customer sees this on their order page.</p>
+              <div class="bz-od__reasons" data-bz-reasons>
+                <button type="button">It's already with the courier</button>
+                <button type="button">It's arriving today</button>
+              </div>
+              <textarea id="cr-reason-text" name="decline_reason" rows="2" maxlength="500" required
+                aria-describedby="cr-reason-hint"></textarea>
+              <button type="submit" class="bz-od__send" name="action" value="decline_cancellation">Send &amp; keep order
+                →</button>
+            </form>
+          </div>
+        </div>
         {% endif %}
-        {% if original.cancellation_request %}
-          <details class="review-result">
-            <summary>Cancellation request <span class="result-label">{{ original.cancellation_request.get_decision_display }}</span></summary>
-            <div class="review-note">
-              {% if original.cancellation_request.decline_reason %}
-                <small>Reason shared with customer</small><p>{{ original.cancellation_request.decline_reason|linebreaksbr }}</p>
-              {% endif %}
-              <small>Requested {{ original.cancellation_request.requested_at|date:"j M Y · H:i" }} MYT</small>
-              <small>Reviewed {{ original.cancellation_request.reviewed_at|date:"j M Y · H:i" }} MYT</small>
-            </div>
-          </details>
-        {% endif %}
+      </div>
+
+      {% else %}
+      {% if delivery_action %}
+      <form class="bz-od__next" action="{{review_url}}" method="post">
+        {% csrf_token %}
+        <button class="confirm bz-hold" type="submit" name="action" value="{{delivery_action}}" data-bz-hold>
+          <span class="bz-hold__fill" aria-hidden="true"></span>
+          <span>Hold to {{delivery_label|lower}}</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
       {% endif %}
+      {% if status == "delivered" %}
+      <p class="bz-od__note">
+        <b>Delivered ✓</b>
+        {% if delivery_recorded_at %}
+        {{delivery_recorded_at|date:"j M Y, H:i"}} MYT
+        {% endif %}
+      </p>
+      {% endif %}
+      {% if cancellation.decline_reason %}
+      <p class="bz-od__note">
+        <b>You declined the cancel request</b>
+        “{{cancellation.decline_reason}}”
+      </p>
+      {% endif %}
+      {% endif %}
+
+      {% with events=order_activity %}
+      {% if events %}
+      {% with latest=events.0 %}
+      <div class="bz-od__last" data-status="{{latest.status}}">
+        <i aria-hidden="true"></i>
+        <span><b>{{latest.label}}</b></span>
+        <time datetime="{{latest.time|date:'c'}}">{{latest.time|date:"j M, H:i"}}</time>
+        <button type="button" class="bz-od__history-btn" data-bz-toggle="history-box">History</button>
+      </div>
+      {% endwith %}
+      <div class="bz-od__fold" id="history-box">
+        <div>
+          <ol class="bz-od__history">
+            {% for event in events|slice:"1:" %}
+            <li data-status="{{event.status}}">
+              <span>{{event.label}}</span>
+              <time>{{event.time|date:"j M, H:i"}}</time>
+            </li>
+            {% endfor %}
+            {% if cancellation %}
+            <li data-status="cancelled">
+              <span>Cancel request · {{cancellation.get_decision_display|lower}}</span>
+              <time>{{cancellation.requested_at|date:"j M, H:i"}}</time>
+            </li>
+            {% endif %}
+            {% for edit in original.item_changes.all %}
+            <li data-status="edit">
+              <span>{{edit.product_name}} · {{edit.quantity_before}} → {{edit.quantity_after}}</span>
+              <time>{{edit.created_at|date:"j M, H:i"}}</time>
+            </li>
+            {% endfor %}
+          </ol>
+        </div>
+      </div>
+      {% endif %}
+      {% endwith %}
+    </section>
+
+    <section class="bz-od__card bz-od__side">
+      <div class="bz-od__tabs" data-bz-tabs>
+        <span class="bz-od__tabs-pill" aria-hidden="true"></span>
+        <button type="button" class="is-on" data-bz-tab="0">Items · {{original.items.all|length}}</button>
+        <button type="button" data-bz-tab="1">Delivery</button>
+      </div>
+
+      <div class="bz-od__pane is-on" data-bz-pane="0">
+        {% for item in original.items.all %}
+        <div class="bz-od__item">
+          <span class="bz-od__thumb" aria-hidden="true">
+            {% if item.product.thumbnail %}
+            <img src="{{item.product.thumbnail.url}}" alt="">
+            {% else %}
+            {{item.product_name|slice:":1"|upper}}
+            {% endif %}
+          </span>
+          <div>
+            <b>{{item.product_name}}</b>
+            <small>{{item.quantity}} × ${{item.unit_price|floatformat:"2"}}</small>
+          </div>
+          <strong>${{item.line_total|floatformat:"2"}}</strong>
+        </div>
+        {% empty %}
+        <p class="bz-od__note">No items on this order.</p>
+        {% endfor %}
+        <div class="bz-od__total">
+          <span>Total · {{original.get_payment_method_display|lower}}</span>
+          <b>${{original.total|floatformat:"2"}}</b>
+        </div>
+      </div>
+
+      <div class="bz-od__pane" data-bz-pane="1">
+        <div class="bz-od__who">
+          <span class="bz-od__initial" aria-hidden="true">{{original.full_name|first|upper}}</span>
+          <div>
+            <b>{{original.full_name}}</b>
+            <small>{{original.phone}}</small>
+          </div>
+        </div>
+        <address class="bz-od__address">
+          {{original.street}}<br>
+          {{original.city}}
+        </address>
+        {% if original.note %}
+        <p class="bz-od__note"><b>Delivery note</b>{{original.note|linebreaksbr}}</p>
+        {% endif %}
+        <div class="bz-od__actions">
+          <a class="bz-od__plain" href="tel:{{original.phone}}">📞 Call</a>
+          <button type="button" class="bz-od__plain" data-copy="{{original.street}}, {{original.city}}">Copy
+            address</button>
+        </div>
+      </div>
     </section>
   </div>
-
-  {% if perms.orders.view_orderstatusevent or perms.orders.change_orderstatusevent %}
-    {% with events=order_activity %}
-    <section class="history">
-      <header class="heading"><h2>Order history</h2><small>Malaysia time</small></header>
-      {% if events %}
-        {% with latest=events.0 %}
-        <div class="event"><strong>{% if latest.status == "confirmed" %}Order confirmed{% else %}{{ latest.label }}{% endif %}</strong>
-          <time datetime="{{ latest.time|date:'c' }}">{{ latest.time|date:"j M Y · H:i" }} MYT</time></div>
-        {% if latest.status == "confirmed" and original.estimated_delivery_start and original.estimated_delivery_end %}
-          <small>Estimated arrival · {{ original.estimated_delivery_start|date:"j M Y" }}{% if original.estimated_delivery_end != original.estimated_delivery_start %} – {{ original.estimated_delivery_end|date:"j M Y" }}{% endif %}</small>
-        {% endif %}
-        {% endwith %}
-        {% if events|length > 1 %}
-        <details><summary>Earlier activity ({{ events|length|add:"-1" }})</summary>
-          {% for event in events|slice:"1:" %}
-            <div class="event"><span>{{ event.label }}</span>
-              <time datetime="{{ event.time|date:'c' }}">{{ event.time|date:"j M Y · H:i" }} MYT</time></div>
-          {% endfor %}
-        </details>
-        {% endif %}
-      {% else %}<p>No status changes recorded.</p>{% endif %}
-    </section>
-    {% endwith %}
-  {% endif %}
-  {% if perms.orders.view_orderitem or perms.orders.change_orderitem %}
-    {% with changes=original.item_changes.all %}
-      {% if changes %}
-      <details class="history">
-        <summary>Customer item changes ({{ changes|length }})</summary>
-        {% for edit in changes %}
-          <div class="event">
-            <span>{{ edit.product_name }} · {{ edit.quantity_before }} → {{ edit.quantity_after }} at ${{ edit.unit_price|floatformat:"2" }} each</span>
-            <time datetime="{{ edit.created_at|date:'c' }}">{{ edit.created_at|date:"j M Y · H:i" }} MYT</time>
-          </div>
-        {% endfor %}
-      </details>
-      {% endif %}
-    {% endwith %}
-  {% endif %}
 </article>
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
 {% endtimezone %}
 {% else %}
-  {{ block.super }}
+{{ block.super }}
 {% endif %}
 {% endblock %}

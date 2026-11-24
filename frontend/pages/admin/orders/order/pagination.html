@@ -1,0 +1,44 @@
+{% load admin_list %}
+
+{% if cl.is_popup %}
+{% include "admin/pagination.html" %}
+{% elif cl.result_count %}
+{% querystring p=cl.page_num|add:"-1" as prev_url %}
+{% querystring p=cl.page_num|add:"1" as next_url %}
+<div class="bz-pager">
+    <p class="bz-pager__summary">
+        {% if pagination_required %}
+        Page <b>{{ cl.page_num }}</b> of <b>{{ cl.paginator.num_pages }}</b> ·
+        {% endif %}
+        {{ cl.result_count }} order{{ cl.result_count|pluralize }}
+    </p>
+
+    {% if pagination_required %}
+    <nav class="bz-pager__nav" aria-label="Order pages">
+        {% if cl.page_num > 1 %}
+        <a class="bz-pager__step" href="{{prev_url}}" rel="prev"><span aria-hidden="true">‹</span> Previous</a>
+        {% else %}
+        <span class="bz-pager__step" aria-disabled="true"><span aria-hidden="true">‹</span> Previous</span>
+        {% endif %}
+
+        <div class="bz-pager__numbers">
+            {% for number in page_range %}
+            {% if number == cl.page_num %}
+            <span class="bz-pager__current" aria-current="page">{{ number }}</span>
+            {% elif number == cl.paginator.ELLIPSIS %}
+            <span class="bz-pager__gap" aria-hidden="true">…</span>
+            {% else %}
+            {% paginator_number cl number %}
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if cl.page_num < cl.paginator.num_pages %} <a class="bz-pager__step" href="{{next_url}}" rel="next">Next
+            <span aria-hidden="true">›</span></a>
+            {% else %}
+            <span class="bz-pager__step" aria-disabled="true">Next <span aria-hidden="true">›</span></span>
+            {% endif %}
+    </nav>
+    {% endif %}
+</div>
+{% endif %}

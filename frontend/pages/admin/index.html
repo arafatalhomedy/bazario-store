@@ -4,6 +4,8 @@
 {% block responsive %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/admin/dashboard-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/dashboard-v2.css' %}">
+<script defer src="{% static 'js/admin/dashboard.js' %}"></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} bazario-dashboard{% endblock %}
@@ -11,30 +13,39 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-<header class="bazario-dashboard__hero">
-    <div class="bazario-dashboard__orbit" aria-hidden="true"></div>
-    <div class="bazario-dashboard__welcome">
-        <time datetime="{% now 'Y-m-d' %}">{% now 'l, j F Y' %}</time>
-        <h1>Welcome back,<br>{% firstof user.get_short_name "Administrator" %}<span aria-hidden="true">.</span></h1>
-        <a class="bazario-dashboard__refresh" href="{% url 'admin:index' %}">
-        <span aria-hidden="true">↻</span> Refresh
+{% bazario_store_pulse as pulse %}
+<header class="bz-hero">
+    <span class="bz-hero__aurora" aria-hidden="true"></span>
+    <div class="bz-hero__text">
+        <p class="bz-hero__date">{% now "l, j F Y" %}</p>
+        <h1 class="bz-hero__title" data-bz-greeting>
+            <span data-bz-hello>Welcome back,</span>
+            <span class="bz-hero__name">{% firstof user.first_name user.get_username %}.</span>
+        </h1>
+        <p class="bz-hero__sub">
+            <b>{{ pulse.open_orders }} open order{{ pulse.open_orders|pluralize }}</b> waiting for you.
+        </p>
+    </div>
+    <div class="bz-hero__side">
+        <span class="bz-hero__clock" data-bz-clock aria-hidden="true"></span>
+        <a class="bz-hero__refresh" href="{% url 'admin:index' %}" aria-label="Refresh dashboard">
+            <span aria-hidden="true">↻</span>
         </a>
     </div>
-    <div class="dashboard-ticket" aria-hidden="true"><small>Bazario.</small><b>B.</b><span></span></div>
 </header>
 
 {% bazario_dashboard_totals app_list as totals %}
 {% if totals %}
 <ul class="bazario-dashboard__totals" aria-label="Store summary">
     {% for card in totals %}
-    <li>
-        <a class="bazario-dashboard__metric" href="{{ card.url }}" data-metric="{{ card.icon }}">
+    <li style="--i: {{ forloop.counter0 }}">
+        <a class="bazario-dashboard__metric" href="{{card.url}}" data-metric="{{card.icon}}">
             <span class="bazario-dashboard__metric-mark" aria-hidden="true">
-                <span class="bazario-dashboard__icon" data-icon="{{ card.icon }}"></span>
+                <span class="bazario-dashboard__icon" data-icon="{{card.icon}}"></span>
             </span>
             <span class="bazario-dashboard__metric-arrow" aria-hidden="true">↗</span>
             <span class="bazario-dashboard__metric-label">{{ card.label }}</span>
-            <strong class="bazario-dashboard__metric-value">{{ card.value }}</strong>
+            <strong class="bazario-dashboard__metric-value" data-bz-count>{{ card.value }}</strong>
             <span class="bazario-dashboard__metric-detail">{{ card.detail }}</span>
         </a>
     </li>

@@ -1,0 +1,10 @@
+<li>
+    <a class="bz-nav__link" href="{{link.url}}" data-icon="{{link.icon}}" data-label="{{link.label}}"
+        aria-current="{{link.active|default:'false'}}">
+        <span class="bz-nav__icon" aria-hidden="true"></span>
+        <span class="bz-nav__label">{{ link.label }}</span>
+        {% if link.icon == "order" and pulse.open_orders %}
+        <span class="bz-nav__badge">{{ pulse.open_orders }}</span>
+        {% endif %}
+    </a>
+</li>

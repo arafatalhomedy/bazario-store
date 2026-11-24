@@ -62,7 +62,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ("number", "full_name", "phone", "city")
     show_facets = admin.ShowFacets.ALWAYS
     date_hierarchy = "created_at"
-    list_per_page = 25
+    list_per_page = 5
     inlines = [OrderItemInline, OrderStatusEventInline]
 
     readonly_fields = (

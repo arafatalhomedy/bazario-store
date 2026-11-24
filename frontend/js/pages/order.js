@@ -7,12 +7,14 @@ import { initCartCount } from "../components/cartActions.js";
 import { initFooter } from "../components/footer.js";
 import { initHeader } from "../components/header.js";
 import { initOrderDetail } from "../components/orderDetail.js";
+import { initOrderMotion } from "../components/orderMotion.js";
 
 function init() {
     initHeader();        // navbar: menus, theme, scroll effects
     initCartCount();     // navbar basket count
     splitAll();          // the big status: letters rise
     initOrderDetail();   // journey, ring %, copy, buy again, barcode, tilt
+    initOrderMotion();   // v4: word roll, total count-up, glow, item tilt
     initMagnetic();      // buttons that lean toward the mouse
     initFooter();        // footer: coins, liquid name, back to top
 }

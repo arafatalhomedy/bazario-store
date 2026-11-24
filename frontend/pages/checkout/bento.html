@@ -1,116 +1,140 @@
-{# Checkout page: the bento form. Styles: css/checkout/bento.css · JS: js/components/checkout.js #}
-<form class="bento" data-checkout-form novalidate aria-label="Delivery details">
+{# Checkout: form (left) + live receipt (right). Styles: css/checkout/bento.css · JS: js/components/checkout.js #}
+<div class="co-grid">
 
-    {# 01 · You #}
-    <section class="tile tile--you" data-group aria-labelledby="you-title">
-        <p class="tile__kicker">01</p>
-        <h2 class="tile__title" id="you-title">You <span class="tile__check" aria-hidden="true">✓</span></h2>
+    <form class="co-form" data-checkout-form novalidate aria-label="Delivery details">
 
-        <div class="field">
-            <input class="field__input" id="full_name" name="full_name" type="text" placeholder=" " autocomplete="name"
-                maxlength="100" required aria-describedby="full_name-error">
-            <label class="field__label" for="full_name">Full name</label>
-            <span class="field__line" aria-hidden="true"></span>
-            <p class="field__error" id="full_name-error" data-error-for="full_name"></p>
-        </div>
-
-        <div class="field">
-            <input class="field__input" id="phone" name="phone" type="tel" placeholder=" " autocomplete="tel"
-                inputmode="tel" maxlength="20" required aria-describedby="phone-error">
-            <label class="field__label" for="phone">Phone</label>
-            <span class="field__line" aria-hidden="true"></span>
-            <p class="field__error" id="phone-error" data-error-for="phone"></p>
-        </div>
-    </section>
-
-    {# Your order (filled by JavaScript from /api/cart/) #}
-    <section class="tile tile--order" data-summary aria-labelledby="order-title">
-        <p class="tile__kicker" id="order-title">Your order</p>
-        <div class="summary__photos" data-summary-photos aria-hidden="true"></div>
-        <p class="summary__total" data-summary-total>$0.00</p>
-        <p class="summary__meta" data-summary-meta>0 items</p>
-        <div class="summary__bar" data-summary-bar role="img" aria-label="Order total by category"></div>
-        <dl class="summary__rows">
-            <div class="summary__row">
-                <dt>Subtotal</dt>
-                <dd data-summary-subtotal>$0.00</dd>
+        {# 01 · You #}
+        <section class="co-sec" data-group aria-labelledby="you-title">
+            <span class="co-sec__num" aria-hidden="true">01</span>
+            <div class="co-sec__head">
+                <h2 class="co-sec__title" id="you-title">You</h2>
+                <span class="co-sec__hint" data-you-hint></span>
+                <span class="co-sec__check" aria-hidden="true">✓</span>
             </div>
-            <div class="summary__row">
-                <dt>Delivery</dt>
-                <dd>To your door</dd>
+            <div class="co-row">
+                <div class="field">
+                    <input class="field__input" id="full_name" name="full_name" type="text" placeholder=" "
+                        autocomplete="name" maxlength="100" required aria-describedby="full_name-error">
+                    <label class="field__label" for="full_name">Full name</label>
+                    <span class="field__line" aria-hidden="true"></span>
+                    <p class="field__error" id="full_name-error" data-error-for="full_name"></p>
+                </div>
+                <div class="field">
+                    <input class="field__input" id="phone" name="phone" type="tel" placeholder=" " autocomplete="tel"
+                        inputmode="tel" maxlength="20" required aria-describedby="phone-error">
+                    <label class="field__label" for="phone">Phone</label>
+                    <span class="field__line" aria-hidden="true"></span>
+                    <p class="field__error" id="phone-error" data-error-for="phone"></p>
+                </div>
             </div>
-        </dl>
-        <a class="summary__edit" href="/cart/">Edit basket</a>
-    </section>
+        </section>
 
-    {# 02 · Address #}
-    <section class="tile tile--address" data-group aria-labelledby="address-title">
-        <p class="tile__kicker">02</p>
-        <h2 class="tile__title" id="address-title">Address <span class="tile__check" aria-hidden="true">✓</span></h2>
+        {# 02 · Address #}
+        <section class="co-sec" data-group aria-labelledby="address-title">
+            <span class="co-sec__num" aria-hidden="true">02</span>
+            <div class="co-sec__head">
+                <h2 class="co-sec__title" id="address-title">Address</h2>
+                <span class="co-sec__check" aria-hidden="true">✓</span>
+            </div>
+            <div class="co-row">
+                <div class="field">
+                    <input class="field__input" id="city" name="city" type="text" placeholder=" "
+                        autocomplete="address-level2" maxlength="80" required aria-describedby="city-error">
+                    <label class="field__label" for="city">City</label>
+                    <span class="field__line" aria-hidden="true"></span>
+                    <p class="field__error" id="city-error" data-error-for="city"></p>
+                </div>
+                <div class="field">
+                    <input class="field__input" id="street" name="street" type="text" placeholder=" "
+                        autocomplete="street-address" maxlength="200" required aria-describedby="street-error">
+                    <label class="field__label" for="street">Street, building, flat</label>
+                    <span class="field__line" aria-hidden="true"></span>
+                    <p class="field__error" id="street-error" data-error-for="street"></p>
+                </div>
+                <div class="field field--full">
+                    <input class="field__input" id="note" name="note" type="text" placeholder=" " autocomplete="off"
+                        maxlength="300" aria-describedby="note-error">
+                    <label class="field__label" for="note">Note for the courier (optional)</label>
+                    <span class="field__line" aria-hidden="true"></span>
+                    <p class="field__error" id="note-error" data-error-for="note"></p>
+                </div>
+            </div>
+        </section>
 
-        <div class="field">
-            <input class="field__input" id="city" name="city" type="text" placeholder=" " autocomplete="address-level2"
-                maxlength="80" required aria-describedby="city-error">
-            <label class="field__label" for="city">City</label>
-            <span class="field__line" aria-hidden="true"></span>
-            <p class="field__error" id="city-error" data-error-for="city"></p>
+        {# 03 · Payment (always ready: cash on delivery) #}
+        <section class="co-sec is-done" aria-labelledby="payment-title">
+            <span class="co-sec__num" aria-hidden="true">03</span>
+            <div class="co-sec__head">
+                <h2 class="co-sec__title" id="payment-title">Payment</h2>
+                <span class="co-sec__check" aria-hidden="true">✓</span>
+            </div>
+            <p class="co-pay"><span class="co-pay__dot" aria-hidden="true"></span>Cash on delivery</p>
+            <p class="co-pay__help">You pay the courier when your order arrives. No card needed.</p>
+        </section>
+    </form>
+
+    {# Live receipt #}
+    <aside class="co-receipt" data-summary aria-labelledby="order-title">
+        <span class="co-receipt__notch co-receipt__notch--left" aria-hidden="true"></span>
+        <span class="co-receipt__notch co-receipt__notch--right" aria-hidden="true"></span>
+        <span class="stamp" data-stamp aria-hidden="true">Placed</span>
+
+        <div class="co-receipt__top">
+            <p class="co-kicker" id="order-title">Your order</p>
+            <a class="co-edit" href="/cart/">Edit basket</a>
         </div>
+        <ul class="co-items" data-summary-items aria-label="Items in your order"></ul>
 
-        <div class="field">
-            <input class="field__input" id="street" name="street" type="text" placeholder=" "
-                autocomplete="street-address" maxlength="200" required aria-describedby="street-error">
-            <label class="field__label" for="street">Street, building, flat</label>
-            <span class="field__line" aria-hidden="true"></span>
-            <p class="field__error" id="street-error" data-error-for="street"></p>
+        <hr class="co-tear">
+
+        <div class="co-ship" aria-live="polite">
+            <p class="co-kicker">Ship to</p>
+            <p class="co-ship__line is-empty" data-ship-name>Your name</p>
+            <p class="co-ship__line is-empty" data-ship-address>Your address</p>
         </div>
-
-        <div class="field">
-            <input class="field__input" id="note" name="note" type="text" placeholder=" " autocomplete="off"
-                maxlength="300" aria-describedby="note-error">
-            <label class="field__label" for="note">Note for the courier (optional)</label>
-            <span class="field__line" aria-hidden="true"></span>
-            <p class="field__error" id="note-error" data-error-for="note"></p>
-        </div>
-    </section>
-
-    {# Payment #}
-    <section class="tile tile--small tile--payment" aria-labelledby="payment-title">
-        <p class="tile__kicker" id="payment-title">Payment</p>
-        <p class="mini__value"><span class="mini__dot" aria-hidden="true"></span>Cash</p>
-        <p class="mini__text">on delivery</p>
-    </section>
-
-    {# Delivery #}
-    <section class="tile tile--small tile--delivery" aria-labelledby="delivery-title">
-        <p class="tile__kicker" id="delivery-title">Delivery</p>
-        <div class="road" aria-hidden="true">
-            <svg class="road__truck" viewBox="0 0 24 24">
+        <div class="co-route" data-route aria-hidden="true">
+            <span class="co-route__line"></span>
+            <span class="co-route__done"></span>
+            <span class="co-route__pin co-route__pin--from"></span>
+            <span class="co-route__pin co-route__pin--to"></span>
+            <svg class="co-route__truck" viewBox="0 0 24 24">
                 <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
                 <circle cx="7" cy="17" r="2" />
                 <circle cx="17" cy="17" r="2" />
             </svg>
         </div>
-        <p class="mini__text">To your door</p>
-    </section>
+        <p class="co-route__labels"><span>Bazario</span><span data-ship-city>Your door</span></p>
 
-    {# Ready + Hold to place #}
-    <section class="tile tile--ready" aria-labelledby="ready-title">
-        <span class="stamp" data-stamp aria-hidden="true">Placed</span>
-        <div class="ready">
-            <div class="ready__info">
-                <p class="tile__kicker" id="ready-title">Ready</p>
-                <p class="ready__count" data-ready-count>0 of 4 details</p>
+        <hr class="co-tear">
+
+        <dl class="co-rows">
+            <div class="co-rows__row">
+                <dt>Subtotal</dt>
+                <dd data-summary-subtotal>$0.00</dd>
             </div>
-            <button class="hold" type="submit" data-hold aria-describedby="hold-hint">
-                <span class="hold__ready" data-ready-fill aria-hidden="true"></span>
-                <span class="hold__fill" data-hold-fill aria-hidden="true"></span>
-                <span class="hold__label" data-hold-label>Fill in your details</span>
-            </button>
+            <div class="co-rows__row">
+                <dt>Delivery</dt>
+                <dd>To your door</dd>
+            </div>
+        </dl>
+        <div class="co-total">
+            <span>Total · cash on delivery</span>
+            <span class="co-total__value" data-summary-total>$0.00</span>
         </div>
-        <p class="ready__hint" id="hold-hint">Press and hold for a second to place your order.</p>
-        <p class="ready__error" data-form-error role="alert"></p>
-    </section>
-</form>
+
+        <button class="hold" type="button" data-hold aria-describedby="hold-hint">
+            <span class="hold__liquid" data-hold-fill aria-hidden="true">
+                <svg class="hold__wave" viewBox="0 0 20 60" preserveAspectRatio="none">
+                    <path
+                        d="M0 0 Q10 5 0 10 Q10 15 0 20 Q10 25 0 30 Q10 35 0 40 Q10 45 0 50 Q10 55 0 60 L0 120 L-20 120 L-20 0Z" />
+                </svg>
+            </span>
+            <span class="hold__label" data-hold-label>Fill in your details</span>
+        </button>
+        <p class="co-hint" id="hold-hint">Press and hold for a second to place your order.</p>
+        <p class="co-error" data-form-error role="alert"></p>
+    </aside>
+</div>
 
 {# Shown only if the basket is empty #}
 <section class="checkout-empty" data-checkout-empty aria-labelledby="checkout-empty-title">

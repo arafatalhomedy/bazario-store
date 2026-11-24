@@ -1,30 +1,30 @@
 /**
- * Checkout page: the brain of the bento form.
+ * Checkout v4: the brain of the page.
  *
- *  1. Load       get the basket → "Your order" tile (or the empty message)
- *  2. Fields     same rules as the server; errors under each field
- *  3. Progress   ✓ + light sweep on finished tiles, "N of 4" bump, button wakes up
- *  4. Hold       hold 1 second (mouse, touch, Space/Enter) to place the order
- *  5. Send       POST /api/orders/ → stamp + colour burst + truck leaves → Done page
- *  6. Spotlight  a soft glow follows the mouse inside each tile
+ *  1. Load        basket → receipt (items, subtotal, rolling total) or the empty message
+ *  2. Autofill    logged-in customers: name + last delivery details, never overwriting typing
+ *  3. Live        "Ship to" + little route update while typing
+ *  4. Progress    "N of 4", ✓ + light sweep on finished cards, button wakes up
+ *  5. Hold        hold 1 second (mouse, touch, Space/Enter): liquid fill
+ *  6. Send        POST /api/orders/ → stamp, truck leaves, dots burst → Done page
  *
- * HTML: pages/checkout/*.html · Styles: css/checkout/bento.css
+ * HTML: pages/checkout/{heading,bento}.html · Styles: css/checkout/bento.css
  * The server checks everything again; this file only makes it friendly.
  */
 import { getCart } from "../api/cart.js";
+import { apiRequest } from "../api/client.js";
 import { placeOrder } from "../api/orders.js";
 import { el } from "../utils/dom.js";
 import { formatPrice } from "../utils/format.js";
-import { hasFinePointer, prefersReducedMotion } from "../utils/motion.js";
-import { groupByCategory } from "./basket.js";
+import { prefersReducedMotion } from "../utils/motion.js";
+import { groupByCategory } from "../utils/categories.js";
 import { setCartCount } from "./header.js";
+import { showOrderPlaced } from "./orderPlaced.js";
 
-const HOLD_MS = 1000;      // how long to hold the button
-const COUNT_MS = 1100;     // total counting time
+const HOLD_MS = 1100;      // how long to hold the button
 const GO_DONE_MS = 1500;   // time to enjoy the celebration before the Done page
-const MAX_PHOTOS = 4;      // floating photos
-const MAX_LINES = 5;       // lines in the item list
-const BURST_DOTS = 22;     // coloured dots when the order is placed
+const MAX_LINES = 4;       // items shown in the receipt
+const BURST_DOTS = 24;     // coloured dots when the order is placed
 
 // The same rules as the server (CheckoutSerializer)
 const RULES = {
@@ -42,10 +42,9 @@ const REQUIRED = ["full_name", "phone", "city", "street"];
 let ui = null;
 const state = {
     total: 0,
-    colors: [],          // category colours, for the burst
+    colors: [],            // category colours, for the burst
     holding: null,
     sending: false,
-    doneCount: -1,       // last "N of 4", to bump only on change
     doneGroups: new Set(),
 };
 
@@ -56,18 +55,20 @@ export function initCheckout() {
 
     ui = {
         root,
+        reduced: prefersReducedMotion(),
         count: root.querySelector("[data-checkout-count]"),
+        progressText: root.querySelector("[data-progress-text]"),
+        progressFill: root.querySelector("[data-progress-fill]"),
         form: root.querySelector("[data-checkout-form]"),
-        tiles: [...root.querySelectorAll(".tile")],
         groups: [...root.querySelectorAll("[data-group]")],
-        photos: root.querySelector("[data-summary-photos]"),
-        total: root.querySelector("[data-summary-total]"),
-        meta: root.querySelector("[data-summary-meta]"),
-        bar: root.querySelector("[data-summary-bar]"),
+        youHint: root.querySelector("[data-you-hint]"),
+        items: root.querySelector("[data-summary-items]"),
         subtotal: root.querySelector("[data-summary-subtotal]"),
-        road: root.querySelector(".road"),
-        readyCount: root.querySelector("[data-ready-count]"),
-        readyFill: root.querySelector("[data-ready-fill]"),
+        total: root.querySelector("[data-summary-total]"),
+        shipName: root.querySelector("[data-ship-name]"),
+        shipAddress: root.querySelector("[data-ship-address]"),
+        shipCity: root.querySelector("[data-ship-city]"),
+        route: root.querySelector("[data-route]"),
         hold: root.querySelector("[data-hold]"),
         holdFill: root.querySelector("[data-hold-fill]"),
         holdLabel: root.querySelector("[data-hold-label]"),
@@ -76,14 +77,11 @@ export function initCheckout() {
     };
     ui.inputs = Object.fromEntries(Object.keys(RULES).map((name) => [name, ui.form.elements[name]]));
 
-    // The item list lives under the split bar in "Your order"
-    ui.items = el("ul", { className: "summary__items", attrs: { "aria-label": "Items in your order" } });
-    ui.bar.after(ui.items);
-
     setupFields();
     setupHold();
-    setupSpotlight();
     loadSummary();
+    autofill();
+    updateProgress();
 }
 
 /* ------------------------------------------------------------------ 1. Load */
@@ -100,7 +98,6 @@ async function loadSummary() {
             ui.count.textContent = notice || "Your basket is empty";
             return;
         }
-
         renderSummary(cart, items);
         if (notice) ui.count.textContent = notice;
         updateProgress();
@@ -110,56 +107,24 @@ async function loadSummary() {
 }
 
 function renderSummary(cart, items) {
-    const groups = groupByCategory(items);
-    const subtotal = Number(cart.subtotal);
-    state.colors = groups.map((group) => group.color);
-
+    state.colors = groupByCategory(items).map((group) => group.color);
     ui.count.textContent = `Delivery details for ${plural(cart.total_quantity, "item")}`;
-    ui.meta.textContent = `${plural(cart.total_quantity, "item")} · ${plural(groups.length, "category", "categories")}`;
     ui.subtotal.textContent = formatPrice(cart.subtotal);
 
-    // Floating photos: up to 4, then "+N"
-    const photos = items.slice(0, MAX_PHOTOS).map((item, index) => {
-        const img = el("img", {
-            className: "summary__photo",
-            attrs: { src: item.product.thumbnail, alt: "", width: "80", height: "80", decoding: "async" },
-        });
-        img.style.setProperty("--i", index);
-        return img;
-    });
-    if (items.length > MAX_PHOTOS) {
-        photos.push(el("span", { className: "summary__more", text: `+${items.length - MAX_PHOTOS}` }));
-    }
-    ui.photos.replaceChildren(...photos);
-
-    // Split bar in the basket's category colours
-    ui.bar.replaceChildren(...groups.map((group, index) => {
-        const piece = el("span", { className: "summary__seg" });
-        piece.style.setProperty("--share", subtotal > 0 ? (group.subtotal / subtotal).toFixed(4) : "0");
-        piece.style.setProperty("--seg-color", group.color);
-        piece.style.setProperty("--i", index);
-        return piece;
-    }));
-    ui.bar.setAttribute(
-        "aria-label",
-        `Order total by category: ${groups.map((g) => `${g.name} ${Math.round((g.subtotal / subtotal) * 100)}%`).join(", ")}`,
-    );
-
-    // Item list: each line slides in one by one
     const lines = items.slice(0, MAX_LINES).map((item, index) => {
-        const line = el("li", { className: "summary__item" }, [
+        const line = el("li", { className: "co-item" }, [
             el("img", { attrs: { src: item.product.thumbnail, alt: "", width: "80", height: "80", decoding: "async" } }),
-            el("span", { className: "summary__item-name", text: item.product.name }, [
+            el("span", { className: "co-item__name", text: item.product.name }, [
                 el("small", { text: `× ${item.quantity}` }),
             ]),
-            el("span", { className: "summary__item-price", text: formatPrice(item.line_total) }),
+            el("span", { className: "co-item__price", text: formatPrice(item.line_total) }),
         ]);
         line.style.setProperty("--i", index);
         return line;
     });
     if (items.length > MAX_LINES) {
         const more = el("li", {
-            className: "summary__item summary__item--more",
+            className: "co-item co-item--more",
             text: `and ${plural(items.length - MAX_LINES, "more product")}`,
         });
         more.style.setProperty("--i", MAX_LINES);
@@ -168,24 +133,63 @@ function renderSummary(cart, items) {
     ui.items.replaceChildren(...lines);
 
     state.total = Number(cart.total);
-    countUp(ui.total, state.total);
+    rollTotal(ui.total, formatPrice(state.total));
+    updateProgress();
 }
 
-function countUp(node, end) {
-    if (prefersReducedMotion()) {
-        node.textContent = formatPrice(end);
+/** "$116.00" → each digit spins in like a slot machine. */
+function rollTotal(node, text) {
+    node.setAttribute("aria-label", text);
+    if (ui.reduced) {
+        node.textContent = text;
         return;
     }
-    const start = performance.now();
-    const step = (now) => {
-        const progress = Math.min((now - start) / COUNT_MS, 1);
-        node.textContent = formatPrice(end * (1 - Math.pow(1 - progress, 3)));
-        if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    const parts = [...text].map((char, index) => {
+        if (!/\d/.test(char)) return el("span", { text: char, attrs: { "aria-hidden": "true" } });
+        const strip = el("span", { className: "odo__strip" }, [
+            ...Array.from({ length: 10 }, (_, n) => el("span", { text: String(n) })),
+            el("span", { text: char }),
+        ]);
+        strip.style.transitionDelay = `${0.3 + index * 0.07}s`;
+        return el("span", { className: "odo__digit", attrs: { "aria-hidden": "true" } }, [strip]);
+    });
+    node.replaceChildren(...parts);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        node.querySelectorAll(".odo__strip").forEach((strip) => { strip.style.transform = "translateY(-10em)"; });
+    }));
 }
 
-/* ------------------------------------------------------------------ 2. Fields */
+/* ------------------------------------------------------------------ 2. Autofill */
+async function autofill() {
+    let me;
+    try {
+        me = await apiRequest("/api/account/me/");
+    } catch {
+        return;   // not important: the customer can simply type
+    }
+    if (!me?.authenticated) return;
+
+    const values = {
+        full_name: me.full_name,
+        phone: me.delivery?.phone,
+        city: me.delivery?.city,
+        street: me.delivery?.street,
+    };
+    let filled = false;
+    for (const [name, value] of Object.entries(values)) {
+        const input = ui.inputs[name];
+        if (value && !input.value.trim()) {   // never overwrite what the customer typed
+            input.value = value;
+            filled = true;
+        }
+    }
+    if (filled && ui.youHint) {
+        ui.youHint.textContent = me.delivery ? "Filled from your last order" : "Filled from your account";
+    }
+    updateProgress();
+}
+
+/* ------------------------------------------------------------------ 3. Fields + live receipt */
 function setupFields() {
     for (const [name, input] of Object.entries(ui.inputs)) {
         input.addEventListener("input", () => {
@@ -202,7 +206,6 @@ function setupFields() {
     // Enter in a field: never send by accident, guide to the hold button instead
     ui.form.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (event.submitter === ui.hold) return;   // the hold button handles itself
         if (showAllErrors()) {
             ui.hold.focus();
             ui.formError.textContent = "Now press and hold the button to place your order.";
@@ -210,9 +213,13 @@ function setupFields() {
     });
 }
 
+function value(name) {
+    return ui.inputs[name].value.trim();
+}
+
 /** "" when valid, otherwise the message. */
 function check(name) {
-    const result = RULES[name](ui.inputs[name].value.trim());
+    const result = RULES[name](value(name));
     return result === true ? "" : result;
 }
 
@@ -237,12 +244,34 @@ function showAllErrors() {
     return !first;
 }
 
-/* ------------------------------------------------------------------ 3. Progress */
+/** Ship to + route follow what the customer types. */
+function updateShip() {
+    const name = value("full_name");
+    const address = [value("street"), value("city")].filter(Boolean).join(", ");
+    setLine(ui.shipName, name || "Your name", !name);
+    setLine(ui.shipAddress, address || "Your address", !address);
+    ui.shipCity.textContent = value("city") || "Your door";
+    ui.route.classList.toggle("is-ready", !check("city") && !check("street"));
+}
+
+function setLine(node, text, empty) {
+    if (node.textContent === text) return;
+    node.textContent = text;
+    node.classList.toggle("is-empty", empty);
+    if (!ui.reduced) {
+        node.animate(
+            [{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }],
+            { duration: 300, easing: "ease-out" },
+        );
+    }
+}
+
+/* ------------------------------------------------------------------ 4. Progress */
 function updateProgress() {
     const done = REQUIRED.filter((name) => !check(name)).length;
     const ready = done === REQUIRED.length && !check("note");
 
-    // ✓ on finished tiles, plus a one-time light sweep when a tile becomes finished
+    // ✓ on finished cards, plus a one-time light sweep when a card becomes finished
     ui.groups.forEach((group, index) => {
         const names = [...group.querySelectorAll("input")].map((input) => input.name);
         const finished = names.every((name) => !check(name));
@@ -252,21 +281,17 @@ function updateProgress() {
         else state.doneGroups.delete(index);
     });
 
-    // "N of 4 details" bumps only when the number changes
-    if (done !== state.doneCount) {
-        if (state.doneCount !== -1) restartClass(ui.readyCount, "is-bump");
-        state.doneCount = done;
-    }
-    ui.readyCount.textContent = `${done} of ${REQUIRED.length} details`;
-    ui.readyFill.style.setProperty("--ready", String(done / REQUIRED.length));
-    ui.hold.classList.toggle("is-ready", ready);
+    ui.progressText.textContent = `${done} of ${REQUIRED.length}`;
+    ui.progressFill.style.width = `${(done / REQUIRED.length) * 100}%`;
+    ui.hold.classList.toggle("is-ready", ready && ui.root.dataset.state === "ready");
+    updateShip();
 
     if (!state.sending && !state.holding) {
-        ui.holdLabel.textContent = ready ? `Hold to place order · ${formatPrice(state.total)}` : "Fill in your details";
+        ui.holdLabel.textContent = ready ? `Hold to place · ${formatPrice(state.total)}` : "Fill in your details";
     }
 }
 
-/* ------------------------------------------------------------------ 4. Hold */
+/* ------------------------------------------------------------------ 5. Hold (liquid) */
 function setupHold() {
     ui.hold.addEventListener("pointerdown", (event) => {
         if (event.button !== 0) return;
@@ -292,15 +317,15 @@ function startHold() {
     if (state.sending || state.holding || ui.root.dataset.state !== "ready") return;
     ui.formError.textContent = "";
     if (!showAllErrors()) {
-        ui.formError.textContent = "Fill in the details above first.";
+        ui.formError.textContent = "Fill in the details first.";
         return;
     }
 
     ui.hold.classList.add("is-holding");
     ui.holdLabel.textContent = "Keep holding…";
     state.holding = ui.holdFill.animate(
-        [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
-        { duration: HOLD_MS, easing: "linear", fill: "forwards" },
+        [{ transform: "translateX(-101%)" }, { transform: "translateX(0)" }],
+        { duration: HOLD_MS, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" },
     );
     state.holding.onfinish = () => {
         state.holding = null;
@@ -313,24 +338,21 @@ function stopHold() {
     if (!animation) return;
     state.holding = null;
     animation.onfinish = null;
-    animation.reverse();   // the fill rolls back smoothly
+    animation.reverse();   // the liquid drains back smoothly
     ui.hold.classList.remove("is-holding");
     updateProgress();
 }
 
-/* ------------------------------------------------------------------ 5. Send */
+/* ------------------------------------------------------------------ 6. Send */
 async function send() {
     state.sending = true;
     ui.holdLabel.textContent = "Placing your order…";
     ui.hold.setAttribute("aria-busy", "true");
 
-    const details = Object.fromEntries(
-        Object.entries(ui.inputs).map(([name, input]) => [name, input.value.trim()]),
-    );
+    const details = Object.fromEntries(Object.keys(RULES).map((name) => [name, value(name)]));
 
     try {
-        const order = await placeOrder(details);
-        placed(order);
+        placed(await placeOrder(details));
     } catch (error) {
         failed(error);
     }
@@ -343,18 +365,18 @@ function placed(order) {
     ui.hold.removeAttribute("aria-busy");
     ui.holdLabel.textContent = `Placed · ${order.number}`;
     ui.stamp.classList.add("is-on");
-    ui.road?.classList.add("is-leaving");   // the truck speeds away
+    ui.route.classList.add("is-leaving");   // the truck speeds away
     setCartCount(0);
     burst(ui.hold);
 
     setTimeout(() => {
-        window.location.href = `/checkout/done/${encodeURIComponent(order.number)}/`;
-    }, prefersReducedMotion() ? 300 : GO_DONE_MS);
+        if (!showOrderPlaced(order, ui.hold)) window.location.href = `/orders/${encodeURIComponent(order.number)}/`;
+    }, ui.reduced ? 300 : GO_DONE_MS);
 }
 
 /** Coloured dots explode from the button, in the order's category colours. */
 function burst(origin) {
-    if (prefersReducedMotion()) return;
+    if (ui.reduced) return;
     const box = origin.getBoundingClientRect();
     const x = box.left + box.width / 2;
     const y = box.top + box.height / 2;
@@ -368,7 +390,7 @@ function burst(origin) {
         document.body.append(dot);
 
         const angle = (Math.PI * 2 * i) / BURST_DOTS + Math.random() * 0.4;
-        const distance = 90 + Math.random() * 120;
+        const distance = 90 + Math.random() * 130;
         const dx = Math.cos(angle) * distance;
         const dy = Math.sin(angle) * distance - 40;   // a little upward
 
@@ -405,22 +427,6 @@ function failed(error) {
         ui.formError.textContent = "We couldn't reach the shop. Check your connection and try again.";
     }
     updateProgress();
-}
-
-/* ------------------------------------------------------------------ 6. Spotlight */
-function setupSpotlight() {
-    if (prefersReducedMotion() || !hasFinePointer()) return;
-    for (const tile of ui.tiles) {
-        let frame = null;
-        tile.addEventListener("pointermove", (event) => {
-            cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(() => {
-                const box = tile.getBoundingClientRect();
-                tile.style.setProperty("--mx", `${event.clientX - box.left}px`);
-                tile.style.setProperty("--my", `${event.clientY - box.top}px`);
-            });
-        });
-    }
 }
 
 /* ------------------------------------------------------------------ Helpers */

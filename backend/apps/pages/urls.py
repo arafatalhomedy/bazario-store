@@ -8,7 +8,7 @@ urlpatterns = [
     path("products/<slug:slug>/", views.product_detail, name="product-page"),
     path("cart/", views.cart, name="cart-page"),
     path("checkout/", views.checkout, name="checkout-page"),
-    path("checkout/done/<str:number>/", views.order_done, name="order-done-page"),
+    path("checkout/done/<str:number>/", RedirectView.as_view(pattern_name="order-page"), name="order-done-page"),
     path("orders/", views.orders_list, name="orders-page"),
         path(
         "orders/<str:number>/cancel/",

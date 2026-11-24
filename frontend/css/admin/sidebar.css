@@ -1,0 +1,1521 @@
+/* ==========================================================================
+   Bazario admin menu v2: dark rail on the left, groups, coloured icon tiles,
+   glowing sliding indicator, badge, live store card, collapse to icons.
+   HTML: pages/admin/bazario_navigation.html + bazario_nav_link.html
+   JS: js/admin/sidebar.js (indicator + collapse)
+   ========================================================================== */
+@property --bz-nav-glow {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 0%;
+}
+
+/* ---------- The box ---------- */
+.bazario-admin-sidebar {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    isolation: isolate;
+    overflow: hidden;
+    box-sizing: border-box;
+    height: calc(100dvh - 2rem);
+    min-height: 30rem;
+    margin-block: 0.5rem 1.25rem;
+    padding: 0.85rem 0.65rem;
+    border: 1px solid light-dark(transparent, #ffffff14);
+    border-radius: 24px;
+    background: light-dark(#141414, #1b1b1e);
+    color: #f4f1ea;
+    box-shadow: 0 30px 60px -40px #000a;
+    animation: bz-nav-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bz-nav-in {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+}
+
+/* Two soft glows breathing in the corners */
+.bazario-admin-sidebar::before,
+.bazario-admin-sidebar::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.bazario-admin-sidebar::before {
+    left: -6rem;
+    top: -6rem;
+    width: 14rem;
+    height: 14rem;
+    background: radial-gradient(#ff5a3673, transparent 65%);
+    animation: bz-nav-breathe 6s ease-in-out infinite;
+}
+
+.bazario-admin-sidebar::after {
+    right: -7rem;
+    bottom: 5rem;
+    width: 13rem;
+    height: 13rem;
+    background: radial-gradient(#7c5cff59, transparent 65%);
+    animation: bz-nav-breathe 8s ease-in-out infinite reverse;
+}
+
+@keyframes bz-nav-breathe {
+    50% {
+        transform: scale(1.3) translate(20px, 30px);
+    }
+}
+
+.bz-nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ---------- Top row: "Menu" + collapse ---------- */
+.bz-nav__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin: 0 0.25rem 0.5rem;
+}
+
+.bz-nav__title {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    white-space: nowrap;
+}
+
+.bz-nav__collapse {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 9px;
+    background: #ffffff14;
+    color: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.bz-nav__collapse:hover {
+    background: #ffffff2e;
+}
+
+/* ---------- Links ---------- */
+.bz-nav__links {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.bz-nav__links ul {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bz-nav__links li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bz-nav__group {
+    margin: 0.9rem 0.5rem 0.35rem;
+    padding: 0;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f4f1ea;
+    opacity: 0.5;
+    white-space: nowrap;
+}
+
+/* Each page has its own colour (--k) and icon (--icon) */
+.bz-nav__link {
+    --k: #8b8b8b;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3C/svg%3E");
+
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    box-sizing: border-box;
+    height: 2.65rem;
+    padding: 0 0.4rem;
+    border-radius: 14px;
+    color: #f4f1ea99 !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
+
+.bz-nav__link:hover,
+.bz-nav__link[aria-current] {
+    color: #fff !important;
+}
+
+.bz-nav__link:focus-visible {
+    outline: 2px solid var(--k);
+    outline-offset: 2px;
+}
+
+.bz-nav__link[data-icon="dashboard"] {
+    --k: #ff5a36;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7' rx='2'/%3E%3Crect x='14' y='3' width='7' height='7' rx='2'/%3E%3Crect x='3' y='14' width='7' height='7' rx='2'/%3E%3Crect x='14' y='14' width='7' height='7' rx='2'/%3E%3C/svg%3E");
+}
+
+.bz-nav__link[data-icon="order"] {
+    --k: #ff6b4a;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M7 3h10v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5zM10 8h4M10 12h4'/%3E%3C/svg%3E");
+}
+
+.bz-nav__link[data-icon="product"] {
+    --k: #7c5cff;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E");
+}
+
+.bz-nav__link[data-icon="category"] {
+    --k: #f2a900;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 12l9-9h8v8l-9 9z'/%3E%3Ccircle cx='15.5' cy='8.5' r='1.5'/%3E%3C/svg%3E");
+}
+
+.bz-nav__link[data-icon="customer"] {
+    --k: #16b5a3;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1-4 4.5-6 8-6s7 2 8 6'/%3E%3C/svg%3E");
+}
+
+.bz-nav__link[data-icon="promotion"] {
+    --k: #ff4f9a;
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M19 5L5 19'/%3E%3Ccircle cx='7' cy='7' r='2.5'/%3E%3Ccircle cx='17' cy='17' r='2.5'/%3E%3C/svg%3E");
+}
+
+/* Icon tile */
+.bz-nav__icon {
+    position: relative;
+    flex: none;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 10px;
+    background: #ffffff0f;
+    transition:
+        background 0.4s,
+        box-shadow 0.4s,
+        transform 0.45s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+
+.bz-nav__icon::before {
+    content: "";
+    position: absolute;
+    inset: 0.45rem;
+    background: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.bz-nav__link:hover .bz-nav__icon {
+    background: color-mix(in srgb, var(--k) 40%, transparent);
+    transform: rotate(-10deg) scale(1.08);
+}
+
+.bz-nav__link[aria-current] .bz-nav__icon {
+    background: var(--k);
+    box-shadow: 0 6px 16px -4px var(--k);
+}
+
+.bz-nav__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: transform 0.4s;
+}
+
+.bz-nav__link:hover .bz-nav__label {
+    transform: translateX(3px);
+}
+
+/* Orders badge */
+.bz-nav__badge {
+    margin-left: auto;
+    min-width: 1.25rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    background: #ff5a36;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-align: center;
+    animation: bz-nav-badge 2.4s ease-in-out infinite;
+}
+
+@keyframes bz-nav-badge {
+    50% {
+        box-shadow: 0 0 0 5px #ff5a3640;
+    }
+}
+
+/* ---------- Sliding glass indicator (JS moves it) ---------- */
+.bz-nav__indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2.65rem;
+    border: 1px solid #ffffff1a;
+    border-radius: 14px;
+    background: linear-gradient(100deg, #ffffff24, #ffffff0a);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        top 0.55s cubic-bezier(0.5, 1.5, 0.4, 1),
+        opacity 0.3s;
+}
+
+.bz-nav__indicator.is-ready {
+    opacity: 1;
+}
+
+.bz-nav__indicator::before {
+    content: "";
+    position: absolute;
+    left: -0.65rem;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--k, #ff5a36);
+    box-shadow: 0 0 14px 2px var(--k, #ff5a36);
+    transition: background 0.4s, box-shadow 0.4s;
+}
+
+/* ---------- Live store card ---------- */
+.bz-nav__status {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.6rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid #ffffff14;
+    border-radius: 16px;
+    background: #ffffff0f;
+    white-space: nowrap;
+}
+
+.bz-nav__live {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #16b5a3;
+}
+
+.bz-nav__live::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #16b5a3;
+    animation: bz-nav-ping 1.6s infinite;
+}
+
+@keyframes bz-nav-ping {
+    to {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.bz-nav__status-text {
+    margin: 0;
+    overflow: hidden;
+}
+
+.bz-nav__status-text b {
+    display: block;
+    font-size: 0.78rem;
+}
+
+.bz-nav__status-text small {
+    font-size: 0.68rem;
+    opacity: 0.55;
+}
+
+.bz-nav__spark {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 1.5rem;
+}
+
+.bz-nav__spark path {
+    fill: none;
+    stroke: #16b5a3;
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: bz-nav-draw 1.6s 0.8s ease forwards;
+}
+
+@keyframes bz-nav-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ==========================================================================
+   Collapsed: icon rail (button, or small screens)
+   ========================================================================== */
+html.bz-nav-mini #container:has(> nav + #main > .bazario-admin-sidebar),
+html.bz-nav-mini #container>#main:has(> .bazario-admin-sidebar) {
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+}
+
+#container:has(> nav + #main > .bazario-admin-sidebar),
+#container>#main:has(> .bazario-admin-sidebar) {
+    transition: grid-template-columns 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html.bz-nav-mini .bz-nav__collapse {
+    transform: rotate(180deg);
+}
+
+html.bz-nav-mini .bz-nav__top {
+    justify-content: center;
+}
+
+html.bz-nav-mini .bz-nav__title,
+html.bz-nav-mini .bz-nav__label,
+html.bz-nav-mini .bz-nav__status-text,
+html.bz-nav-mini .bz-nav__spark {
+    display: none;
+}
+
+html.bz-nav-mini .bz-nav__group {
+    height: 1px;
+    margin: 0.7rem 0.6rem;
+    background: #ffffff1f;
+    font-size: 0;
+}
+
+html.bz-nav-mini .bz-nav__link {
+    justify-content: center;
+}
+
+html.bz-nav-mini .bz-nav__badge {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.35rem;
+    min-width: 1rem;
+    padding: 0 0.25rem;
+    font-size: 0.58rem;
+}
+
+html.bz-nav-mini .bz-nav__status {
+    display: grid;
+    grid-template-columns: auto;
+    justify-content: center;
+    padding: 0.7rem 0;
+}
+
+/* Name bubble next to the icon while collapsed */
+html.bz-nav-mini .bz-nav__link::after {
+    content: attr(data-label);
+    position: fixed;
+    left: 5.6rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    background: #141414;
+    color: #fff;
+    font-size: 0.75rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+}
+
+html.bz-nav-mini .bz-nav__link:hover::after {
+    opacity: 1;
+    transform: none;
+}
+
+/* Small screens: the menu stays on the left as a slim icon rail */
+@media (max-width: 47.9375rem) {
+    #container>#main:has(> .bazario-admin-sidebar) {
+        grid-template-columns: 4.25rem minmax(0, 1fr);
+        grid-template-rows: auto;
+    }
+
+    .bazario-admin-sidebar {
+        display: block;
+        margin-inline-start: 0.4rem;
+        padding-inline: 0.4rem;
+    }
+
+    .bazario-admin-mobile-menu {
+        display: none !important;
+    }
+
+    .bz-nav__top {
+        justify-content: center;
+    }
+
+    .bz-nav__title,
+    .bz-nav__collapse,
+    .bz-nav__label,
+    .bz-nav__status-text,
+    .bz-nav__spark {
+        display: none;
+    }
+
+    .bz-nav__group {
+        height: 1px;
+        margin: 0.7rem 0.5rem;
+        background: #ffffff1f;
+        font-size: 0;
+    }
+
+    .bz-nav__link {
+        justify-content: center;
+    }
+
+    .bz-nav__badge {
+        position: absolute;
+        top: 0.15rem;
+        right: 0.2rem;
+        min-width: 1rem;
+        padding: 0 0.25rem;
+        font-size: 0.58rem;
+    }
+
+    .bz-nav__status {
+        grid-template-columns: auto;
+        justify-content: center;
+        padding: 0.7rem 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .bazario-admin-sidebar,
+    .bazario-admin-sidebar::before,
+    .bazario-admin-sidebar::after,
+    .bz-nav__badge,
+    .bz-nav__live::after,
+    .bz-nav__spark path {
+        animation: none;
+    }
+
+    .bz-nav__spark path {
+        stroke-dashoffset: 0;
+    }
+
+    .bz-nav *,
+    #container,
+    #main {
+        transition: none !important;
+    }
+}
+
+/* Links with aria-current="false" are NOT the current page */
+.bz-nav__link[aria-current="false"] {
+    color: #f4f1ea99 !important;
+}
+
+.bz-nav__link[aria-current="false"] .bz-nav__icon {
+    background: #ffffff0f;
+    box-shadow: none;
+}
+
+.bz-nav__link[aria-current="false"]:hover {
+    color: #fff !important;
+}
+
+.bz-nav__link[aria-current="false"]:hover .bz-nav__icon {
+    background: color-mix(in srgb, var(--k) 40%, transparent);
+}
+
+/* Menu fits its content: everything visible, even spacing */
+.bazario-admin-sidebar {
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.bz-nav {
+    height: auto;
+}
+
+.bz-nav__links {
+    flex: none;
+    overflow: visible;
+}
+
+.bz-nav__top {
+    margin-bottom: 0.25rem;
+}
+
+.bz-nav__group {
+    margin: 1rem 0.5rem 0.4rem;
+}
+
+.bz-nav__group:first-of-type {
+    margin-top: 0.4rem;
+}
+
+.bz-nav__status {
+    margin-top: 1.25rem;
+}
+
+/* Profile photo in the top bar */
+.bz-avatar__img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   FULL-HEIGHT MENU (v3): fixed on the left, top to bottom of the screen
+   ========================================================================== */
+:root {
+    --bz-sb: 16rem;
+}
+
+html.bz-nav-mini {
+    --bz-sb: 4.75rem;
+}
+
+.bazario-admin-sidebar {
+    position: fixed;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    width: var(--bz-sb);
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 1rem 0.85rem 0.85rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.bz-nav {
+    height: 100%;
+}
+
+/* Page makes room for the menu */
+#container:has(> nav + #main > .bazario-admin-sidebar),
+#container>#main:has(> .bazario-admin-sidebar),
+html.bz-nav-mini #container:has(> nav + #main > .bazario-admin-sidebar),
+html.bz-nav-mini #container>#main:has(> .bazario-admin-sidebar) {
+    grid-template-columns: calc(var(--bz-sb) + 1.5rem) minmax(0, 1fr);
+}
+
+body:has(.bazario-admin-sidebar) #header,
+body:has(.bazario-admin-sidebar) #footer {
+    margin-left: calc(var(--bz-sb) + 1.5rem);
+    transition: margin-left 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Logo + View site now live in the menu */
+body:has(.bazario-admin-sidebar) #header #branding,
+body:has(.bazario-admin-sidebar) #header .bazario-admin-action--primary {
+    display: none;
+}
+
+/* ---------- Logo row ---------- */
+.bz-nav__top {
+    margin: 0 0.15rem 0.9rem;
+}
+
+.bz-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    color: #f4f1ea !important;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.bz-nav__mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 13px;
+    background: #ff5a36;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    box-shadow: 0 10px 24px -8px #ff5a36;
+    animation: bz-nav-wobble 4s ease-in-out infinite;
+}
+
+@keyframes bz-nav-wobble {
+    50% {
+        transform: rotate(-8deg) scale(1.05);
+    }
+}
+
+.bz-nav__brand-text b {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.bz-nav__brand-text small {
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+
+/* ---------- Jump to… ---------- */
+.bz-nav__jump {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid #ffffff14;
+    border-radius: 13px;
+    background: #ffffff12;
+    color: #f4f1ea8c;
+    cursor: text;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.bz-nav__jump:hover,
+.bz-nav__jump:focus-within {
+    border-color: #ff5a3699;
+    background: #ffffff1a;
+}
+
+.bz-nav__jump svg {
+    flex: none;
+    width: 0.95rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+.bz-nav__jump input {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.bz-nav__jump input::placeholder {
+    color: #f4f1ea8c;
+}
+
+.bz-nav__jump kbd {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid #ffffff33;
+    border-radius: 6px;
+    background: none;
+    color: inherit;
+    font-size: 0.62rem;
+    font-weight: 700;
+}
+
+.bz-nav.is-jumping .bz-nav__group,
+.bz-nav.is-jumping .bz-nav__indicator {
+    display: none;
+}
+
+/* ---------- Bigger links ---------- */
+.bz-nav__link {
+    height: 2.9rem;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+}
+
+.bz-nav__icon {
+    width: 2.05rem;
+    height: 2.05rem;
+    border-radius: 11px;
+}
+
+.bz-nav__indicator {
+    height: 2.9rem;
+}
+
+.bz-nav__indicator::before {
+    left: -0.85rem;
+}
+
+.bz-nav__group {
+    margin: 1.1rem 0.6rem 0.45rem;
+}
+
+/* ---------- Bottom: View site + status + profile ---------- */
+.bz-nav__bottom {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.bz-nav__status {
+    margin-top: 0;
+}
+
+.bz-nav__site {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 16px;
+    background: #ff5a36;
+    color: #fff !important;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.bz-nav__site::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent, #ffffff59, transparent);
+    transform: translateX(-100%);
+    animation: bz-nav-shine 3.5s 1.5s infinite;
+}
+
+@keyframes bz-nav-shine {
+
+    40%,
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.bz-nav__site-arrow {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: #ffffff40;
+    transition: transform 0.4s;
+}
+
+.bz-nav__site:hover .bz-nav__site-arrow {
+    transform: rotate(45deg);
+}
+
+.bz-nav__me {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem;
+    border-radius: 16px;
+    color: #f4f1ea !important;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background 0.3s;
+}
+
+.bz-nav__me:hover {
+    background: #ffffff12;
+}
+
+.bz-nav__avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff5a36, #f2a900);
+    color: #fff;
+    font-weight: 800;
+}
+
+.bz-nav__me-text {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.bz-nav__me-text b {
+    display: block;
+    overflow: hidden;
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+}
+
+.bz-nav__me-text small {
+    font-size: 0.68rem;
+    opacity: 0.55;
+}
+
+.bz-nav__me-more {
+    margin-left: auto;
+    opacity: 0.5;
+}
+
+/* ---------- Collapsed rail ---------- */
+html.bz-nav-mini .bz-nav__top {
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+html.bz-nav-mini .bz-nav__brand-text,
+html.bz-nav-mini .bz-nav__jump input,
+html.bz-nav-mini .bz-nav__jump kbd,
+html.bz-nav-mini .bz-nav__site-label,
+html.bz-nav-mini .bz-nav__me-text,
+html.bz-nav-mini .bz-nav__me-more {
+    display: none;
+}
+
+html.bz-nav-mini .bz-nav__jump,
+html.bz-nav-mini .bz-nav__site,
+html.bz-nav-mini .bz-nav__me {
+    justify-content: center;
+    padding-inline: 0;
+}
+
+/* ---------- Phones: slim rail ---------- */
+@media (max-width: 47.9375rem) {
+
+    :root,
+    html.bz-nav-mini {
+        --bz-sb: 3.6rem;
+    }
+
+    .bazario-admin-sidebar {
+        top: 0.5rem;
+        bottom: 0.5rem;
+        left: 0.5rem;
+        padding-inline: 0.35rem;
+    }
+
+    #container>#main:has(> .bazario-admin-sidebar) {
+        grid-template-columns: calc(var(--bz-sb) + 1rem) minmax(0, 1fr);
+    }
+
+    body:has(.bazario-admin-sidebar) #header,
+    body:has(.bazario-admin-sidebar) #footer {
+        margin-left: calc(var(--bz-sb) + 1rem);
+    }
+
+    .bz-nav__top {
+        flex-direction: column;
+    }
+
+    .bz-nav__brand-text,
+    .bz-nav__jump,
+    .bz-nav__site-label,
+    .bz-nav__me-text,
+    .bz-nav__me-more {
+        display: none;
+    }
+
+    .bz-nav__site,
+    .bz-nav__me {
+        justify-content: center;
+        padding-inline: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .bz-nav__mark,
+    .bz-nav__site::before {
+        animation: none;
+    }
+
+    .bazario-admin-sidebar,
+    body:has(.bazario-admin-sidebar) #header,
+    body:has(.bazario-admin-sidebar) #footer {
+        transition: none;
+    }
+}
+
+/* ==========================================================================
+   v4: true full screen + light / dark menu (follows the admin theme toggle)
+   ========================================================================== */
+.bazario-admin-sidebar {
+    --sb-bg: light-dark(#fffdf9, #141414);
+    --sb-fg: light-dark(#141414, #f4f1ea);
+    --sb-muted: light-dark(#14141499, #f4f1ea99);
+    --sb-faint: light-dark(#14141473, #f4f1ea8c);
+    --sb-tile: light-dark(#1414140d, #ffffff12);
+    --sb-tile-2: light-dark(#14141417, #ffffff24);
+    --sb-line: light-dark(#14141414, #ffffff14);
+    --sb-glass-1: light-dark(#14141412, #ffffff24);
+    --sb-glass-2: light-dark(#14141405, #ffffff0a);
+    --sb-glow: light-dark(0.18, 0.45);
+
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border: 0;
+    border-right: 1px solid var(--sb-line);
+    border-radius: 0 26px 26px 0;
+    background: var(--sb-bg);
+    color: var(--sb-fg);
+    box-shadow: 10px 0 40px -30px light-dark(#0000004d, #000000b3);
+}
+
+/* Softer corner glows on the light menu */
+.bazario-admin-sidebar::before,
+.bazario-admin-sidebar::after {
+    opacity: calc(var(--sb-glow) * 2);
+}
+
+/* Page makes room (no gap on the left anymore) */
+#container:has(> nav + #main > .bazario-admin-sidebar),
+#container>#main:has(> .bazario-admin-sidebar),
+html.bz-nav-mini #container:has(> nav + #main > .bazario-admin-sidebar),
+html.bz-nav-mini #container>#main:has(> .bazario-admin-sidebar) {
+    grid-template-columns: calc(var(--bz-sb) + 0.75rem) minmax(0, 1fr);
+}
+
+body:has(.bazario-admin-sidebar) #header,
+body:has(.bazario-admin-sidebar) #footer {
+    margin-left: calc(var(--bz-sb) + 0.75rem);
+}
+
+body:has(.bazario-admin-sidebar) #header .bazario-admin-action--primary {
+    display: none !important;
+}
+
+/* ---------- Colours that now follow the theme ---------- */
+.bz-nav__brand,
+.bz-nav__me {
+    color: var(--sb-fg) !important;
+}
+
+.bz-nav__title,
+.bz-nav__group {
+    color: var(--sb-fg);
+}
+
+.bz-nav__collapse {
+    background: var(--sb-tile);
+    color: var(--sb-fg);
+}
+
+.bz-nav__collapse:hover {
+    background: var(--sb-tile-2);
+}
+
+.bz-nav__link,
+.bz-nav__link[aria-current="false"] {
+    color: var(--sb-muted) !important;
+}
+
+.bz-nav__link:hover,
+.bz-nav__link[aria-current="page"],
+.bz-nav__link[aria-current="location"],
+.bz-nav__link[aria-current="false"]:hover {
+    color: var(--sb-fg) !important;
+}
+
+.bz-nav__icon,
+.bz-nav__link[aria-current="false"] .bz-nav__icon {
+    background: var(--sb-tile);
+}
+
+/* Active page: white icon on its colour (both themes) */
+.bz-nav__link[aria-current="page"] .bz-nav__icon,
+.bz-nav__link[aria-current="location"] .bz-nav__icon {
+    color: #fff;
+}
+
+.bz-nav__indicator {
+    border-color: var(--sb-line);
+    background: linear-gradient(100deg, var(--sb-glass-1), var(--sb-glass-2));
+}
+
+.bz-nav__indicator::before {
+    left: -0.85rem;
+}
+
+.bz-nav__jump {
+    border-color: var(--sb-line);
+    background: var(--sb-tile);
+    color: var(--sb-faint);
+}
+
+.bz-nav__jump:hover,
+.bz-nav__jump:focus-within {
+    background: var(--sb-tile-2);
+}
+
+.bz-nav__jump input {
+    color: var(--sb-fg);
+}
+
+.bz-nav__jump input::placeholder {
+    color: var(--sb-faint);
+}
+
+.bz-nav__jump kbd {
+    border-color: var(--sb-line);
+}
+
+.bz-nav__status {
+    border-color: var(--sb-line);
+    background: var(--sb-tile);
+}
+
+.bz-nav__me:hover {
+    background: var(--sb-tile);
+}
+
+html.bz-nav-mini .bz-nav__link::after {
+    background: var(--sb-fg);
+    color: var(--sb-bg);
+}
+
+html.bz-nav-mini .bz-nav__group {
+    background: var(--sb-line);
+}
+
+@media (max-width: 47.9375rem) {
+    .bz-nav__group {
+        background: var(--sb-line);
+    }
+
+    #container>#main:has(> .bazario-admin-sidebar) {
+        grid-template-columns: calc(var(--bz-sb) + 0.5rem) minmax(0, 1fr);
+    }
+
+    body:has(.bazario-admin-sidebar) #header,
+    body:has(.bazario-admin-sidebar) #footer {
+        margin-left: calc(var(--bz-sb) + 0.5rem);
+    }
+}
+
+/* ==========================================================================
+   Page changes: menu + top bar stay still, only the page area moves
+   ========================================================================== */
+@view-transition {
+    navigation: auto;
+}
+
+.bazario-admin-sidebar {
+    view-transition-name: bz-sidebar;
+}
+
+body:has(.bazario-admin-sidebar) #header {
+    view-transition-name: bz-topbar;
+}
+
+/* Menu and top bar: no fade at all — the new one simply takes over */
+::view-transition-group(bz-sidebar),
+::view-transition-group(bz-topbar) {
+    animation: none;
+}
+
+::view-transition-old(bz-sidebar),
+::view-transition-old(bz-topbar) {
+    display: none;
+}
+
+::view-transition-new(bz-sidebar),
+::view-transition-new(bz-topbar) {
+    animation: none;
+}
+
+/* The page area: old fades out, new rises in */
+::view-transition-old(root) {
+    animation: bz-page-out 0.2s ease both;
+}
+
+::view-transition-new(root) {
+    animation: bz-page-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bz-page-out {
+    to {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes bz-page-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+/* The menu's entrance animation only on the first page of the visit */
+html.bz-nav-seen .bazario-admin-sidebar,
+html.bz-nav-seen .bz-nav__spark path {
+    animation: none;
+}
+
+html.bz-nav-seen .bz-nav__spark path {
+    stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
+    }
+}
+
+/* Fix: the page content always goes in the column NEXT TO the menu
+   (the dashboard has no breadcrumbs row, so it needs this) */
+#main:has(> .bazario-admin-sidebar)>.content {
+    grid-column: 2;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   PHONES: hidden drawer + "Wave & spin" menu button
+   ========================================================================== */
+.bz-menu-btn {
+    display: none;
+}
+
+@media (max-width: 47.9375rem) {
+
+    :root,
+    html.bz-nav-mini {
+        --bz-sb: 0px;
+    }
+
+    /* Page uses the full width */
+    #container>#main:has(> .bazario-admin-sidebar) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    #main:has(> .bazario-admin-sidebar)>.content {
+        grid-column: 1;
+    }
+
+    body:has(.bazario-admin-sidebar) #header,
+    body:has(.bazario-admin-sidebar) #footer {
+        margin-left: 0;
+    }
+
+    /* Top bar: menu button on the left (logo lives in the drawer) */
+    body:has(.bazario-admin-sidebar) #header #branding {
+        display: flex !important;
+        align-items: center;
+    }
+
+    body:has(.bazario-admin-sidebar) #header #site-name {
+        display: none;
+    }
+
+    /* ---------- The B button ---------- */
+    .bz-menu-btn {
+        position: relative;
+        isolation: isolate;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.9rem;
+        height: 2.9rem;
+        padding: 0;
+        border: 0;
+        border-radius: 15px;
+        background: #141414;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 12px 22px -12px #141414e6;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1), background 0.4s, border-radius 0.5s, scale 0.2s;
+    }
+
+    .bz-menu-btn::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        z-index: -1;
+        border-radius: 18px;
+        background: conic-gradient(from 0deg, #ff5a36, #7c5cff, #f2a900, #ff5a36);
+        filter: blur(8px);
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .bz-menu-btn:hover::before,
+    .bz-menu-btn:focus-visible::before {
+        opacity: 0.8;
+    }
+
+    .bz-menu-btn:active {
+        scale: 0.92;
+    }
+
+    .bz-menu-btn__lines {
+        position: relative;
+        display: block;
+        width: 20px;
+        height: 14px;
+    }
+
+    .bz-menu-btn__lines i {
+        position: absolute;
+        right: 0;
+        width: 20px;
+        height: 2.5px;
+        border-radius: 3px;
+        background: currentColor;
+        transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1), top 0.45s cubic-bezier(0.65, 0, 0.35, 1), width 0.3s, opacity 0.2s;
+    }
+
+    .bz-menu-btn__lines i:nth-child(1) {
+        top: 0;
+    }
+
+    .bz-menu-btn__lines i:nth-child(2) {
+        top: 6px;
+    }
+
+    .bz-menu-btn__lines i:nth-child(3) {
+        top: 12px;
+    }
+
+    .bz-menu-btn:hover .bz-menu-btn__lines i:nth-child(1) {
+        animation: bz-wave 0.9s ease-in-out infinite;
+    }
+
+    .bz-menu-btn:hover .bz-menu-btn__lines i:nth-child(2) {
+        animation: bz-wave 0.9s 0.12s ease-in-out infinite;
+    }
+
+    .bz-menu-btn:hover .bz-menu-btn__lines i:nth-child(3) {
+        animation: bz-wave 0.9s 0.24s ease-in-out infinite;
+    }
+
+    @keyframes bz-wave {
+        50% {
+            width: 10px;
+        }
+    }
+
+    html.bz-nav-open .bz-menu-btn {
+        transform: rotate(180deg);
+        border-radius: 50%;
+        background: #ff5a36;
+    }
+
+    html.bz-nav-open .bz-menu-btn__lines i {
+        animation: none !important;
+        width: 20px;
+    }
+
+    html.bz-nav-open .bz-menu-btn__lines i:nth-child(1) {
+        top: 6px;
+        transform: rotate(45deg);
+    }
+
+    html.bz-nav-open .bz-menu-btn__lines i:nth-child(2) {
+        opacity: 0;
+    }
+
+    html.bz-nav-open .bz-menu-btn__lines i:nth-child(3) {
+        top: 6px;
+        transform: rotate(-45deg);
+    }
+
+    /* ---------- The drawer (your menu, slid off-screen) ---------- */
+    .bazario-admin-sidebar {
+        z-index: 300;
+        width: min(86vw, 19rem) !important;
+        padding: 1rem 0.9rem !important;
+        border-radius: 0 28px 28px 0;
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition: transform 0.55s cubic-bezier(0.22, 1.15, 0.36, 1), visibility 0s 0.55s;
+    }
+
+    html.bz-nav-open .bazario-admin-sidebar {
+        transform: none;
+        visibility: visible;
+        box-shadow: 20px 0 50px -20px #00000073;
+        transition: transform 0.55s cubic-bezier(0.22, 1.15, 0.36, 1), visibility 0s;
+    }
+
+    html.bz-nav-open,
+    html.bz-nav-open body {
+        overflow: hidden;
+    }
+
+    .bz-nav-dim {
+        position: fixed;
+        inset: 0;
+        z-index: 290;
+        background: #0e0e0f80;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s;
+    }
+
+    html.bz-nav-open .bz-nav-dim {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Inside the drawer: full labels again (undo the slim-rail rules) */
+    .bz-nav__top {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+
+    .bz-nav__brand-text,
+    .bz-nav__site-label,
+    .bz-nav__me-more,
+    .bz-nav__label {
+        display: inline !important;
+    }
+
+    .bz-nav__me-text,
+    .bz-nav__status-text,
+    .bz-nav__spark {
+        display: block !important;
+    }
+
+    .bz-nav__jump {
+        display: flex !important;
+    }
+
+    .bz-nav__group {
+        height: auto !important;
+        margin: 1rem 0.6rem 0.45rem !important;
+        background: none !important;
+        font-size: 0.6rem !important;
+    }
+
+    .bz-nav__link {
+        justify-content: flex-start !important;
+    }
+
+    .bz-nav__badge {
+        position: static !important;
+        margin-left: auto;
+        min-width: 1.25rem;
+        padding: 0.1rem 0.4rem;
+        font-size: 0.65rem;
+    }
+
+    .bz-nav__site {
+        justify-content: space-between !important;
+        padding: 0.75rem 0.85rem !important;
+    }
+
+    .bz-nav__me {
+        justify-content: flex-start !important;
+        padding: 0.55rem !important;
+    }
+
+    .bz-nav__status {
+        grid-template-columns: auto minmax(0, 1fr) !important;
+        justify-content: stretch !important;
+        padding: 0.75rem !important;
+    }
+
+    /* The ‹ button becomes the drawer's ✕ */
+    .bz-nav__collapse {
+        display: grid !important;
+        width: 2.3rem;
+        height: 2.3rem;
+        border-radius: 12px;
+        font-size: 0;
+        transform: none !important;
+        transition: transform 0.4s, background 0.3s;
+    }
+
+    .bz-nav__collapse::before {
+        content: "✕";
+        font-size: 0.95rem;
+    }
+
+    .bz-nav__collapse:hover {
+        transform: rotate(90deg) !important;
+    }
+
+    /* Links slide in one after another when the drawer opens */
+    html.bz-nav-open .bz-nav__links li {
+        animation: bz-drawer-item 0.45s cubic-bezier(0.22, 1.3, 0.36, 1) both;
+    }
+
+    html.bz-nav-open .bz-nav__links li:nth-of-type(2) {
+        animation-delay: 0.04s;
+    }
+
+    html.bz-nav-open .bz-nav__links li:nth-of-type(3) {
+        animation-delay: 0.08s;
+    }
+
+    @keyframes bz-drawer-item {
+        from {
+            opacity: 0;
+            transform: translateX(-16px);
+        }
+    }
+}
+
+@media (max-width: 47.9375rem) and (prefers-reduced-motion: reduce) {
+
+    .bz-menu-btn,
+    .bz-menu-btn *,
+    .bazario-admin-sidebar,
+    .bz-nav-dim,
+    html.bz-nav-open .bz-nav__links li {
+        animation: none !important;
+        transition: none !important;
+    }
+}

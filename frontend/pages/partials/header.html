@@ -3,7 +3,11 @@
 
     <!-- Announcement bar: short, TRUE messages that take turns -->
     <div class="announcement" data-announcement>
+        {% if user.is_authenticated %}
+        <p class="announcement__message is-active">Welcome back. Find your orders under Track order.</p>
+        {% else %}
         <p class="announcement__message is-active">Browse anytime. Sign in to place an order.</p>
+        {% endif %}
         <p class="announcement__message">Track your order anytime with your order number</p>
     </div>
 

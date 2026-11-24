@@ -1,0 +1,95 @@
+<header class="bb-head">
+    <p class="bb-head__kicker"><span>(03)</span> Checkout · step 1 of 3</p>
+
+    <div class="bb-head__row">
+        <div class="bb-head__title-wrap">
+            <h1 class="bb-head__title" data-bb-letters>Your basket</h1>
+            <span class="bb-bubble" data-bb-bubble aria-hidden="true">0</span>
+        </div>
+
+        <ol class="bb-steps" aria-label="Checkout steps">
+            <li class="bb-step is-done" aria-current="step"><i></i><small>Basket</small></li>
+            <li class="bb-step is-next"><i></i><small>Details</small></li>
+            <li class="bb-step"><i></i><small>Placed</small></li>
+        </ol>
+    </div>
+
+    <p class="bb-head__count" data-basket-count aria-live="polite">Loading your basket…</p>
+</header>
+
+<div class="bb-grid">
+    {# Items: category tabs + slim cards #}
+    <section class="bb-items" aria-labelledby="bb-items-title">
+        <h2 class="visually-hidden" id="bb-items-title">In your basket</h2>
+
+        <div class="bb-tabs" data-bb-tabs role="toolbar" aria-label="Show items by category">
+            <span class="bb-tabs__pill" data-bb-pill aria-hidden="true"></span>
+        </div>
+
+        <ul class="bb-list" data-bb-list aria-busy="true">
+            <li class="bb-card bb-card--skeleton" aria-hidden="true"></li>
+            <li class="bb-card bb-card--skeleton" aria-hidden="true"></li>
+            <li class="bb-card bb-card--skeleton" aria-hidden="true"></li>
+            <li class="bb-card bb-card--skeleton" aria-hidden="true"></li>
+        </ul>
+
+        <button class="bb-more" type="button" data-bb-more aria-expanded="false" hidden>
+            <span class="bb-more__stack" data-bb-more-stack aria-hidden="true"></span>
+            <span data-bb-more-text>Show more</span>
+            <span class="bb-more__chevron" aria-hidden="true">⌄</span>
+        </button>
+    </section>
+
+    {# Summary: dark card with a spinning rainbow border #}
+    <aside class="bb-sum" aria-labelledby="bb-sum-title">
+        <h2 class="visually-hidden" id="bb-sum-title">Order summary</h2>
+
+        <div class="bb-sum__head">
+            <div class="bb-donut" aria-hidden="true">
+                <span class="bb-donut__ring" data-bb-donut></span>
+                <b data-bb-donut-count>0</b>
+            </div>
+            <div>
+                <p class="bb-sum__label">Order total</p>
+                <p class="bb-sum__total" data-bb-total>$0.00</p>
+                <p class="bb-sum__meta" data-bb-meta>0 items</p>
+            </div>
+        </div>
+
+        <ul class="bb-legend" data-bb-legend></ul>
+
+        <dl class="bb-sum__rows">
+            <div>
+                <dt>Subtotal</dt>
+                <dd data-bb-subtotal>$0.00</dd>
+            </div>
+            <div>
+                <dt>Delivery</dt>
+                <dd>At the next step</dd>
+            </div>
+        </dl>
+
+        <p class="bb-chip"><i aria-hidden="true"></i>Cash on delivery</p>
+
+        <a class="bb-go" href="/checkout/" data-bb-go aria-disabled="true">
+            <span>Continue to details</span>
+            <span class="bb-go__arrow" aria-hidden="true">→</span>
+        </a>
+
+        {# Messages from the server, e.g. a quantity was lowered to match stock #}
+        <div class="bb-notices" data-bb-notices aria-live="polite"></div>
+    </aside>
+</div>
+
+{# Shown only when the basket is empty #}
+<section class="bb-empty" aria-labelledby="bb-empty-title">
+    <h2 class="bb-empty__title" id="bb-empty-title">Your basket is empty</h2>
+    <p class="bb-empty__text">Everything worth having is one click away.</p>
+    <a class="bb-empty__cta" href="/#shop">Start shopping <span aria-hidden="true">→</span></a>
+</section>
+
+{# "Removed … Undo" pill #}
+<div class="bb-toast" data-bb-toast role="status" aria-live="polite">
+    <p class="bb-toast__text" data-bb-toast-text></p>
+    <button class="bb-toast__button" type="button" data-bb-undo>Undo</button>
+</div>
