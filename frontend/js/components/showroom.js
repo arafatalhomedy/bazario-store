@@ -337,6 +337,8 @@ export function initShowroom() {
         state.index = (index + count) % count; // after the last comes the first
         layout();
         updateInfo({ announce: byUser });
+        // Mouse is on the showroom: get the new centre card's page ready right away
+        if (state.hovering) warmUp(productUrl(state.products[state.index]));
         if (byUser) restartAutoplay();
     }
 
@@ -388,7 +390,10 @@ export function initShowroom() {
         }, AUTOPLAY_MS);
     }
 
-    ui.stage.addEventListener("pointerenter", () => { state.hovering = true; });
+    ui.stage.addEventListener("pointerenter", () => {
+        state.hovering = true;
+        warmUp(productUrl(state.products[state.index]));   // the centre card, ready before the click
+    });
     ui.stage.addEventListener("pointerleave", () => { state.hovering = false; });
 
     // Only move while the showroom is on screen

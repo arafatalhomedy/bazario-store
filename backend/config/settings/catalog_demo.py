@@ -17,6 +17,8 @@ STATICFILES_DIRS = [(name, bundle / name) for name in ("css", "js", "images")]
 STATICFILES_DIRS.append(("demo-art", MEDIA_ROOT))
 STORAGES["staticfiles"] = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# Browsers keep CSS, JS and photos for 1 hour, so each new page opens fast
+WHITENOISE_MAX_AGE = 60 * 60
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 MIDDLEWARE.remove("apps.products.promotion_clock.PromotionClockMiddleware")
 MIDDLEWARE.insert(MIDDLEWARE.index("django.middleware.common.CommonMiddleware") + 1,
