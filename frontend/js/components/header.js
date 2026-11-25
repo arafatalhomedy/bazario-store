@@ -361,7 +361,19 @@ function setupThemeToggle(header) {
 }
 
 function switchThemeAnimated(theme, origin) {
-    if (!document.startViewTransition || prefersReducedMotion()) {
+    if (prefersReducedMotion()) {
+        applyTheme(theme);
+        return;
+    }
+
+    // Phones: a colour circle grows from the button (drawn by the graphics chip,
+    // starts instantly). The heavy colour change happens hidden behind it.
+    if (window.matchMedia("(hover: none), (max-width: 820px)").matches) {
+        wipeTheme(theme, origin);
+        return;
+    }
+
+    if (!document.startViewTransition) {
         applyTheme(theme);
         return;
     }
@@ -399,6 +411,55 @@ function switchThemeAnimated(theme, origin) {
         })
         .catch(() => { /* The theme applies even when the animation is skipped. */ });
 }
+
+/** Phone theme switch: circle of the new colour grows, theme changes behind it, circle fades. */
+function wipeTheme(theme, origin) {
+    const box = origin.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const radius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+    ) + 40;
+
+    const BASE = 200; // small circle, scaled up: cheap for the phone to draw
+    const wipe = document.createElement("div");
+    Object.assign(wipe.style, {
+        position: "fixed",
+        left: `${x - BASE / 2}px`,
+        top: `${y - BASE / 2}px`,
+        width: `${BASE}px`,
+        height: `${BASE}px`,
+        borderRadius: "50%",
+        background: theme === "dark" ? "#0e0e0f" : "#f4f1ea",
+        zIndex: "2147483646",
+        pointerEvents: "none",
+        transform: "scale(0)",
+        willChange: "transform, opacity",
+    });
+    document.body.append(wipe);
+
+    const grow = wipe.animate(
+        [{ transform: "scale(0)" }, { transform: `scale(${(radius * 2) / BASE})` }],
+        { duration: 520, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" },
+    );
+
+    grow.finished.then(() => {
+        applyTheme(theme); // the whole page changes colour while it's covered
+        // wait until the new colours are on screen, then fade the circle away
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            wipe.animate([{ opacity: 1 }, { opacity: 0 }], {
+                duration: 320,
+                easing: "ease-out",
+                fill: "forwards",
+            }).finished.then(() => wipe.remove());
+        }));
+    }).catch(() => {
+        applyTheme(theme);
+        wipe.remove();
+    });
+}
+
 
 /* ------------------------------------------------------------------ 11. Cart count */
 export function setCartCount(count, { bump = true } = {}) {
