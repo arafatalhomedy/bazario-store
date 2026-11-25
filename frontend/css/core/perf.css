@@ -186,10 +186,11 @@ html .stock-dot--out::after {
 @media (hover: none),
 (max-width: 820px) {
 
-    /* No page-to-page animation: it froze the screen until the next page
-       was fully ready. Pages open the moment they arrive. */
-    @view-transition {
-        navigation: none;
+    /* Page-to-page: no full-page fade on phones (the new page just appears).
+       Only the tapped product photo flies (perf.js skips every other link). */
+    html:not(.is-theme-switching)::view-transition-old(root),
+    html:not(.is-theme-switching)::view-transition-new(root) {
+        animation: none;
     }
 
     /* No frosted-glass blur: re-painted on every frame while scrolling */
