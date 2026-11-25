@@ -172,19 +172,27 @@ html .stock-dot--out::after {
 
 /* ==========================================================================
    5. Phones and tablets
-   Nothing on the home page moves forever and nothing is drawn in 3D,
-   so scrolling is as smooth as the category page. Laptops keep every effect.
+   Measured on a Galaxy S21 Ultra: with the showroom drawn flat (2D),
+   scrolling is as smooth as the category page (~17 ms per frame),
+   with all the motion running. Laptops keep every effect, including 3D.
    ========================================================================== */
 @media (hover: none),
 (max-width: 820px) {
 
     /* ---------- Whole site ---------- */
 
-    /* Page-to-page: no full-page fade (the new page just appears).
-       Only the tapped product photo flies (perf.js skips every other link). */
-    html:not(.is-theme-switching)::view-transition-old(root),
+    /* Page-to-page: a short fade, so the tapped product photo flies
+       over the pages (perf.js skips every link that isn't a product photo) */
+    html:not(.is-theme-switching)::view-transition-old(root) {
+        animation: bz-page-out 0.22s ease-out both;
+    }
+
     html:not(.is-theme-switching)::view-transition-new(root) {
-        animation: none;
+        animation: bz-page-in 0.3s ease-out both;
+    }
+
+    ::view-transition-group(product-photo) {
+        animation-duration: 0.6s;
     }
 
     /* No frosted-glass blur: re-painted on every frame while scrolling */
@@ -206,12 +214,6 @@ html .stock-dot--out::after {
         --beam-angle: 140deg;
     }
 
-    /* Footer rings: still */
-    html .site-footer__top-ring,
-    html .site-footer__brand.is-animated .site-footer__orbit-track {
-        animation: none;
-    }
-
     /* ---------- Home: hero ---------- */
 
     /* Rotating word: slide + fade only, no blur */
@@ -220,51 +222,15 @@ html .stock-dot--out::after {
         filter: none;
     }
 
-    /* Badge, dot: still. Sticker: pops in once, no wobble */
-    html .hero__badge-ring,
-    html .hero__pulse::after {
-        animation: none;
-    }
-
-    html .hero__sticker {
-        animation: bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards;
-    }
-
-    /* Product belt: a row you swipe with your finger */
-    html .hero__track {
-        animation: none;
-    }
-
-    html .belt-card[aria-hidden="true"]:not(.belt-card--loading) {
-        display: none;
-        /* the loop copies are not needed */
-    }
-
+    /* Moving belt: no edge fade (a fade on a moving strip is costly) */
     html .hero__belt {
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x proximity;
-        scrollbar-width: none;
-        padding-inline: var(--gutter);
         -webkit-mask-image: none;
         mask-image: none;
     }
 
-    html .hero__belt::-webkit-scrollbar {
-        display: none;
-    }
-
-    html .belt-card {
-        scroll-snap-align: start;
-    }
-
     /* ---------- Home: ribbons ---------- */
 
-    /* Same tilted look, standing still. Flat coins (the 3D flip needs a mouse) */
-    html .ribbon__track {
-        animation: none;
-    }
-
+    /* Flat coins (the 3D flip only happens with a mouse) */
     html .ribbon__coin {
         transform-style: flat;
         transition: none;
@@ -291,8 +257,8 @@ html .stock-dot--out::after {
     /* ---------- Home: showroom ---------- */
 
     /* Cards drawn flat (2D) instead of 3D: same positions, sizes and fading.
-       Measured on a Galaxy S21 Ultra: 3D made every scroll frame take ~30 ms,
-       flat takes ~17 ms. No blur, no mirror, no mouse light, no floating. */
+       3D made every scroll frame take ~30 ms on the phone; flat takes ~17 ms.
+       No blur, no mirror, no mouse light. */
     html .stage {
         perspective: none;
     }
@@ -308,10 +274,6 @@ html .stock-dot--out::after {
         transform: none;
     }
 
-    html .stage-card.is-center .stage-card__inner {
-        animation: none;
-    }
-
     html .stage-card__shine {
         display: none;
     }
@@ -324,6 +286,18 @@ html .stock-dot--out::after {
     .stage-card.is-center:active .stage-card__inner {
         transform: scale(0.96);
         transition: transform 0.12s ease-out;
+    }
+}
+
+@keyframes bz-page-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes bz-page-in {
+    from {
+        opacity: 0;
     }
 }
 
