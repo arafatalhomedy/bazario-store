@@ -78,6 +78,51 @@ html .ribbon__track {
     will-change: transform;
 }
 
+/* Pulsing dots (hero "New season" dot, product stock dot):
+   a ring grows and fades using transform + opacity, drawn by the graphics chip.
+   The old box-shadow pulse re-painted the whole hero on every frame. */
+html .hero__pulse,
+html .stock-dot {
+    position: relative;
+    animation: none;
+}
+
+html .hero__pulse::after,
+html .stock-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: bz-dot-pulse 1.8s ease-out infinite;
+    pointer-events: none;
+}
+
+html .stock-dot--out::after {
+    display: none;
+}
+
+@keyframes bz-dot-pulse {
+    from {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    to {
+        transform: scale(2.4);
+        opacity: 0;
+    }
+}
+
+/* Light / dark switch: while the circle opens, nothing else moves or fades,
+   so the phone only has to draw the circle */
+html.is-theme-switching *,
+html.is-theme-switching *::before,
+html.is-theme-switching *::after {
+    transition: none !important;
+    animation-play-state: paused !important;
+}
+
 /* ==========================================================================
    4. Laptops only: effects that follow the mouse
    ========================================================================== */
@@ -141,13 +186,9 @@ html .ribbon__track {
         --beam-angle: 140deg;
     }
 
-    /* Hero: small pulsing dot without a repaint loop, rotating word without blur */
-    .hero__pulse {
-        animation: none;
-    }
-
-    .hero__word,
-    .hero__word.is-leaving {
+    /* Hero rotating word: slide + fade only, no blur */
+    html .hero__word,
+    html .hero__word.is-leaving {
         filter: none;
     }
 
@@ -200,8 +241,8 @@ html .ribbon__track {
         display: none;
     }
 
-    .ribbons.is-focused .ribbon__item:not(.is-active),
-    .ribbons.is-focused .ribbon__star {
+    html .ribbons.is-focused .ribbon__item:not(.is-active),
+    html .ribbons.is-focused .ribbon__star {
         filter: none;
     }
 
@@ -216,7 +257,7 @@ html .ribbon__track {
         display: none;
     }
 
-    .stage__glow {
+    html .stage__glow {
         filter: none;
     }
 
