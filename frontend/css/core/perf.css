@@ -15,10 +15,6 @@
     animation: bz-failsafe 0.3s 0.6s forwards;
 }
 
-.js [data-reveal]:not(.is-visible) {
-    animation: bz-failsafe 0.3s 1.2s forwards;
-}
-
 @keyframes bz-failsafe {
     to {
         opacity: 1;
@@ -74,21 +70,6 @@ html .ribbon {
     overflow: visible;
 }
 
-html .ribbon__track {
-    will-change: transform;
-}
-
-/* Phones: while the finger scrolls, decorations rest (perf.js adds .is-scrolling).
-   The phone then only has to move the page itself. */
-html.is-scrolling .hero__track,
-html.is-scrolling .ribbon__track,
-html.is-scrolling .stage-card__inner,
-html.is-scrolling .hero__badge-ring,
-html.is-scrolling .hero__sticker,
-html.is-scrolling .hero__pulse::after {
-    animation-play-state: paused;
-}
-
 /* Light/dark button: shrinks the moment it's touched, so the tap feels instant */
 html [data-theme-toggle]:active {
     transform: scale(0.88);
@@ -97,7 +78,7 @@ html [data-theme-toggle]:active {
 
 /* "NEW" sticker in the hero title: pop uses `scale`, wobble uses `rotate`.
    Two animations on the same `transform` made the browser rebuild the page
-   on every frame (the main cause of scroll stutter). Separate = smooth. */
+   on every frame. Separate properties = smooth. */
 html .hero__sticker {
     animation:
         bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards,
@@ -158,8 +139,6 @@ html .stock-dot--out::after {
     }
 }
 
-
-
 /* ==========================================================================
    4. Laptops only: effects that follow the mouse
    ========================================================================== */
@@ -193,11 +172,15 @@ html .stock-dot--out::after {
 
 /* ==========================================================================
    5. Phones and tablets
+   Nothing on the home page moves forever and nothing is drawn in 3D,
+   so scrolling is as smooth as the category page. Laptops keep every effect.
    ========================================================================== */
 @media (hover: none),
 (max-width: 820px) {
 
-    /* Page-to-page: no full-page fade on phones (the new page just appears).
+    /* ---------- Whole site ---------- */
+
+    /* Page-to-page: no full-page fade (the new page just appears).
        Only the tapped product photo flies (perf.js skips every other link). */
     html:not(.is-theme-switching)::view-transition-old(root),
     html:not(.is-theme-switching)::view-transition-new(root) {
@@ -212,55 +195,76 @@ html .stock-dot--out::after {
         backdrop-filter: none !important;
     }
 
-    /* Header bar stays readable without the blur */
+    /* Header bar stays readable without the blur; its light stays still */
     html .site-header__bar {
         background-color: color-mix(in srgb, var(--color-bg) 92%, transparent);
     }
 
-    /* Header light stays still */
     html .site-header__bar::before,
     html .site-header__bar:hover::before {
         animation: none;
         --beam-angle: 140deg;
     }
 
-    /* Hero rotating word: slide + fade only, no blur */
+    /* Footer rings: still */
+    html .site-footer__top-ring,
+    html .site-footer__brand.is-animated .site-footer__orbit-track {
+        animation: none;
+    }
+
+    /* ---------- Home: hero ---------- */
+
+    /* Rotating word: slide + fade only, no blur */
     html .hero__word,
     html .hero__word.is-leaving {
         filter: none;
     }
 
-    /* Product belt: faded edges drawn once on top,
-       instead of being recalculated on every frame */
+    /* Badge, dot: still. Sticker: pops in once, no wobble */
+    html .hero__badge-ring,
+    html .hero__pulse::after {
+        animation: none;
+    }
+
+    html .hero__sticker {
+        animation: bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards;
+    }
+
+    /* Product belt: a row you swipe with your finger */
+    html .hero__track {
+        animation: none;
+    }
+
+    html .belt-card[aria-hidden="true"]:not(.belt-card--loading) {
+        display: none;
+        /* the loop copies are not needed */
+    }
+
     html .hero__belt {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+        padding-inline: var(--gutter);
         -webkit-mask-image: none;
         mask-image: none;
-        position: relative;
     }
 
-    html .hero__belt::before,
-    html .hero__belt::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        z-index: 2;
-        width: 8%;
-        pointer-events: none;
+    html .hero__belt::-webkit-scrollbar {
+        display: none;
     }
 
-    html .hero__belt::before {
-        left: 0;
-        background: linear-gradient(90deg, var(--color-bg), transparent);
+    html .belt-card {
+        scroll-snap-align: start;
     }
 
-    html .hero__belt::after {
-        right: 0;
-        background: linear-gradient(270deg, var(--color-bg), transparent);
+    /* ---------- Home: ribbons ---------- */
+
+    /* Same tilted look, standing still. Flat coins (the 3D flip needs a mouse) */
+    html .ribbon__track {
+        animation: none;
     }
 
-    /* Ribbons: flat coins (the 3D flip only happens with a mouse),
-       dimmed words without blur */
     html .ribbon__coin {
         transform-style: flat;
         transition: none;
@@ -284,11 +288,28 @@ html .stock-dot--out::after {
         filter: none;
     }
 
-    /* Showroom: side cards fade (no blur), no mirror, no mouse light, soft glow without blur */
+    /* ---------- Home: showroom ---------- */
+
+    /* Cards drawn flat (2D) instead of 3D: same positions, sizes and fading.
+       Measured on a Galaxy S21 Ultra: 3D made every scroll frame take ~30 ms,
+       flat takes ~17 ms. No blur, no mirror, no mouse light, no floating. */
+    html .stage {
+        perspective: none;
+    }
+
     html .stage-card {
+        transform: translateX(-50%) translateX(var(--x, 0px)) scale(var(--scale, 1));
         filter: none;
         -webkit-box-reflect: none;
         transition: transform 0.85s var(--ease-out), opacity 0.6s;
+    }
+
+    html .stage-card__inner {
+        transform: none;
+    }
+
+    html .stage-card.is-center .stage-card__inner {
+        animation: none;
     }
 
     html .stage-card__shine {
@@ -299,7 +320,7 @@ html .stock-dot--out::after {
         filter: none;
     }
 
-    /* Instant feedback when the big showroom card is tapped */
+    /* Instant feedback when the big card is tapped */
     .stage-card.is-center:active .stage-card__inner {
         transform: scale(0.96);
         transition: transform 0.12s ease-out;
@@ -325,7 +346,7 @@ html .stock-dot--out::after {
     filter: none;
 }
 
-/* Phones: same slide + fade, without the (expensive) blur */
+/* Phones: shorter slide + fade, without the (expensive) blur */
 @media (hover: none),
 (max-width: 820px) {
     .bz-reveal {
@@ -345,10 +366,6 @@ html .stock-dot--out::after {
 /* Shared */
 html .enter-up {
     animation-duration: 0.55s;
-}
-
-html.js [data-reveal] {
-    transition-duration: 0.55s;
 }
 
 /* Page-to-page fade (laptops) */
@@ -436,62 +453,4 @@ html .product__info> :nth-child(7) {
 
 html .product__info> :nth-child(8) {
     animation-delay: 0.28s;
-}
-
-
-/* ==========================================================================
-   8. Phones: nothing on the home page moves forever
-   (like the category page, which is smooth). Laptops keep every animation.
-   ========================================================================== */
-@media (hover: none),
-(max-width: 820px) {
-
-    /* Product belt: a row you swipe with your finger */
-    html .hero__track {
-        animation: none;
-    }
-
-    html .belt-card[aria-hidden="true"]:not(.belt-card--loading) {
-        display: none;
-        /* the loop copies are not needed */
-    }
-
-    html .hero__belt {
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x proximity;
-        scrollbar-width: none;
-        padding-inline: var(--gutter);
-    }
-
-    html .hero__belt::-webkit-scrollbar {
-        display: none;
-    }
-
-    html .hero__belt::before,
-    html .hero__belt::after {
-        display: none;
-    }
-
-    html .belt-card {
-        scroll-snap-align: start;
-    }
-
-    /* Ribbons: same tilted look, standing still */
-    html .ribbon__track {
-        animation: none;
-    }
-
-    /* Showroom card, badge, sticker, dot, footer rings: no endless loops */
-    html .stage-card.is-center .stage-card__inner,
-    html .hero__badge-ring,
-    html .hero__pulse::after,
-    html .site-footer__top-ring,
-    html .site-footer__brand.is-animated .site-footer__orbit-track {
-        animation: none;
-    }
-
-    html .hero__sticker {
-        animation: bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards;
-    }
 }

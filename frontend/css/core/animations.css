@@ -2,7 +2,7 @@
    SHARED ANIMATIONS (every page)
    1. Enter-up      elements slide up when the page opens
    2. Split text    big titles rise letter by letter (JS: splitText.js)
-   3. Scroll reveal elements appear when scrolled into view
+  
    4. Page morph    clicked product photo flies into the product page (JS: morph.js)
    Only transform and opacity are animated, so it stays smooth (60fps).
    ========================================================================== */
@@ -54,19 +54,7 @@
     }
 }
 
-/* ---------- 3. Scroll reveal ----------
-   Add data-reveal. reveal.js adds .is-visible when it scrolls into view. */
-.js [data-reveal] {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
-    transition-delay: calc(var(--reveal-index, 0) * 60ms);
-}
 
-.js [data-reveal].is-visible {
-    opacity: 1;
-    transform: none;
-}
 
 /* ---------- 4. Page morph (product card → product page photo) ----------
    The clicked card's photo gets view-transition-name: product-photo (morph.js);
@@ -128,10 +116,7 @@ html:not(.is-theme-switching)::view-transition-new(root) {
         opacity: 1;
     }
 
-    .js [data-reveal] {
-        opacity: 1;
-        transform: none;
-    }
+
 
     @view-transition {
         navigation: none;
