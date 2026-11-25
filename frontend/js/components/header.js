@@ -361,19 +361,7 @@ function setupThemeToggle(header) {
 }
 
 function switchThemeAnimated(theme, origin) {
-    if (prefersReducedMotion()) {
-        applyTheme(theme);
-        return;
-    }
-
-    // Phones: a colour circle grows from the button (drawn by the graphics chip,
-    // starts instantly). The heavy colour change happens hidden behind it.
-    if (window.matchMedia("(hover: none), (max-width: 820px)").matches) {
-        wipeTheme(theme, origin);
-        return;
-    }
-
-    if (!document.startViewTransition) {
+    if (!document.startViewTransition || prefersReducedMotion()) {
         applyTheme(theme);
         return;
     }
@@ -386,11 +374,33 @@ function switchThemeAnimated(theme, origin) {
         Math.max(y, window.innerHeight - y),
     );
 
+    // Freeze everything that moves (belt, ribbons, showroom...) while the circle opens.
+    // Otherwise the browser has to re-capture the whole page on every frame,
+    // which phones can't do smoothly.
+    const frozen = document.getAnimations().filter((animation) => animation.playState === "running");
+    frozen.forEach((animation) => animation.pause());
+
+    // Tells the page-to-page fade (css/core/animations.css) to stay out of the way
     document.documentElement.classList.add("is-theme-switching");
 
-    const transition = document.startViewTransition(() => applyTheme(theme));
+    const transition = document.startViewTransition(() => {
+        applyTheme(theme);
+        // Colour fades (hover effects etc.) jump straight to the new colours
+        document.body.offsetWidth;
+        document.getAnimations().forEach((animation) => {
+            if (animation instanceof CSSTransition) animation.finish();
+        });
+    });
+
     transition.finished.finally(() => {
         document.documentElement.classList.remove("is-theme-switching");
+        frozen.forEach((animation) => {
+            try {
+                animation.play();
+            } catch {
+                /* the element was removed meanwhile */
+            }
+        });
     });
 
     transition.ready
@@ -403,7 +413,7 @@ function switchThemeAnimated(theme, origin) {
                     ],
                 },
                 {
-                    duration: 700,
+                    duration: 650,
                     easing: "cubic-bezier(0.7, 0, 0.3, 1)",
                     pseudoElement: "::view-transition-new(root)",
                 },
@@ -412,56 +422,6 @@ function switchThemeAnimated(theme, origin) {
         .catch(() => { /* The theme applies even when the animation is skipped. */ });
 }
 
-/** Phone theme switch: a see-through wave of the new colour sweeps out from the button,
-    the page changes colour under it, then the wave melts away.
-    Everything that moves is drawn by the graphics chip, so it stays smooth. */
-function wipeTheme(theme, origin) {
-    const box = origin.getBoundingClientRect();
-    const x = box.left + box.width / 2;
-    const y = box.top + box.height / 2;
-    const radius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y),
-    ) + 40;
-
-    const BASE = 200; // small circle, scaled up: cheap for the phone to draw
-    const wave = document.createElement("div");
-    Object.assign(wave.style, {
-        position: "fixed",
-        left: `${x - BASE / 2}px`,
-        top: `${y - BASE / 2}px`,
-        width: `${BASE}px`,
-        height: `${BASE}px`,
-        borderRadius: "50%",
-        background: theme === "dark" ? "#0e0e0f" : "#f4f1ea",
-        opacity: "0.8",            // the page always shows through
-        zIndex: "2147483646",
-        pointerEvents: "none",
-        transform: "scale(0)",
-        willChange: "transform, opacity",
-    });
-    document.body.append(wave);
-
-    const sweep = wave.animate(
-        [{ transform: "scale(0)" }, { transform: `scale(${(radius * 2) / BASE})` }],
-        { duration: 450, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" },
-    );
-
-    sweep.finished.then(() => {
-        applyTheme(theme); // colours change under the wave
-        // once the new colours are on screen, the wave melts away
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            wave.animate([{ opacity: 0.8 }, { opacity: 0 }], {
-                duration: 420,
-                easing: "ease-out",
-                fill: "forwards",
-            }).finished.finally(() => wave.remove());
-        }));
-    }).catch(() => {
-        applyTheme(theme);
-        wave.remove();
-    });
-}
 
 
 
