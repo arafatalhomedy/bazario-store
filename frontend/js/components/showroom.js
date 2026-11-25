@@ -10,6 +10,7 @@
  * HTML: pages/home/collection.html · Styles: css/home/collection.css
  */
 import { markPhoto, warmUp } from "../animations/morph.js";
+import { addProductToCart } from "./cartActions.js";
 import { fetchCategories, fetchProducts } from "../api/products.js";
 import { averageColorWhenLoaded } from "../utils/color.js";
 import { el } from "../utils/dom.js";
@@ -468,14 +469,29 @@ export function initShowroom() {
         });
     });
 
-    // Add to cart: the cart (Day 2) will listen for this event
-    ui.addToCart.addEventListener("click", () => {
-        root.dispatchEvent(new CustomEvent("cart:add", {
-            bubbles: true,
-            detail: { productId: Number(ui.addToCart.dataset.productId), quantity: 1 },
-        }));
-    });
+    // Add to cart: adds to the basket, the photo flies into the navbar cart, the count bounces
+    ui.addToCart.addEventListener("click", async () => {
+        const button = ui.addToCart;
+        if (button.disabled) return;
 
+        const photo = state.view === "carousel"
+            ? els.cards[state.index]?.querySelector("img")
+            : null;
+
+        button.disabled = true;
+        try {
+            await addProductToCart(Number(button.dataset.productId), 1, { photo });
+            button.textContent = "Added ✓";
+        } catch (error) {
+            button.textContent = error?.data?.detail || "Try again";
+        }
+
+        setTimeout(() => {
+            const product = state.products[state.index];
+            button.disabled = !product?.in_stock;
+            button.textContent = product?.in_stock ? "Add to cart" : "Sold out";
+        }, 1400);
+    });
     // Go!
     buildTabs();
     loadProducts();

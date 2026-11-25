@@ -102,7 +102,19 @@ html .hero::before {
         contain: paint;
     }
 
-    /* Pages swap at once (no full-page fade), but the product photo still flies */
+    /* No page-to-page animation on phones: it froze the screen until the
+       next page was fully ready. Pages now open the moment they arrive. */
+    @view-transition {
+        navigation: none;
+    }
+
+    /* Instant feedback when the big showroom card is tapped */
+    .stage-card.is-center:active .stage-card__inner {
+        transform: scale(0.96);
+        transition: transform 0.12s ease-out;
+    }
+
+    /* (laptops keep the photo flight between pages) */
     html:not(.is-theme-switching)::view-transition-old(root),
     html:not(.is-theme-switching)::view-transition-new(root) {
         animation: none;
@@ -278,4 +290,64 @@ html .ribbon {
 
 html .ribbon__track {
     will-change: transform;
+}
+
+/* ==========================================================================
+   Phones: smooth scrolling on the home page
+   (heavy drawing effects replaced by light ones that look almost the same)
+   ========================================================================== */
+@media (hover: none),
+(max-width: 820px) {
+
+    /* Hero glow: no mouse on phones, so a still glow (drawn once) */
+    html .hero::before {
+        display: none;
+    }
+
+    html .hero {
+        background: radial-gradient(560px circle at 75% 30%,
+                color-mix(in srgb, var(--color-accent) 18%, transparent),
+                transparent 70%);
+    }
+
+    /* Product belt: faded edges drawn once on top,
+       instead of being recalculated on every frame */
+    html .hero__belt {
+        -webkit-mask-image: none;
+        mask-image: none;
+        position: relative;
+    }
+
+    html .hero__belt::before,
+    html .hero__belt::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 2;
+        width: 8%;
+        pointer-events: none;
+    }
+
+    html .hero__belt::before {
+        left: 0;
+        background: linear-gradient(90deg, var(--color-bg), transparent);
+    }
+
+    html .hero__belt::after {
+        right: 0;
+        background: linear-gradient(270deg, var(--color-bg), transparent);
+    }
+
+    /* Showroom: side cards fade (no blur) and no mirror reflection */
+    html .stage-card {
+        filter: none;
+        -webkit-box-reflect: none;
+        transition: transform 0.85s var(--ease-out), opacity 0.6s;
+    }
+
+    /* Mouse light on the centre card: there's no mouse on phones */
+    html .stage-card__shine {
+        display: none;
+    }
 }
