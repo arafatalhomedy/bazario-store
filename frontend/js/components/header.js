@@ -403,9 +403,13 @@ function switchThemeAnimated(theme, origin) {
         });
     });
 
+    // The circle moves at most one frame's worth each frame. If the phone hiccups,
+    // it continues from where it was instead of jumping ahead ("stops, then goes fast").
     transition.ready
         .then(() => {
-            document.documentElement.animate(
+            const DURATION = 650;
+            const STEP = 1000 / 60;
+            const circle = document.documentElement.animate(
                 {
                     clipPath: [
                         `circle(0px at ${x}px ${y}px)`,
@@ -413,11 +417,24 @@ function switchThemeAnimated(theme, origin) {
                     ],
                 },
                 {
-                    duration: 650,
-                    easing: "cubic-bezier(0.7, 0, 0.3, 1)",
+                    duration: DURATION,
+                    easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+                    fill: "forwards",
                     pseudoElement: "::view-transition-new(root)",
                 },
             );
+            circle.pause();
+
+            let progress = 0;
+            let last = performance.now();
+            const tick = (now) => {
+                progress = Math.min(DURATION, progress + Math.min(now - last, STEP));
+                last = now;
+                circle.currentTime = progress;
+                if (progress < DURATION) requestAnimationFrame(tick);
+                else circle.finish();
+            };
+            requestAnimationFrame(tick);
         })
         .catch(() => { /* The theme applies even when the animation is skipped. */ });
 }

@@ -78,6 +78,12 @@ html .ribbon__track {
     will-change: transform;
 }
 
+/* Light/dark button: shrinks the moment it's touched, so the tap feels instant */
+html [data-theme-toggle]:active {
+    transform: scale(0.88);
+    transition: transform 0.1s ease-out;
+}
+
 /* "NEW" sticker in the hero title: pop uses `scale`, wobble uses `rotate`.
    Two animations on the same `transform` made the browser rebuild the page
    on every frame (the main cause of scroll stutter). Separate = smooth. */

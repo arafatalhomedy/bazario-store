@@ -75,8 +75,11 @@ function createItem(category, { outline, reachable }) {
         attrs["aria-hidden"] = "true"; // and by screen readers
     }
 
-    // Each letter appears twice (stacked) for the roll effect
-    const letters = [...category.name].map((char, index) => {
+    // Mouse: each letter appears twice (stacked) for the roll effect.
+    // Touch screens never hover, so they get the plain word (about 700 fewer
+    // elements on the home page: faster theme switch and smoother scrolling).
+    const rolling = hasFinePointer();
+    const letters = !rolling ? [category.name] : [...category.name].map((char, index) => {
         const shown = char === " " ? "\u00A0" : char; // keep spaces visible
         const letter = el("span", { className: "ribbon__letter" }, [
             el("span", { text: shown }),
@@ -97,7 +100,7 @@ function createItem(category, { outline, reachable }) {
                         ? el("img", { attrs: { src: category.image, alt: "", loading: "lazy", decoding: "async" } })
                         : null,
                 ]),
-                el("span", { className: "ribbon__coin-back" }, [String(count), el("br"), "items"]),
+                rolling ? el("span", { className: "ribbon__coin-back" }, [String(count), el("br"), "items"]) : null,
             ]),
             el("span", { className: "ribbon__letters", attrs: { "aria-hidden": "true" } }, letters),
             el("sup", { className: "ribbon__count", text: `(${count})`, attrs: { "aria-hidden": "true" } }),
