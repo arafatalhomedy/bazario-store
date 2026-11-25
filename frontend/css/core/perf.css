@@ -78,6 +78,20 @@ html .ribbon__track {
     will-change: transform;
 }
 
+/* "NEW" sticker in the hero title: tilts only. Growing it (scale) made the
+   graphics chip redraw it on every frame and was the main cause of scroll stutter. */
+html .hero__sticker {
+    animation:
+        sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards,
+        bz-sticker-tilt 3s ease-in-out 1s infinite;
+}
+
+@keyframes bz-sticker-tilt {
+    50% {
+        transform: rotate(14deg);
+    }
+}
+
 /* Pulsing dots (hero "New season" dot, product stock dot):
    a ring grows and fades using transform + opacity, drawn by the graphics chip.
    The old box-shadow pulse re-painted the whole hero on every frame. */

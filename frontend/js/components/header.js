@@ -412,7 +412,8 @@ function switchThemeAnimated(theme, origin) {
         .catch(() => { /* The theme applies even when the animation is skipped. */ });
 }
 
-/** Phone theme switch: circle of the new colour grows, theme changes behind it, circle fades. */
+/** Phone theme switch: a soft circle of the new colour spreads from the button
+    and fades out while the page changes colour underneath (the page never disappears). */
 function wipeTheme(theme, origin) {
     const box = origin.getBoundingClientRect();
     const x = box.left + box.width / 2;
@@ -439,26 +440,22 @@ function wipeTheme(theme, origin) {
     });
     document.body.append(wipe);
 
-    const grow = wipe.animate(
-        [{ transform: "scale(0)" }, { transform: `scale(${(radius * 2) / BASE})` }],
-        { duration: 520, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" },
+    const spread = wipe.animate(
+        [
+            { transform: "scale(0)", opacity: 1 },
+            { transform: `scale(${(radius * 0.9) / BASE})`, opacity: 0.85, offset: 0.4 },
+            { transform: `scale(${(radius * 2) / BASE})`, opacity: 0 },
+        ],
+        { duration: 750, easing: "cubic-bezier(0.33, 0, 0.2, 1)", fill: "forwards" },
     );
 
-    grow.finished.then(() => {
-        applyTheme(theme); // the whole page changes colour while it's covered
-        // wait until the new colours are on screen, then fade the circle away
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            wipe.animate([{ opacity: 1 }, { opacity: 0 }], {
-                duration: 320,
-                easing: "ease-out",
-                fill: "forwards",
-            }).finished.then(() => wipe.remove());
-        }));
-    }).catch(() => {
-        applyTheme(theme);
-        wipe.remove();
-    });
+    // Change the colours once the circle is already moving
+    // (it keeps moving smoothly even while the page is busy)
+    requestAnimationFrame(() => requestAnimationFrame(() => applyTheme(theme)));
+
+    spread.finished.finally(() => wipe.remove());
 }
+
 
 
 /* ------------------------------------------------------------------ 11. Cart count */
