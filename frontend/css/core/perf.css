@@ -78,17 +78,30 @@ html .ribbon__track {
     will-change: transform;
 }
 
-/* "NEW" sticker in the hero title: tilts only. Growing it (scale) made the
-   graphics chip redraw it on every frame and was the main cause of scroll stutter. */
+/* "NEW" sticker in the hero title: pop uses `scale`, wobble uses `rotate`.
+   Two animations on the same `transform` made the browser rebuild the page
+   on every frame (the main cause of scroll stutter). Separate = smooth. */
 html .hero__sticker {
     animation:
-        sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards,
+        bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards,
         bz-sticker-tilt 3s ease-in-out 1s infinite;
 }
 
+@keyframes bz-sticker-pop {
+    from {
+        scale: 0;
+    }
+}
+
 @keyframes bz-sticker-tilt {
+
+    0%,
+    100% {
+        rotate: 0deg;
+    }
+
     50% {
-        transform: rotate(14deg);
+        rotate: 14deg;
     }
 }
 

@@ -412,8 +412,9 @@ function switchThemeAnimated(theme, origin) {
         .catch(() => { /* The theme applies even when the animation is skipped. */ });
 }
 
-/** Phone theme switch: a soft circle of the new colour spreads from the button
-    and fades out while the page changes colour underneath (the page never disappears). */
+/** Phone theme switch: a see-through wave of the new colour sweeps out from the button,
+    the page changes colour under it, then the wave melts away.
+    Everything that moves is drawn by the graphics chip, so it stays smooth. */
 function wipeTheme(theme, origin) {
     const box = origin.getBoundingClientRect();
     const x = box.left + box.width / 2;
@@ -424,8 +425,8 @@ function wipeTheme(theme, origin) {
     ) + 40;
 
     const BASE = 200; // small circle, scaled up: cheap for the phone to draw
-    const wipe = document.createElement("div");
-    Object.assign(wipe.style, {
+    const wave = document.createElement("div");
+    Object.assign(wave.style, {
         position: "fixed",
         left: `${x - BASE / 2}px`,
         top: `${y - BASE / 2}px`,
@@ -433,28 +434,35 @@ function wipeTheme(theme, origin) {
         height: `${BASE}px`,
         borderRadius: "50%",
         background: theme === "dark" ? "#0e0e0f" : "#f4f1ea",
+        opacity: "0.8",            // the page always shows through
         zIndex: "2147483646",
         pointerEvents: "none",
         transform: "scale(0)",
         willChange: "transform, opacity",
     });
-    document.body.append(wipe);
+    document.body.append(wave);
 
-    const spread = wipe.animate(
-        [
-            { transform: "scale(0)", opacity: 1 },
-            { transform: `scale(${(radius * 0.9) / BASE})`, opacity: 0.85, offset: 0.4 },
-            { transform: `scale(${(radius * 2) / BASE})`, opacity: 0 },
-        ],
-        { duration: 750, easing: "cubic-bezier(0.33, 0, 0.2, 1)", fill: "forwards" },
+    const sweep = wave.animate(
+        [{ transform: "scale(0)" }, { transform: `scale(${(radius * 2) / BASE})` }],
+        { duration: 450, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" },
     );
 
-    // Change the colours once the circle is already moving
-    // (it keeps moving smoothly even while the page is busy)
-    requestAnimationFrame(() => requestAnimationFrame(() => applyTheme(theme)));
-
-    spread.finished.finally(() => wipe.remove());
+    sweep.finished.then(() => {
+        applyTheme(theme); // colours change under the wave
+        // once the new colours are on screen, the wave melts away
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            wave.animate([{ opacity: 0.8 }, { opacity: 0 }], {
+                duration: 420,
+                easing: "ease-out",
+                fill: "forwards",
+            }).finished.finally(() => wave.remove());
+        }));
+    }).catch(() => {
+        applyTheme(theme);
+        wave.remove();
+    });
 }
+
 
 
 
