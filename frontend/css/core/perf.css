@@ -27,11 +27,58 @@
     animation-play-state: paused !important;
 }
 
-/* 3. Phones and tablets: no frosted-glass blur.
-      It is re-painted on every frame while scrolling — the #1 cause of stutter. */
+/* ==========================================================================
+   3. All devices (laptop + phone)
+   ========================================================================== */
+
+/* Header light: 2 turns when the page opens, then rests.
+   Runs again while the mouse is on the header. */
+html .site-header__bar::before {
+    animation: beam-spin 4s linear 2;
+}
+
+html .site-header__bar:hover::before {
+    animation: beam-spin 4s linear infinite;
+}
+
+/* Header glass: lighter blur, much cheaper to draw while scrolling */
+html .site-header__bar {
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+}
+
+/* Hero mouse glow: one glow shape slides around instead of
+   re-painting the whole hero background on every mouse move */
+html .hero {
+    background: none;
+}
+
+html .hero::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    left: 0;
+    top: 0;
+    width: 1120px;
+    height: 1120px;
+    margin: -560px 0 0 -560px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side,
+            color-mix(in srgb, var(--color-accent) 18%, transparent),
+            transparent 70%);
+    transform: translate3d(var(--spot-x, 75vw), var(--spot-y, 240px), 0);
+    transition: transform 0.25s ease-out;
+    will-change: transform;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   4. Phones and tablets
+   ========================================================================== */
 @media (hover: none),
 (max-width: 820px) {
 
+    /* No frosted-glass blur: it is re-painted on every frame while scrolling */
     *,
     *::before,
     *::after {
@@ -53,6 +100,41 @@
     [class*="blob"] {
         will-change: transform;
         contain: paint;
+    }
+
+    /* Pages swap at once (no full-page fade), but the product photo still flies */
+    html:not(.is-theme-switching)::view-transition-old(root),
+    html:not(.is-theme-switching)::view-transition-new(root) {
+        animation: none;
+    }
+
+    /* Header light stays still */
+    html .site-header__bar::before,
+    html .site-header__bar:hover::before {
+        animation: none;
+        --beam-angle: 140deg;
+    }
+
+    /* Small pulsing dot in the hero: no repaint loop */
+    .hero__pulse {
+        animation: none;
+    }
+
+    /* Hero rotating word: slide + fade only, no blur */
+    .hero__word,
+    .hero__word.is-leaving {
+        filter: none;
+    }
+
+    /* Showroom glow: the gradient is already soft, the blur is extra work */
+    .stage__glow {
+        filter: none;
+    }
+
+    /* Ribbons focus mode: dim other words, no blur */
+    .ribbons.is-focused .ribbon__item:not(.is-active),
+    .ribbons.is-focused .ribbon__star {
+        filter: none;
     }
 }
 
@@ -79,36 +161,6 @@
 @media (hover: none),
 (max-width: 820px) {
     .bz-reveal {
-        filter: none;
-    }
-}
-
-/* ==========================================================================
-   Phones: open pages instantly and drop the expensive blur effects
-   ========================================================================== */
-@media (hover: none),
-(max-width: 820px) {
-
-    /* No fade between pages: the new page appears at once */
-    @view-transition {
-        navigation: none;
-    }
-
-    /* Hero rotating word: slide + fade only, no blur */
-    .hero__word,
-    .hero__word.is-leaving {
-        filter: none;
-    }
-
-    /* Showroom glow: the gradient is already soft, the blur is extra work */
-    .stage__glow,
-    [class*="stage"][class*="glow"] {
-        filter: none;
-    }
-
-    /* Ribbons focus mode: dim other words, no blur */
-    .ribbons.is-focused .ribbon__item:not(.is-active),
-    .ribbons.is-focused .ribbon__star {
         filter: none;
     }
 }

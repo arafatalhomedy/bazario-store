@@ -3,11 +3,10 @@
  *
  * 1. The clicked photo gets view-transition-name: product-photo; the product
  *    page's main photo has the same name, so the browser flies one into the other.
- * 2. The browser only waits ~4 s for the next page. On a slow server the page
- *    arrives too late and the flight is skipped. So we ask Chrome / Edge to get
- *    product pages ready in the background (Speculation Rules) as soon as the
- *    mouse rests on a product. When the click comes, the page is already there.
- *    Browsers without Speculation Rules simply ignore this.
+ * 2. To make the click feel instant, the product page's HTML is downloaded
+ *    (prefetch) the moment the mouse presses / the finger touches it.
+ *    We no longer prepare whole pages in the background (prerender):
+ *    that ran all their animations unseen and made phones and laptops slow.
  */
 const NAME = "product-photo";
 let tagged = null;
@@ -15,8 +14,8 @@ const originalNames = new Map();
 const warmed = new Set();
 
 export function initProductMorph(root = document) {
-    // Every product link: ready in the background when the mouse rests on it
-    addRules({ prerender: [{ where: { href_matches: "/products/*" }, eagerness: "moderate" }] });
+    // Every product link: HTML downloaded as soon as the click / tap starts
+    addRules({ prefetch: [{ where: { href_matches: "/products/*" }, eagerness: "conservative" }] });
 
     root.addEventListener("click", (event) => {
         const link = event.target.closest('a[href^="/products/"]');
@@ -32,13 +31,13 @@ export function initProductMorph(root = document) {
 }
 
 /**
- * Get one product page ready in the background right now
+ * Download one product page's HTML right now
  * (for things that open a product without being a link, like the showroom's centre card).
  */
 export function warmUp(url) {
     if (!url || warmed.has(url)) return;
     warmed.add(url);
-    addRules({ prerender: [{ urls: [url], eagerness: "immediate" }] });
+    addRules({ prefetch: [{ urls: [url], eagerness: "immediate" }] });
 }
 
 export function markPhoto(image) {
