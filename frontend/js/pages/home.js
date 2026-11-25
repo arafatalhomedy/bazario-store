@@ -11,7 +11,7 @@ import { initHero } from "../components/hero.js";
 import { initMarquee } from "../components/marquee.js";
 import { initShowroom } from "../components/showroom.js";
 import { initFooter } from "../components/footer.js";
-import { whenNear } from "../utils/lazy.js";
+import { revealOnScroll, whenNear } from "../utils/lazy.js";
 
 function init() {
     initHeader();    // navbar: menus, highlight, scroll effects, theme, announcement
@@ -21,6 +21,7 @@ function init() {
     whenNear(document.querySelector("[data-marquee]") || document.querySelector(".ribbons"), initMarquee); // category ribbons: start when scrolled near
     whenNear(document.querySelector("[data-showroom]"), initShowroom); // the collection: starts when scrolled near
     initFooter();    // footer: coins rain, liquid name, rolling links, back to top
+    revealOnScroll(document.querySelectorAll("[data-marquee], [data-showroom]")); // slide in when scrolled to
     initProductMorph(); // clicked product photo flies into the product page
     initMagnetic();  // buttons that lean toward the mouse
 }

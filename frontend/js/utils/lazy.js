@@ -25,3 +25,22 @@ export function whenIdle(start, timeout = 2500) {
         setTimeout(start, 1200);
     }
 }
+/**
+ * Sections fade and slide into place the moment they scroll into view.
+ * If JavaScript is off, or the visitor prefers less motion, they simply show.
+ */
+export function revealOnScroll(elements) {
+    const list = [...elements].filter(Boolean);
+    if (!list.length || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    list.forEach((element) => element.classList.add("bz-reveal"));
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("bz-in");
+            observer.unobserve(entry.target);
+        });
+    }, { threshold: 0.12 });
+    list.forEach((element) => observer.observe(element));
+}
