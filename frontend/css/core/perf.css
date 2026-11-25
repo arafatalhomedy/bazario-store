@@ -164,3 +164,118 @@ html .hero::before {
         filter: none;
     }
 }
+
+/* ==========================================================================
+   Fast feel: same opening animations, but quick
+   (pages finish appearing in ~0.6 s instead of ~2 s)
+   ========================================================================== */
+
+/* Shared */
+html .enter-up {
+    animation-duration: 0.55s;
+}
+
+html .split-char {
+    animation-duration: 0.6s;
+    animation-delay: calc(var(--char-index, 0) * 18ms + var(--split-delay, 0.05s));
+}
+
+html .js [data-reveal] {
+    transition-duration: 0.55s;
+}
+
+html:not(.is-theme-switching)::view-transition-old(root) {
+    animation-duration: 0.2s;
+}
+
+html:not(.is-theme-switching)::view-transition-new(root) {
+    animation-duration: 0.3s;
+    animation-delay: 0s;
+}
+
+/* Home hero */
+html .hero__title {
+    --split-delay: 0.05s;
+}
+
+html .hero__capsule {
+    animation-duration: 0.6s;
+}
+
+html .hero__capsule--wide {
+    --open-delay: 0.2s;
+}
+
+html .hero__capsule--small {
+    --open-delay: 0.3s;
+}
+
+html .hero__rotator {
+    animation-duration: 0.5s;
+    animation-delay: 0.2s;
+}
+
+html .hero__badge {
+    animation-duration: 0.6s;
+    animation-delay: 0.35s;
+}
+
+html .hero__info {
+    --delay: 0.3s;
+}
+
+html .hero__belt {
+    --delay: 0.4s;
+}
+
+/* Product page */
+html .product__panel {
+    animation-duration: 0.5s;
+}
+
+html .product__name {
+    --split-delay: 0.05s;
+}
+
+html .product__discount {
+    animation-duration: 0.45s;
+    animation-delay: 0.25s;
+}
+
+html .product__info>* {
+    animation-duration: 0.45s;
+}
+
+html .product__info> :nth-child(1) {
+    animation-delay: 0s;
+}
+
+html .product__info> :nth-child(3) {
+    animation-delay: 0.12s;
+}
+
+html .product__info> :nth-child(4) {
+    animation-delay: 0.16s;
+}
+
+html .product__info> :nth-child(5) {
+    animation-delay: 0.2s;
+}
+
+html .product__info> :nth-child(7) {
+    animation-delay: 0.24s;
+}
+
+html .product__info> :nth-child(8) {
+    animation-delay: 0.28s;
+}
+
+/* Ribbons: the outer area already hides the edges, so the tilted ribbon
+   doesn't need to cut off its moving strip (that was dropping frames) */
+html .ribbon {
+    overflow: visible;
+}
+
+html .ribbon__track {
+    will-change: transform;
+}

@@ -10,6 +10,7 @@
  */
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"]; // read-only, no CSRF token needed
 const inFlight = new Map();                         // GET path → the request already on its way
+const KEEP = /^\/api\/(categories|products)\//;     // catalog answers: kept until the page closes
 
 /** Error with the HTTP status and the server's response data. */
 export class ApiError extends Error {
@@ -39,7 +40,10 @@ export function apiRequest(path, { method = "GET", body, signal } = {}) {
     const request = send(path, { method, body, signal });
     if (shareable) {
         inFlight.set(path, request);
-        request.finally(() => inFlight.delete(path)).catch(() => { });
+        request.then(
+            () => { if (!KEEP.test(path)) inFlight.delete(path); },  // catalog: keep the answer
+            () => inFlight.delete(path),                             // failed: allow a retry
+        );
     }
     return request;
 }
