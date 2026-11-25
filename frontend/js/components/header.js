@@ -377,7 +377,11 @@ function switchThemeAnimated(theme, origin) {
     // Freeze everything that moves (belt, ribbons, showroom...) while the circle opens.
     // Otherwise the browser has to re-capture the whole page on every frame,
     // which phones can't do smoothly.
-    const frozen = document.getAnimations().filter((animation) => animation.playState === "running");
+    // Only endless loops (belt, ribbons, spinning badge). Never the word change.
+    const frozen = document.getAnimations().filter((animation) =>
+        animation instanceof CSSAnimation &&
+        animation.playState === "running" &&
+        animation.effect?.getTiming().iterations === Infinity);
     frozen.forEach((animation) => animation.pause());
 
     // Tells the page-to-page fade (css/core/animations.css) to stay out of the way

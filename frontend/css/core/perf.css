@@ -437,3 +437,61 @@ html .product__info> :nth-child(7) {
 html .product__info> :nth-child(8) {
     animation-delay: 0.28s;
 }
+
+
+/* ==========================================================================
+   8. Phones: nothing on the home page moves forever
+   (like the category page, which is smooth). Laptops keep every animation.
+   ========================================================================== */
+@media (hover: none),
+(max-width: 820px) {
+
+    /* Product belt: a row you swipe with your finger */
+    html .hero__track {
+        animation: none;
+    }
+
+    html .belt-card[aria-hidden="true"]:not(.belt-card--loading) {
+        display: none;
+        /* the loop copies are not needed */
+    }
+
+    html .hero__belt {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+        padding-inline: var(--gutter);
+    }
+
+    html .hero__belt::-webkit-scrollbar {
+        display: none;
+    }
+
+    html .hero__belt::before,
+    html .hero__belt::after {
+        display: none;
+    }
+
+    html .belt-card {
+        scroll-snap-align: start;
+    }
+
+    /* Ribbons: same tilted look, standing still */
+    html .ribbon__track {
+        animation: none;
+    }
+
+    /* Showroom card, badge, sticker, dot, footer rings: no endless loops */
+    html .stage-card.is-center .stage-card__inner,
+    html .hero__badge-ring,
+    html .hero__pulse::after,
+    html .site-footer__top-ring,
+    html .site-footer__brand.is-animated .site-footer__orbit-track {
+        animation: none;
+    }
+
+    html .hero__sticker {
+        animation: bz-sticker-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards;
+    }
+}

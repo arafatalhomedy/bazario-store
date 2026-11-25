@@ -379,7 +379,7 @@ export function initShowroom() {
     /* ================================================================ 8. Autoplay */
     function restartAutoplay() {
         clearInterval(state.timer);
-        if (prefersReducedMotion()) return;
+        if (prefersReducedMotion() || !hasFinePointer()) return; // phones: no autoplay, the visitor swipes
         state.timer = setInterval(() => {
             const busy =
                 state.hovering ||
