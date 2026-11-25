@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Performance: same look, much less work for the browser
+   Loaded on every page by layouts/base.html
+   ========================================================================== */
+
+/* 1. Never keep content hidden waiting for JavaScript.
+      If the scripts are slow, titles and sections show anyway. */
+.js [data-split]:not(.is-split) {
+    animation: bz-failsafe 0.3s 0.6s forwards;
+}
+
+.js [data-reveal]:not(.is-visible) {
+    animation: bz-failsafe 0.3s 1.2s forwards;
+}
+
+@keyframes bz-failsafe {
+    to {
+        opacity: 1;
+    }
+}
+
+/* 2. Animations pause while their section is off screen (js/core/perf.js) */
+.is-offscreen,
+.is-offscreen *,
+.is-offscreen *::before,
+.is-offscreen *::after {
+    animation-play-state: paused !important;
+}
+
+/* 3. Phones and tablets: no frosted-glass blur.
+      It is re-painted on every frame while scrolling — the #1 cause of stutter. */
+@media (hover: none),
+(max-width: 820px) {
+
+    *,
+    *::before,
+    *::after {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    /* Keep the glass bars readable without the blur */
+    .site-header,
+    [class*="header"] [class*="bar"],
+    [class*="pill"] {
+        background-color: color-mix(in srgb, var(--color-bg) 92%, transparent);
+    }
+
+    /* Big blurred decoration: drawn once, never re-painted while scrolling */
+    [class*="glow"],
+    [class*="orb"],
+    [class*="aurora"],
+    [class*="blob"] {
+        will-change: transform;
+        contain: paint;
+    }
+}

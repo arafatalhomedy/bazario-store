@@ -7,5 +7,16 @@
     "config/wsgi.py": {
       "includeFiles": "{catalog_bundle,staticfiles}/**"
     }
-  }
+  },
+  "headers": [
+    {
+      "source": "/static/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
 }

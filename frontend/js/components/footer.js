@@ -2,6 +2,7 @@
 import { fetchCategories, fetchProducts } from "../api/products.js";
 import { averageColorWhenLoaded } from "../utils/color.js";
 import { el } from "../utils/dom.js";
+import { whenNear } from "../utils/lazy.js";
 import { prefersReducedMotion } from "../utils/motion.js";
 
 const HEADER_SPACE_PX = 120;   // room for the navbar (curtain check)
@@ -18,9 +19,13 @@ export function initFooter() {
 
     setupReveal(footer);
     footer.querySelectorAll(".site-footer__link").forEach(makeRolling);
-    loadCategoryLinks(footer);
     setupBackToTop(footer);
-    setupWordmark(footer);
+
+    // The heavier parts (category links, liquid name, coins) wait until the footer is close
+    whenNear(footer, () => {
+        loadCategoryLinks(footer);
+        setupWordmark(footer);
+    }, "600px");
 }
 
 /* ------------------------------------------------------------------ 1. Curtain reveal */

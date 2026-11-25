@@ -9,6 +9,7 @@
  *                         11. Cart count (used on Day 2)
  */
 import { fetchCategories } from "../api/products.js";
+import { whenIdle } from "../utils/lazy.js";
 import { setupProductSearch } from "./productSearch.js";
 import { el } from "../utils/dom.js";
 import { hasFinePointer, prefersReducedMotion } from "../utils/motion.js";
@@ -48,7 +49,17 @@ export function initHeader() {
 
     setupAnnouncement(header);
     setupThemeToggle(header);
-    loadCategoriesMenu(header);
+    // The categories list loads when someone opens the menu, or when the page is idle
+    let menuLoaded = false;
+    const loadMenuOnce = () => {
+        if (menuLoaded) return;
+        menuLoaded = true;
+        loadCategoriesMenu(header);
+    };
+    header.querySelector("[data-categories-menu]")?.closest("[data-dropdown]")
+        ?.addEventListener("pointerenter", loadMenuOnce, { once: true });
+    header.addEventListener("focusin", loadMenuOnce, { once: true });
+    whenIdle(loadMenuOnce);
 }
 
 /* ------------------------------------------------------------------ 1. Entrance order */

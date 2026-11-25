@@ -44,6 +44,17 @@ A page can also replace (or empty) the header and footer blocks.
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/core/perf.css' %}">
+    <script defer src="{% static 'js/core/perf.js' %}"></script>
+    <link rel="modulepreload" href="{% static 'js/components/header.js' %}">
+    <link rel="modulepreload" href="{% static 'js/components/footer.js' %}">
+    <link rel="modulepreload" href="{% static 'js/components/cartActions.js' %}">
+    <link rel="modulepreload" href="{% static 'js/animations/splitText.js' %}">
+    <link rel="modulepreload" href="{% static 'js/animations/magnetic.js' %}">
+    <link rel="modulepreload" href="{% static 'js/utils/dom.js' %}">
+    <link rel="modulepreload" href="{% static 'js/utils/motion.js' %}">
+    <link rel="modulepreload" href="{% static 'js/api/client.js' %}">
+    <link rel="modulepreload" href="{% static 'js/api/cart.js' %}">
 
     <!-- Styles and script for this page only -->
     {% block page_css %}{% endblock %}

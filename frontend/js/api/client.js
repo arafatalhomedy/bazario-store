@@ -5,8 +5,11 @@
  * - Adds the CSRF security token to requests that change data
  * - Sends the session cookie (so the server knows the visitor's cart)
  * - Turns server errors into a clear ApiError
+ * - If several parts of the page ask the SAME question at the same time,
+ *   only one request goes to the server and they all share the answer
  */
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"]; // read-only, no CSRF token needed
+const inFlight = new Map();                         // GET path → the request already on its way
 
 /** Error with the HTTP status and the server's response data. */
 export class ApiError extends Error {
@@ -28,7 +31,20 @@ function getCookie(name) {
  * Send a request to the backend and return the JSON answer.
  * Example: await apiRequest("/api/categories/")
  */
-export async function apiRequest(path, { method = "GET", body, signal } = {}) {
+export function apiRequest(path, { method = "GET", body, signal } = {}) {
+    // Same read-only question already on its way? Share it instead of asking again.
+    const shareable = method === "GET" && !signal && body === undefined;
+    if (shareable && inFlight.has(path)) return inFlight.get(path);
+
+    const request = send(path, { method, body, signal });
+    if (shareable) {
+        inFlight.set(path, request);
+        request.finally(() => inFlight.delete(path)).catch(() => { });
+    }
+    return request;
+}
+
+async function send(path, { method, body, signal }) {
     const headers = { Accept: "application/json" };
     const options = { method, headers, signal, credentials: "same-origin" };
 
