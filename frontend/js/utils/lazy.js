@@ -41,6 +41,6 @@ export function revealOnScroll(elements) {
             entry.target.classList.add("bz-in");
             observer.unobserve(entry.target);
         });
-    }, { threshold: 0.12 });
+    }, { threshold: 0 }); // starts the moment the first pixel is on screen
     list.forEach((element) => observer.observe(element));
 }

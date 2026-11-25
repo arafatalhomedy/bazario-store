@@ -5,6 +5,9 @@
  * 2. Phones: only the product photo flight (card → product page) uses a page
  *    transition. Every other link opens instantly, so the screen never freezes
  *    while the next page loads.
+ * 3. Phones: while the finger is scrolling, decorations (belt, ribbons, floating
+ *    card, spinning badge) pause, so the phone only has to move the page.
+ *    They continue a moment after scrolling stops (css/core/perf.css).
  */
 (function () {
     /* ---------- 1. Pause off-screen animations ---------- */
@@ -34,4 +37,17 @@
         const flying = document.querySelector('[style*="view-transition-name: product-photo"]');
         if (!flying) event.viewTransition.skipTransition();
     });
+
+    /* ---------- 3. Phones: decorations rest while scrolling ---------- */
+    const root = document.documentElement;
+    let restTimer = 0;
+    window.addEventListener("scroll", () => {
+        if (!phone.matches) return;
+        if (!restTimer) root.classList.add("is-scrolling");
+        clearTimeout(restTimer);
+        restTimer = setTimeout(() => {
+            root.classList.remove("is-scrolling");
+            restTimer = 0;
+        }, 160);
+    }, { passive: true });
 })();
