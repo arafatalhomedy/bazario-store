@@ -1,10 +1,16 @@
 /* ==========================================================================
    Performance: same look, much less work for the browser
    Loaded on every page by layouts/base.html
+   1. Safety: content never stays hidden
+   2. Off-screen animations pause
+   3. All devices
+   4. Laptops only (mouse effects)
+   5. Phones and tablets
+   6. Scroll reveal
+   7. Fast feel: quick opening animations
    ========================================================================== */
 
-/* 1. Never keep content hidden waiting for JavaScript.
-      If the scripts are slow, titles and sections show anyway. */
+/* ---------- 1. Never keep content hidden waiting for JavaScript ---------- */
 .js [data-split]:not(.is-split) {
     animation: bz-failsafe 0.3s 0.6s forwards;
 }
@@ -19,7 +25,7 @@
     }
 }
 
-/* 2. Animations pause while their section is off screen (js/core/perf.js) */
+/* ---------- 2. Animations pause while their section is off screen (js/core/perf.js) ---------- */
 .is-offscreen,
 .is-offscreen *,
 .is-offscreen *::before,
@@ -28,11 +34,10 @@
 }
 
 /* ==========================================================================
-   3. All devices (laptop + phone)
+   3. All devices
    ========================================================================== */
 
-/* Header light: 2 turns when the page opens, then rests.
-   Runs again while the mouse is on the header. */
+/* Header light: 2 turns when the page opens, then rests (runs again on hover) */
 html .site-header__bar::before {
     animation: beam-spin 4s linear 2;
 }
@@ -41,44 +46,82 @@ html .site-header__bar:hover::before {
     animation: beam-spin 4s linear infinite;
 }
 
-/* Header glass: lighter blur, much cheaper to draw while scrolling */
+/* Header glass: lighter blur, cheaper to draw while scrolling */
 html .site-header__bar {
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
 }
 
-/* Hero mouse glow: one glow shape slides around instead of
-   re-painting the whole hero background on every mouse move */
-html .hero {
-    background: none;
+/* Title letters rise, then go back to normal text
+   (they don't stay separate layers forever) */
+html .split-char {
+    transform: none;
+    animation-name: bz-char-up;
+    animation-duration: 0.6s;
+    animation-fill-mode: backwards;
+    animation-delay: calc(var(--char-index, 0) * 18ms + var(--split-delay, 0.05s));
 }
 
-html .hero::before {
-    content: "";
-    position: absolute;
-    z-index: -2;
-    left: 0;
-    top: 0;
-    width: 1120px;
-    height: 1120px;
-    margin: -560px 0 0 -560px;
-    border-radius: 50%;
-    background: radial-gradient(closest-side,
-            color-mix(in srgb, var(--color-accent) 18%, transparent),
-            transparent 70%);
-    transform: translate3d(var(--spot-x, 75vw), var(--spot-y, 240px), 0);
-    transition: transform 0.25s ease-out;
+@keyframes bz-char-up {
+    from {
+        transform: translateY(110%);
+    }
+}
+
+/* Ribbons: the outer area already hides the edges,
+   so the tilted ribbon doesn't need to cut off its moving strip */
+html .ribbon {
+    overflow: visible;
+}
+
+html .ribbon__track {
     will-change: transform;
-    pointer-events: none;
 }
 
 /* ==========================================================================
-   4. Phones and tablets
+   4. Laptops only: effects that follow the mouse
+   ========================================================================== */
+@media (hover: hover) and (min-width: 821px) {
+
+    /* Hero glow: one shape slides with the mouse
+       instead of re-painting the whole hero on every move */
+    html .hero {
+        background: none;
+    }
+
+    html .hero::before {
+        content: "";
+        position: absolute;
+        z-index: -2;
+        left: 0;
+        top: 0;
+        width: 1120px;
+        height: 1120px;
+        margin: -560px 0 0 -560px;
+        border-radius: 50%;
+        background: radial-gradient(closest-side,
+                color-mix(in srgb, var(--color-accent) 18%, transparent),
+                transparent 70%);
+        transform: translate3d(var(--spot-x, 75vw), var(--spot-y, 240px), 0);
+        transition: transform 0.25s ease-out;
+        will-change: transform;
+        pointer-events: none;
+    }
+}
+
+/* ==========================================================================
+   5. Phones and tablets
    ========================================================================== */
 @media (hover: none),
 (max-width: 820px) {
 
-    /* No frosted-glass blur: it is re-painted on every frame while scrolling */
+    /* No page-to-page animation: it froze the screen until the next page
+       was fully ready. Pages open the moment they arrive. */
+    @view-transition {
+        navigation: none;
+    }
+
+    /* No frosted-glass blur: re-painted on every frame while scrolling */
     *,
     *::before,
     *::after {
@@ -86,38 +129,9 @@ html .hero::before {
         backdrop-filter: none !important;
     }
 
-    /* Keep the glass bars readable without the blur */
-    .site-header,
-    [class*="header"] [class*="bar"],
-    [class*="pill"] {
+    /* Header bar stays readable without the blur */
+    html .site-header__bar {
         background-color: color-mix(in srgb, var(--color-bg) 92%, transparent);
-    }
-
-    /* Big blurred decoration: drawn once, never re-painted while scrolling */
-    [class*="glow"],
-    [class*="orb"],
-    [class*="aurora"],
-    [class*="blob"] {
-        will-change: transform;
-        contain: paint;
-    }
-
-    /* No page-to-page animation on phones: it froze the screen until the
-       next page was fully ready. Pages now open the moment they arrive. */
-    @view-transition {
-        navigation: none;
-    }
-
-    /* Instant feedback when the big showroom card is tapped */
-    .stage-card.is-center:active .stage-card__inner {
-        transform: scale(0.96);
-        transition: transform 0.12s ease-out;
-    }
-
-    /* (laptops keep the photo flight between pages) */
-    html:not(.is-theme-switching)::view-transition-old(root),
-    html:not(.is-theme-switching)::view-transition-new(root) {
-        animation: none;
     }
 
     /* Header light stays still */
@@ -127,31 +141,94 @@ html .hero::before {
         --beam-angle: 140deg;
     }
 
-    /* Small pulsing dot in the hero: no repaint loop */
+    /* Hero: small pulsing dot without a repaint loop, rotating word without blur */
     .hero__pulse {
         animation: none;
     }
 
-    /* Hero rotating word: slide + fade only, no blur */
     .hero__word,
     .hero__word.is-leaving {
         filter: none;
     }
 
-    /* Showroom glow: the gradient is already soft, the blur is extra work */
-    .stage__glow {
-        filter: none;
+    /* Product belt: faded edges drawn once on top,
+       instead of being recalculated on every frame */
+    html .hero__belt {
+        -webkit-mask-image: none;
+        mask-image: none;
+        position: relative;
     }
 
-    /* Ribbons focus mode: dim other words, no blur */
+    html .hero__belt::before,
+    html .hero__belt::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 2;
+        width: 8%;
+        pointer-events: none;
+    }
+
+    html .hero__belt::before {
+        left: 0;
+        background: linear-gradient(90deg, var(--color-bg), transparent);
+    }
+
+    html .hero__belt::after {
+        right: 0;
+        background: linear-gradient(270deg, var(--color-bg), transparent);
+    }
+
+    /* Ribbons: flat coins (the 3D flip only happens with a mouse),
+       dimmed words without blur */
+    html .ribbon__coin {
+        transform-style: flat;
+        transition: none;
+    }
+
+    html .ribbon__item.is-active .ribbon__coin {
+        transform: none;
+    }
+
+    html .ribbon__coin-front {
+        backface-visibility: visible;
+        -webkit-backface-visibility: visible;
+    }
+
+    html .ribbon__coin-back {
+        display: none;
+    }
+
     .ribbons.is-focused .ribbon__item:not(.is-active),
     .ribbons.is-focused .ribbon__star {
         filter: none;
     }
+
+    /* Showroom: side cards fade (no blur), no mirror, no mouse light, soft glow without blur */
+    html .stage-card {
+        filter: none;
+        -webkit-box-reflect: none;
+        transition: transform 0.85s var(--ease-out), opacity 0.6s;
+    }
+
+    html .stage-card__shine {
+        display: none;
+    }
+
+    .stage__glow {
+        filter: none;
+    }
+
+    /* Instant feedback when the big showroom card is tapped */
+    .stage-card.is-center:active .stage-card__inner {
+        transform: scale(0.96);
+        transition: transform 0.12s ease-out;
+    }
 }
 
 /* ==========================================================================
-   Scroll reveal: sections slide and fade in when they reach the screen
+   6. Scroll reveal: sections slide and fade in when they reach the screen
    ========================================================================== */
 .bz-reveal {
     opacity: 0;
@@ -178,7 +255,7 @@ html .hero::before {
 }
 
 /* ==========================================================================
-   Fast feel: same opening animations, but quick
+   7. Fast feel: same opening animations, but quick
    (pages finish appearing in ~0.6 s instead of ~2 s)
    ========================================================================== */
 
@@ -187,15 +264,11 @@ html .enter-up {
     animation-duration: 0.55s;
 }
 
-html .split-char {
-    animation-duration: 0.6s;
-    animation-delay: calc(var(--char-index, 0) * 18ms + var(--split-delay, 0.05s));
-}
-
-html .js [data-reveal] {
+html.js [data-reveal] {
     transition-duration: 0.55s;
 }
 
+/* Page-to-page fade (laptops) */
 html:not(.is-theme-switching)::view-transition-old(root) {
     animation-duration: 0.2s;
 }
@@ -280,74 +353,4 @@ html .product__info> :nth-child(7) {
 
 html .product__info> :nth-child(8) {
     animation-delay: 0.28s;
-}
-
-/* Ribbons: the outer area already hides the edges, so the tilted ribbon
-   doesn't need to cut off its moving strip (that was dropping frames) */
-html .ribbon {
-    overflow: visible;
-}
-
-html .ribbon__track {
-    will-change: transform;
-}
-
-/* ==========================================================================
-   Phones: smooth scrolling on the home page
-   (heavy drawing effects replaced by light ones that look almost the same)
-   ========================================================================== */
-@media (hover: none),
-(max-width: 820px) {
-
-    /* Hero glow: no mouse on phones, so a still glow (drawn once) */
-    html .hero::before {
-        display: none;
-    }
-
-    html .hero {
-        background: radial-gradient(560px circle at 75% 30%,
-                color-mix(in srgb, var(--color-accent) 18%, transparent),
-                transparent 70%);
-    }
-
-    /* Product belt: faded edges drawn once on top,
-       instead of being recalculated on every frame */
-    html .hero__belt {
-        -webkit-mask-image: none;
-        mask-image: none;
-        position: relative;
-    }
-
-    html .hero__belt::before,
-    html .hero__belt::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        z-index: 2;
-        width: 8%;
-        pointer-events: none;
-    }
-
-    html .hero__belt::before {
-        left: 0;
-        background: linear-gradient(90deg, var(--color-bg), transparent);
-    }
-
-    html .hero__belt::after {
-        right: 0;
-        background: linear-gradient(270deg, var(--color-bg), transparent);
-    }
-
-    /* Showroom: side cards fade (no blur) and no mirror reflection */
-    html .stage-card {
-        filter: none;
-        -webkit-box-reflect: none;
-        transition: transform 0.85s var(--ease-out), opacity 0.6s;
-    }
-
-    /* Mouse light on the centre card: there's no mouse on phones */
-    html .stage-card__shine {
-        display: none;
-    }
 }
